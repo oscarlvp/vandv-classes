@@ -1,0 +1,414 @@
+== Introduction
+
+Software has become omnipresent in our daily lives. Some people say that "`software is eating the world`" <<andreessen2011why>>. Nowadays, we depend more and more on the Internet and the Web, which are powered by complex interconnected software systems. We trust software to predict the weather, to guard our bank accounts and to order pizza.Through software we communicate with other people and share our photos. We listen to music and watch films through streaming services. 
+
+Due to its omnipresence there are consequences when software is not properly verified. In some cases, a software failure has no other repercusion than a hilarious "blue screen of death" in an advertising screen. But, software bugs may also cost important ammounts of money, they may undermine the reputation of companies and, in some extreme cases, they might even cost human lives. 
+
+This course will briefly introduce some of the most relevant techniques and tools in use and under research for software verification.
+
+=== What is a bug?
+
+The term, in informatics, has been usually attributed to Grace Hooper. She was involved in the programming and operation of the Mark II, an electromechanical computer of 23 tons and the size of a room. She was also the creator of the first compiler and the only woman to be ranked admiral in the U.S. Navy. Her group traced a malfunction to a moth in one of the relays of the machine. This is the first documented case of a computer bug. The moth was included in one of the notebooks that were used to log the computer's operation. It can be seen nowadays at the Smithsonian Institution's National Museum of American History in Washington D.C. However, some historians say that Thomas Alva Edison already used the term for somethign silimar in his inventions <<wikipedia2020bug>>.
+
+[#img-bug.text-center]
+.First known case of an actual bug! _Photo taken from Wikipedia._
+image::first-bug.jpg[First bug, 300]
+
+When developing a software product, engineers should follow a set of requirements which are called the product specification. In whatever format it is presented, the specification should describe the features of the product (functional requirements): e.g.: the program should open a document, save it, etc. and its constraints (non-functional requirements): e.g.: should be secure, easy to use, fast <<mancoridis2018slides>>.
+
+Then, a bug appears when the software does not match the requirements: it does not perform correctly a functional requirement, like saving a document, or does something that should not do according to these requirements like closing the window when the maximize button is pressed or when it violates non-functional constraints, e. g., it is too slow.
+
+Three general terms are related to the concept of bugs <<ghahrai2018error>>:
+
+Error, Mistake:: a human action that produces an incorrect result. Also called a *mistake*.
+Fault, Defect, Bug:: a manifestation of an error in software. It is a flaw or imperfection found within the code <<moller1993empirical>>.
+Failure:: a deviation of the software from its expected delivery or service.
+An error leads to a fault and a fault leads to a failure when the software is in production. A failure is the manifestation of a bug.
+
+A bug may come from very different sources. Some of them could be traced to a very localized and specific part of the code. Other may have a global scope as they arise from the interaction of several of the components that conform the system.
+
+
+==== Local bugs and some famous cases
+
+Local bugs can be traced to very specific code locations. They can be originated from multiple types of errors such as:
+* Omission of potential cases _e.g._ not considering that negative numbers could be used in certain operations
+* Lacks of checks _e.g._ check if the parameter is `null` or the divisor must be other than zero
+* Wrong conditions _e.g._ using the wrong comparison operator
+* Wrong approximations _e.g._ wrong values due to type conversions or using the wrong partial results
+
+In the next sections we present some famous local bugs and briefly inspect their causes.
+===== The case of Zune
+
+_Zune 30_, was released to the public in November 2006. It was the first portable media player released by Microsoft. Suddenly, on December 31^st^ 2008, all Zune devices hang and stopped working. The problem was traced back to a piece of code in the firmware equivalent to the following snippet:
+
+[source,java]
+----
+while (days > 365) {
+    if (IsLeapYear(year)) { // <1>
+        if (days > 366) {   // <2>
+            days -= 366;    // <3>
+            year += 1;      // <4>
+        }
+    }
+    else {
+        days -= 365;
+        year += 1;
+    }
+}
+----
+<1> On December 31^st^, 2008 `year` was 2008 and `days` 366 so `isLeapYear(year)` evaluated to `true`.
+<2> Since `days` was 366 `days > 366` evaluated to `false`. This is the error that caused the bug, it should have been `>=`.
+<3> <4> These instructions were not executed, so the values of `year` and `days` do not change and the loop never ends.
+
+By the next day, `days` would be 367 and the code would run perfectly. So Zune devices stop working on December 31^st^ of every leap year.
+
+The error was not on Microsoft's part. The code was written by another company for the clock chip. This bug is also an example of insufficient testing. Having tested the code with the right date, the bug could have been fixed before the release of the product.
+
+===== Heartbleed
+
+*Heartbleed* is a software vulnerability disclosed in April 2014 that granted attackers access to sensitive information. It was caused by a flaw in OpenSSL, an open source code library implementing the Transport Layer Security and Secure Sockets Layer protocols.
+
+As part of these protocols, a computer should send a *heartbeat*, an encrypted message that the receiver should replay back, to keep the connection alive. The *heartbeat* contains information about its own length. The code for the receiver never verified that the message had the specified length. To answer, it should allocate a memory buffer to store the content of the *heartbeat*. If the message was longer, then there is a buffer overflow and the computer would send more data than requested <<fruhlinger2017what>>. 
+
+The webcomic https://xkcd.com/[XKCD] explains tihs vilnerability in a very intuitive manner. See <<heartbleed-xkcd>>. 
+
+[[heartbleed-xkcd, a more intuitive explanation by XKCD]]
+[.text-center]
+.Heartbleed explanation by XKCD https://xkcd.com/1354/
+image::heartbleed.png[Heartbleed, 400]
+
+In <<heartbleed-source>> you can see a fragment of the code containing the bug.
+
+[[heartbleed-source, the concerned source code]]
+[source,c]
+.Heartbleed source code
+----
+...
+n2s(p, payload); // <1>
+...
+buffer = OPENSSL_malloc(1 + 2 + payload + padding); // <2>
+bp = buffer;
+...
+memcpy(bp, pl, payload); // <3>
+...
+s->msg_callback(1, s->version, TLS1_RT_HEARTBEAT,  // <4>
+	buffer, 3 + payload + padding,
+	s, s->msg_callback_arg);
+----
+<1> Read payload length into `payload`.
+<2> Allocate memory.
+<3> Copy the payload and extra information as `payload` maybe larger than required.
+<4> Send the data back.
+
+===== Other interesting examples
+
+The USS Yorktown (CG-48) cruiser was selected in 1996 as the testbed for the _Smart Ship_ program. The ship was equipped with a network of several 200 MHz Pentium processors. The computers abroad the ship ran Windows NT 4.0 and executed applications to run the control center, monitor the engines and navigate the ship. In September 21^st^ 1997 a crew member entered a zero into a database field causing a division by zero that resulted in a buffer overflow, which, in turn, made the propulsion system fail. The ship was dead for several hours and had to be towed back to port <<slabodking1998software>>.
+
+The _Patriot_ missile defense system was able to track the trajectory of enemy projectiles and intercept them. The system stored the clock time in an integer that was converted to a fixed point number and multiplied by 1/10 to produce the time in seconds for the tracking estimation. The computation was performed in a 24-bit fixed point register and the time value was truncated. This would produce an error proportional to the uptime of the system (_i.e._ it grows in time). Apart from that, the system was updated several times to improve the conversion routine, but the patch was not placed in all the required locations. On February 25^th^, 1991 one of these Patriot batteries failed to intercept an Iraqi Scud missile. The battery had been up for 100 hours and the chopping error was around 0.34 seconds. Since a Scud travels at 1.676 m/s it reaches more than a half kilometer in this time. The Scud struck an American Army barracks killing 28 soldiers and injuring around 100 other people <<arnold2000patriot>>.
+
+The Chemical Bank deducted by error about $15 million from more than 100000 customers in one night. The problem was caused by a line of code that should not be executed until further changes were made to the system. This line sent a copy of every ATM transaction to the machine processing paper checks. This caused that every transaction was deducted twice <<hansell1994glitch>>. 
+
+==== Global bugs and famous cases
+
+Rather than coming from a specific and localized error, some bugs may emerge from the interactions of the modules that compose the system. This evidences that the whole is more than the mere sum of its parts.
+
+Some sources of global bugs could be:
+
+* Wrong assumptions about third party components
+* Errors in the reuse of code. For example, using the code for an environment or an architecture for which it was not designed.
+* Concurrency bugs, that lead to race conditions and deadlocks by incorrectly assuming certain order of execution.
+* Improbable or unforeseen interactions between hardware, software and users.
+
+===== Race conditions and the Northeast blackout of 2003
+
+A race condition appears when the output of a system depends on the sequence or timing of other uncontrollable events. This may lead to a bug when not carefully considering its effects. For example, in a multithreaded application, a piece of code may be (wrongly) assumed to run before another.
+
+Consider the following snippet of a Java applet:
+
+[source,java]
+----
+public class SimpleApplet extends Applet {
+
+    Image art;
+    public void init() { // <1>
+        art = getImage(getDocumentBase(), getParameter("img"));
+    }
+
+    public void paint(Graphics g) { // <2>
+        g.drawImage(art, 0, 0, this); // <3>
+    }
+
+}
+----
+<1> `init` initializes `art`, if it is not invoked, then `art` is `null`.
+<2> `paint` could be invoked before invoking `init`.
+<3> If `paint` is invoked before `init` `art` is `null` which produces an error in this line.
+
+To prevent this race condition the code of `paint` should not assume that `art` will always point to an instance. To deal with this race condition it is enough to check if `art` is `null` or not.
+
+On August 14^th^, 2003 the alarm of FirstEnergy (an electric utility in Akron, Ohio) should have alerted about an overload in the electricity transmission lines. A race condition stalled the alarm and the primary sever went down. A backup server started processing all demands and also went down after 13 minutes. With both servers down, the information being shown in the screens passed from a refresh rate of 1 to 3 seconds to 59 seconds. The operators were not aware of the actual condition of the grid and the system collapsed affecting an estimated of 50 million people.
+
+WARNING: You may find an image circulating the Internet that is supposed to show a satellite view of this blackout. The image is in fact fake.
+
+===== Ariane 5
+
+The _Ariane 5_ test launch is one of the most referenced examples of the impact that a software bug can have. On June 4^th^ 1996, the rocket was launched by the European Space Agency from the French Guiana. After 40 seconds and at an altitude of more than 3700 meters the rocket exploded.
+
+In <<jezequel1997design>> the authors explain that, before liftoff, certain computations are performed to align the  Innertial Reference System (SRI). These computations should cease at -9 seconds from the launching sequence. But, since there is a chance that a countdown could be put on hold and because resetting the SRI could take several hours, it was better to let the computation proceed than to stop it. The SRI continues for 50 seconds after the start of flight mode. After takeoff this computation is useless. Yet they caused and exception which was not caught and produced the explosion of the rocket.
+
+Part of the software was reused from _Ariane 4_. It used 16-bit floating point number, while _Ariane 5_ used 64-bit. The conversion of a greater value caused the exception. The fact that this module used 16-bit floating point numbers was not documented in the code. The trajectory of _Ariane 5_ differed from that of _Ariane 4_. The former had considerably higher horizontal velocities that produced values above the initial range. This was the first launch after a decade of development with an estimated cost of $7 billion plus the rocket and cargo estimated in $500 million.
+
+===== The Mars Climate Orbiter
+
+The Mars Climate Orbiter probe crashed when entering the orbit of Mars. The caused was tracked to the fact that one team was using the metric units and another team was using the Imperial Unit System units. The loss was estimated in US$235.9 million <<ceguerra2001software>>. 
+
+=== Why is it so hard to build correct software?
+
+Software inevitably fails. The causes for this are widely variaed and may occur at very different levels. No domain related to software escapes from this fact. A failure can have multiple consequences even human lives. But why is it to hard to build correct software?
+
+First of all, programs are very complex artifacts, even those we may consider simple or trivial.
+
+The following snippet shows a very short algorithm:
+
+.Will the alarm shound for all given inputs?
+[source,python]
+----
+n = input()
+while n > 1:
+    if n%2 == 0:
+        n = n / 2
+    else:
+        n = 3*n+1
+sound_alarm()
+----
+
+Is it possible to show that the alarm will sound for every value of `n`?
+For this particular example one could try to devise a proof. But good luck with that! Mathematicinans have been trying to do it since 1937 with no success. This is, in fact, an implementation of what is known as the link:https://en.wikipedia.org/wiki/Collatz_conjecture[Collatz  conjecture].
+
+One could also try to verify the program for every possible input, but this is impossible in the general case.
+For this particular example, let use assume that `n` is a 32-bits unsigned integer, then we have 2^32^ possible inputs, that is `4294967296` cases for a very simple code of barely 7 lines of code. If the computation of every input takes on average `2.78e-06` seconds, then we will spend 3 hours finding out the result, if the function stops for every input. 3 hours for 7 lines of code!
+
+The general case of determining if a procedure halts when given an specific input is undecidable. This problem is known as the *Halting Problem* <<turing1936computable>>. 
+
+Suppose that it is possible to write a function `halts` that tells whether a given function `f` halts when given an input `x`. That is, `halts` returns `True` if `f` halts when invoked with `x` as input.
+
+[source,python]
+----
+def halts(f, x):
+    ...
+----
+
+If the `halts` function exists, then we can create another function, `confused`, that will loop forever if `halts` returns `True`.
+
+[source,python]
+----
+def confused(f):
+    if halts(f, f): # <1>
+        while True:
+            pass
+    else:
+        return False
+----
+
+If we try to compute `confused(confused)`, `halts(f, f)` is equivalent to `halts(confused, confused)`. If this evaluates to `True`, then it means that `confused(consfused)` halts, but then the procedure enters in an infinite loop and so, in fact, `confused(confused)`, which is what we are evaluating in the first time, does not halt. On the other hand, if the condition is `False`, it means that `confused(confused)` does not halt, but then, the procedure halts.
+
+Therefore, `confused(confused)` halts if and only if `confused(confused)` does not halt, which is a contradition, so `halts` does not exist. This means that, in the general case, we can not prove that a program will halt for a given input. 
+
+Proving the correctness of a program is also a very difficult task. There are formal methods to try to achieve this, but they rely on mathematical models of the real world that might make unrealistic assumptions and, as abstractions, are different from the real machines in which programs execute.
+
+Software is, of course, much more complex than the small functions we have seen so far. As an example, notice that the number of lines of code has increased exponentially in time (though not always in sync with the complexity of the task that the program should achieve), just take a look at the following <<loc>>:
+
+[[loc,comparison]]
+[#loc.text-center]
+.Comparison in lines of code. Image taken from <<johnson2012curiosity>>
+image::loc.jpg[Lines of code, 600]
+
+The software of the Apollo 11 Guidance Computer had 145,000 lines of code, while NASA's Curiosity rover was programmed with 2.5M lines of code. Clippy on the other hand, had more than 100M lines of code.
+
+Projects such as the Linux Kernel, have triplicated their size in 10 years:
+
+[#kernel.text-center]
+.Increment of lines of code in the Linux kernel.
+image::kernel.png[LOCs Linux kernel, 600]
+
+Firefox contains more than 36M lines of code and Chromium more than 18M. More statistics can be found link:https://www.openhub.net/[here]. 
+
+
+The complexity of software does not come only from its size. For example, in both, Firefox and Chromium developers use more than 15 different programming languages at the same time.
+
+Open source software also grows in complexity as the number of contributors increases. The Firefox project, for example, have had 6477 contributors and 996214 commits as for February 2018.
+
+Also, most software is expected to run in multiple hardware platforms. Probably the most dramatic scenario in this sense comes from the mobile world. By August 2015 the OpenSignal company reported the existence of 24,093 different Android devices from 1294 distinct brands <<opensignal2015android>>. Android applications are expected to run correctly in all of them. 
+
+Software is also present in systems with real-time computing constraints and sometimes implementing critical functionalities. For example, mp3 players, microwave ovens, GPS devices, medical equipments for vital sign monitoring, avionics (inertial guiding systems), automobiles, fire security systems and the list may go on. As a side note, a car nowadays contains more than 100M lines of code (mostly devoted to the entertainment system).
+
+Software is not a static artifact that we release in production and leave as it is. It needs to be maintained over time. For example, Windows 95, was released to manufacturing on August 15^th^, 1995, it latest release was published on November 26^th^ 1997. However, its mainstream mainstream support ended on December 31^st^, 2000 while the extended support ended on December 31^st^, 2001, that is 5 and six years after its latest release. On its side, Windows 7 was released to manufacturing in July 22^nd^, 2009, support ended on January 14^th^, 2020 and the extended support for professional users should end on January 10^th^ 2023 and most of us are not using it.
+
+Back in 1997 almost 80% of the world's business ran on COBOL with over 200 billion lines of code and 5 billion lines more being written annually. COBOL appeared in 1959. Most banks still have systems running on COBOL but the migration to more modern systems is risky. In 2012 the Commonwealth Bank of Australia replaced its core banking platform to modernize their system. The change ended up costing around 750 million dollars, which is why many banks have opted for trying to keep their COBOL systems going. Today there are 75-, 60-years-old consultants providing support for COBOL systems in banks. In the recent Covid-19 crisis, the state of New Jersey in the U. S. requested COBOL programmers to deal with the 40-years old system to handle the huge amount of unemployment claims they received.
+
+The software development process itself could be sometimes rather complex. There are many methodologies about how to build software, and they could even change during the creation of a new product.
+
+So, the complexity of software may come from its requirements, its size, the number of technologies involed on its creation the number of people working on its implementation and even the development process.
+
+=== How to build reliable software?
+
+This is a difficult question and there is no easy answer. Systematically validating and verifying software as it is being built and maintained can lead to fewer bugs. *Verification* is the is the process in which we answer _Are building the product right?_, that is if the software conforms to its specification. *Validation* answers _Are we building the right product?_. In this sense  we check that the implemented product meets the expectation of the user. 
+
+There are three main general approaches to construct reliable software:
+
+Constructive approach:: Involves formal modeling. It guarantees the reliability and correctness by construction.
+Analytical approach:: Involves techniques to analyze the program in order to detect and fix errors.
+Fault-tolerance:: Admits the presence of errors and enhance the software with fault-tolerance mechanisms.
+
+
+==== Constructive approach
+
+The constructive approach tries to guarantee the absence of bugs by construction. It involves the manual or automatic formal proof of all components of the system. It is usually based on logical modeling and reasoning and used on specific parts of critical softwave.
+
+Constructive approaches may use tools such as link:https://coq.inria.fr/[_Coq_], a language to express assertions and mechanically check formal proofs or link:https://isabelle.in.tum.de/overview.html[_Isabelle_] an interactive theorem prover. The following <<coq-example>> shows how to use Coq to proof a property for a function.
+
+[[coq-example, small example]]
+[source,coq]
+.Small example of a proof achieved with the help of Coq. Taken from https://github.com/coq/coq/wiki/Quick-Reference-for-Beginners
+----
+Module TreeExample.
+
+  Inductive tree : Type := <1>
+  | Leaf : tree
+  | Node : tree -> tree -> tree
+  .
+
+  Check Node.
+
+  (* This tree looks like:
+          x
+         / \
+        x   x
+       / \
+      x   x
+   *)
+  Definition small_tree : tree := <2>
+    Node (Node Leaf Leaf) Leaf.
+
+  Definition is_leaf (t : tree) : bool := <3>
+    match t with
+    | Leaf => true
+    | Node x y => false
+    end.
+
+  Fixpoint depth (t : tree) : nat := <4>
+    match t with
+    | Leaf => 0
+    | Node l r => S (max (depth l) (depth r)) (* Succesor of the  *)
+    end.
+
+  Lemma depth_positive : <5>
+    forall t : tree, 0 < depth t \/ is_leaf t = true.
+  Proof.
+    induction t.
+    { 
+      cbv [depth is_leaf]. (* Inline the depth and is_leaf definitions *)
+      right. (* Right side of the lemma is false *)
+      reflexivity. (* Reflexivity to prove true = true *)
+    }
+    { 
+      cbn [depth is_leaf]. (* Include, but do not overwrite depth and is_leaf *)
+      left. (* Left side of the lemma is false, therefore is an intermediate node *)
+      lia. (* The successor S of a natural number is always positive *)
+    }
+  Qed.
+----
+<1> Definition of a tree type
+<2> Creating an instance of tree with three leaves and two intermediate nodes
+<3> Defining `is_leaf` which tells whether the given tree is a leaf or not
+<4> Defining a function to compute the depth of a leaf
+<5> Defining and proving a lemma stating that the depth of a tree is positive when the tree is not a leaf
+
+It is possible to extract executable programs from these Coq definitions and there are additional extensions and tools to apply this methodology to other programming languages.
+
+link:http://compcert.inria.fr/[_CompCert_] is the first formally verified C compiler, but it is not bug-free even when a lot of effort has been invested into its formal verification. As said before, the main problem with formal proofs comes from the assumptions they make to abstract the real world. The following quote explains the reason behind a bug found in _CompCert_:
+
+[quote, https://news.ycombinator.com/item?id=11905706]
+____
+The problem is that the 16-bit displacement field is overflowed. CompCert’s PPC semantics failed to specify a constraint on the width of this immediate value, on the assumption that the assembler would catch out-of-range values. In fact, this is what happened. We also found a handful of crash errors in CompCert. 
+____
+
+Constructive approaches may also involve a form of model checking. These approaches represent the system as a formal behavioral model, usually transition systems or automata. The verification of these models is made with an exhaustive search on the entire state space. The specification of these models are written with the help of logic formalisms. The exhasutive search is directed to verify properties the system must have, for example, the absence of deadlocks. Model checking is used in hardware and software verification and in most cases they are performed at the system level. They find application in defense, nuclear plants and transportation.
+
+The following diagram shows a model of the functioning of a microwave oven as a https://en.wikipedia.org/wiki/Kripke_structure_(model_checking)[Kripke structure]. (Adapted from https://www.dsi.unive.it/~avp/14_AVP_2013.pdf). The model includes first order propositions that characterize the states of the system and a transitional relationship between the states.
+
+[graphviz, microwave, png]
+.Model of a miccrowave-oven. Adapted from https://www.dsi.unive.it/~avp/14_AVP_2013.pdf 
+....
+digraph {
+    node [shape=record];
+    
+    s1[label="{!START|!CLOSE|!HEAT|!ERROR}"];
+    s2[label="{ START|!CLOSE|!HEAT| ERROR}"];
+    s3[label="{!START| CLOSE|!HEAT|!ERROR}"];
+    s4[label="{!START| CLOSE| HEAT|!ERROR}"];
+    s5[label="{ START| CLOSE|!HEAT| ERROR}"];
+    s6[label="{ START| CLOSE|!HEAT|!ERROR}"];
+    s7[label="{ START| CLOSE| HEAT|!ERROR}"];
+
+    s1 -> s2 [label="start oven"];
+    s1 -> s3 [label="close door"];
+    s2 -> s5 [label="close door"];
+    s3 -> s1 [label="open door"];
+    s3 -> s6 [label="start oven"];
+    s4 -> s1 [label="open door"];
+    s4 -> s3 [label="done"];
+    s4 -> s4 [label="cook"];
+    s5 -> s2 [label="open door"];
+    s5 -> s3 [label="reset"];
+    s6 -> s7 [label="warmup"];
+    s7 -> s4 [label="start cooking"];
+}
+....
+
+These models can be used to generate concrete code that, for example, would be embedded in specific hardware and it is possible to verify the state of the system at random inputs and even prove or falsify properties, such as, that for every input the heat is not on while the door is open. 
+
+==== Analytical approach
+
+This approach is directed to find the presence of bugs in the system. It is regularly based on heuristics that could help to explore more efficiently the problem space. It can target all kinds of software artefacts: code, models, requirements, etc. Its more used variant is software testing. Testing presents, nowadays, the best trade-off between effort and result when it comes to the validation and verification of a software product. It will be the main focus of this course.
+
+Bertrand Meyer proposes seven principles of testing <<meyer2008seven>>:
+
+Principle 1: To test a program is to try to make it fail:: This is the main purpose of testing, to find defects in the code. In the words of Meyer the _single goal_ of testing is _to uncover faults by triggering failures_. Testing can not be used to show the absence of bugs, as Dijkstra said and Meyer recalls. But it is extremely useful in finding those scenarios in which the software does not behave as intended. This definition of Meyer presents testing as a dynamic technic, that is, testing requires the execution of a program. However, there are some code analysis techniques and tools that help detecting potential faults by finding well known code patterns that are prone to errors, or that ensure code quality by forcing development guidelines. In the long term these techniques help reducing the occurrence of bugs at a lower cost, since they don't execute the program. Some authors refer to these analyses as _static testing_. There is controversy on whether these static analyses are in fact testing or not, but since they are of value for the quality of the software we shall discuss them in the course.
+Principle 2: Tests are no substitute for specifications:: Test are built from specific cases, instances of the different scenarios in which the software shall execute. The specification is composed of more general abstractions tied to human understanding. While the specification can be used to derive test cases the opposite is not necessarily true. However numerous, a finite ammount of test cases might not capture the general properties of the system due to missing instances. 
+Principle 3: Any failed execution must yield a test case, to remain a permanent part of the project’s test suite:: Once a fault has been discovered there is always the peril that it can reapear later. It happens often in practice. Uncovered faults should then become test cases that prevent these regressions. This is called _regression testing_. 
+Principle 4: Determining success or failure of tests must be an automatic process:: Once a test is executed, one needs to know if the software behaved as expected. Thus, we need a _test oracle_ to produce such verdict. As the number of test cases grows, this taks must be automated. It is not feasible to run hundreds of test cases, print the output of the program and the manually check whether the output is correct.
+Principle 5: An effective testing process must include both manually and automatically produced test cases:: Manually produced test cases come from the understanding developers have of the problem domain and the input or from *Principle 3*, as Meyer eplains. But often corner and specific cases scape from human intuition. Complementing manually designed test cases with automatically produced test cases can help spot what developers missed. Computers are able to generate test cases to a level that humans can not reach and help explore unforseen scenarios.
+Principle 6: Evaluate any testing strategy, however attractive in principle, through objective assessment using explicit criteria in a reproducible testing process:: Any testing strategy must be assessed empirically. No matter how sophisticated a testing technique can be, it is of no use if it can not discover faults.  Meyer recalls that simple techniques such as random testing ae proven to be quite efficient. Then there is the question on how to evaluate the effectiveness of our testing strategy. 
+Principle 7: A testing strategy’s most important property is the number of faults it uncovers as a function of time:: Code coverage, that is, the parts of the code executed in the test cases is often used to evaluate the quality of tests. However, this is only useful to spot the parts of the code that aren't yet tested, not how well the executed parts are verified. So coverage is not in general a measure of the quality of the tests. The assessment of the tests should correspond to their ability to detect bugs. In this principle Meyer includes time. Of course, the faster faults are encountered, the better.
+
+This set of principles os not comprehensive and not all authors and practitioners agree with all aspects of their formulations..footnote:[As a matter of fact, the reader might want to check on the discussion sparked after the publication of Meyer's article.] However they revela the escence of testing.
+
+
+==== Fault-tolerance
+
+This approach assumes that it is impossible to prevent the occurrence of bugs in production. So, it enhances the system with mechanisms to deal them.
+
+_N-version programming_ is an example of this approach. `N` different versions of the system are executed in parallel to get an agreement on the result.
+
+Another example is _Chaos engineering_ popularized by Netflix with its Simian Army. The main concept is to perform a controlled experiment in production to study how the entire system behaves under unexpected conditions. For example, in Netflix, they would simulate random server shutdowns to see how the system responds <<netflix2011>>. This is a form of _testing in production_. Main challenges are to design the experiments in a way that the system does not actually fail and to pick the system properties to observe. In the case of Netflix, the property they want to preserve is the availability of the content even when the quality has to be reduced.
+
+=== References
+
+- [[andreessen2011why,[{counter:references}&rsqb;]] [{references}] Andreessen, M. (2011). Why software is eating the world. Wall Street Journal, 20(2011), C2. 
+- [[wikipedia2020bug,[{counter:references}&rsqb;]][{references}] Wikipedia. Software Bug. https://en.wikipedia.org/wiki/Software_bug, Last consulted: 17/03/2020.
+- [[ghahrai2018error,[{counter:references}&rsqb;]][{references}] Ghahrai A. (2018). Error, Fault and Failure in Software Testing. https://www.testingexcellence.com/error-fault-failure-software-testing/ Last accessed: 17/03/2020.
+- [[mancoridis2018slides,[{counter:references}&rsqb;]][{references}] Mancoridis S. Slides of his V&V course https://www.cs.drexel.edu/~spiros/teaching/SE320/slides/introduction.pdf)) Last accessed: 17/03/2020.
+- [[moller1993empirical,[{counter:references}&rsqb;]][{references}] Moller, K-H., and Daniel J. Paulish. (1993). An empirical investigation of software fault distribution. Proceedings First International Software Metrics Symposium. IEEE (1993).
+- [[fruhlinger2017what,[{counter:references}&rsqb;]][{references}] Fruhlinger J. (2017). What is the Heartbleed bug, how does it work and how was it fixed?. CSO (2017) https://www.csoonline.com/article/3223203/vulnerabilities/what-is-the-heartbleed-bug-how-does-it-work-and-how-was-it-fixed.html. Last acccessed: 17/03/2020.
+- [[slabodking1998software,[{counter:references}&rsqb;]][{references}] Slabodking G. (1998). Software glitches leave Navy Smart Ship dead in the water. GCN (1998) https://gcn.com/Articles/1998/07/13/Software-glitches-leave-Navy-Smart-Ship-dead-in-the-water.aspx Last accessed: 17/03/2020.
+- [[arnold2000patriot,[{counter:references}&rsqb;]][{references}] Arnold D. (2000). The Patriot Missile Failure. http://www-users.math.umn.edu/~arnold/disasters/patriot.html Last accessed 17/03/2020.
+- [[hansell1994glitch,[{counter:references}&rsqb;]][{references}] Hansell S. (1994). Glitch Makes Teller Machines Take Twice What They Give. https://www.nytimes.com/1994/02/18/business/glitch-makes-teller-machines-take-twice-what-they-give.html. Last accessed: 10/09/2018.
+- [[jezequel1997design,[{counter:references}&rsqb;]][{references}] Jézéquel, J-M., and Bertrand Meyer. (1997). Design by contract: The lessons of Ariane. Computer 30.1 (1997): 129-130.
+- [[ceguerra2001software,[{counter:references}&rsqb;]][{references}] Ceguerra A. (2001). Software Bug Report: Mars Climate Orbiter Assignment 1 for Verification. http://courses.engr.uky.edu/ideawiki/data/media/classes/06c/585/mars_climate_orbiter.pdf. Last accessed: 17/03/2020
+- [[johnson2012curiosity,[{counter:references}&rsqb;]][{references}] Johnson P. (2012). Curiosity about lines of code. https://www.itworld.com/article/2725085/big-data/curiosity-about-lines-of-code.html. Last accessed: 12/09/2018.
+- [[turing1936computable,[{counter:references}&rsqb;]][{references}] Turing, A. M. (1936). On computable numbers, with an application to the Entscheidungsproblem. J. of Math, 58(345-363), 5.
+- [[wikimedia2020lines,[{counter:references}&rsqb;]][{references}] Lines of Code Linux Kernel.svg. https://commons.wikimedia.org/wiki/File:Lines_of_Code_Linux_Kernel.svg. Last accessed: 17/03/2020.
+- [[opensignal2015android,[{counter:references}&rsqb;]][{references}] OpenSignal. (2015). Android Fragmentation. https://www.opensignal.com/sites/opensignal-com/files/data/reports/global/data-2015-08/2015_08_fragmentation_report.pdf). Last accessed 17/03/2020.
+- [[meyer2008seven,[{counter:references}&rsqb;]][{references}] Meyer, B. (2008). Seven principles of software testing. Computer, 41(8), 99-101. http://www2.computer.org/portal/web/csdl/doi/10.1109/MC.2008.306
+- [[netflix2011,[{counter:references}&rsqb;]][{references}] The Netflix Simian Army. (2011). https://netflixtechblog.com/the-netflix-simian-army-16e57fbab116

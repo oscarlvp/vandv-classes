@@ -1,0 +1,10 @@
+= Validation and Verification : Course Notes
+Oscar Luis Vera-Pérez <oscarlvp@gmail.com>
+:sectnums:
+:imagesdir: images/
+:source-highlighter: coderay
+:icons: font
+:toc: left
+
+include::01-introduction.adoc[]
+
