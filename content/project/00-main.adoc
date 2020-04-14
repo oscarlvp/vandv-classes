@@ -1,0 +1,302 @@
+= V&V Project Specification
+:icons: font
+:toc: left
+
+== Overview
+
+This document contains the specification of the evaluation project for the _Validation and Verification_ course at ISTIC, Master 2 level.
+
+The goal of the project is to develop an application while applygin the testing techniques introduced in classes. Therefore, students must use the materials from conferences and practical sessions. This document can be considered as the specification for the application to develop and a guide on the minimal requirements for the testing practices that should be used.
+
+The evaluation of the project will consider:
+
+- The completion of the final product
+- The quality of the code
+- The development history
+- The number of testing techniques that the team put in practice
+- The level of automation in the application of the testing techniques
+- How the team acted upon the feedback of the testing techniques in practice
+
+The last three points are crucial. Students are expected to put in practice a certain number of testing techniques studied in the course, automate their execution and *solve the issues these techniques discover*. Simply setting up a tool to check the code quality is not enough. The team should solve the issues these tools encounter. The solution to these issues should be reflected in the development history in the form of a commit with a message that describes the issue, the technique/tool used to discover it and how it was solved. Part of the evaluation will use automated tools, so it is important to follow the specifications. More details on this will be given in the <<evaluation>> section.
+
+== The application
+
+The application to develop is a command line tool to compress and decompress a single given binary file. The path to the file will provided by the used as a parameter. The user must be able to choose between, at least, two different compression algorithms. The application should produce a single compressed file that will be created in an output path provided by the user as well.
+Users should also be able to decompress a given compressed file with the same application. In this case, the tool should automatically detect which decompression algorithm to use to obtain the original uncompressed file.
+
+The application may be developed in any language with any framework. However, since most students prefer Java, the code examples an tips in this document will refer to that particular language and related libraries and frameworks. Nevertheless, students developing in other languages may find similar alternatives. *Ask your teacher for guidance in that matter.* footnote:[The teacher is not presicely a Java fan so he will be really glad to help students achieve the project in other languages.]
+Teams must create a repository for the development of the application. This repository should be hosted in any hosting service/platform. Popular choises are:
+
+- https://github.com[Github]
+- https://gitlab.com[Gitlab], 
+- https://bitbucket.org[Bitbucket]
+- https://codeberg.org/[Codeberg]
+- the https://gitlab.istic.univ-rennes1.fr/[Gitlab instance at ISTIC] 
+- the https://framagit.org/[Gitlab instance from Framasoft].
+
+Teams are free to choose which service to use. The hosted repository may be public or private but *the code must be accessible for the teacher* so, you must send an invitation with the appropriate permissions if the repository is not public.
+
+The development history of the repository will play an important role in the evaluation. Team members are expected to have the same amount of involvement in the project, which will be reflected in their contributions to the project.
+
+[#algorithms]
+=== The compression algorithms
+
+The application is expected to provide the implementation of, at least, two lossless compression algorithms.  Lossless means that no data is lost during compression, which also means that decompression should produce a file identical to the orginal uncompressed given file.
+
+*Students are free to choose which compression algorithms they will implement*. Well known alternatives are:
+
+- https://en.wikipedia.org/wiki/Run-length_encoding[Run length encoding]
+- https://en.wikipedia.org/wiki/Huffman_coding[Huffman coding]
+- https://en.wikipedia.org/wiki/Lempel-Ziv-Welch[Lempel-Ziv-Welch algorithm]
+
+There are plenty of materials describing these algorithms and even implementations. The Wikipedia links above are provided as starting points to reach additional sources.
+
+WARNING: Students *must not* use existing implementations in their projects. Teams are expected to provide original implementations of the compression algorithms. Using an existing implementation will be considered as plagiarism.
+
+IMPORTANT: While most documentations and examples on compression algorithms are written for the compression of text files the application o develop should compress binary files. So, when implementing the algorithms students may consider the content of the file as a string of 256 possible symbols, that is, the bytes from `0` to `255`.
+
+TIP: In Java, the method `read()` of the `InputStream` interface returns an integer from `0` to `255` which is the value of the byte read from the stream, or `-1` if there is nothing else to read.
+
+TIP: The `byte` type in Java is signed. This may pose a problem (or not) when implementing the compression algorithms. Use `Byte.toUnsignedInt` if you need the byte value from `0` to `255`.
+
+TIP: When implementing the algorithms do not create classes for them that take `FileStream` instances directly. Favor instead the use of abstractions like `InputStream`. In this way it will be much easier to test the implementation of the algorithms, as you don't require files and you will be able to compress data from other sources.
+
+=== Command line interface
+
+The application to develop shall receive its parameters from the command line. This section describes the commands and options expected from the product.
+
+TIP: Use a library to parse the command line arguments. Popular alternatives for Java are Apache Commons CLI, JOpt Simple and Piccoli. A comprehensive list of alternatives can be found here.
+
+==== Help
+
+A `help` command should be provided. The help command should provide an explanation message on how to use each command and how to provide the corresponding parameters. The content of the message could be whatever the students think is suitable. If the team used a library to parse the command line arguments, then this help command is probably provided for free. The help command should be invoked using a short option `-h` or a long option `--help`. Se the examples below:
+
+[source,bash]
+----
+<app> -h   
+----
+
+[source,bash]
+----
+<app> --help   
+----
+
+==== List of algorithms
+
+The application should provide the list or algorithms it implements. The list should be accessed with the `algorithms` command, invoked as follows:
+
+[source,bash]
+----
+<app> algorithms   
+----
+
+This command should produce a message where every implemented algorithm is described in one line. The line should have the following format:
+
+[source, bash]
+----
+<algorihtm-identifier> [default] [description]
+----
+
+where `<algorithm-identifier>` is an alphanumeric string with no spaces that identifies the algorithm, for example, for _Huffman encoding_ it could be `huffman`. `[default]` is an optional string `default` that specifies which is the algorithm used by default. Only one algorithm should have this `default` annotation. `[description]` is an arbitrary description for the algorithm.
+
+Here is an example of the expected output:
+
+----
+runlength Run length encoding
+huffman Huffman enconding
+lzw default Lempel-Ziv-Welch algorithm
+----
+
+This application implements the three algorithms mentioned in the <<algorithms, algorithms>> section and they are identified as `runlength`, `huffman` and `lzw`.
+
+==== Compression
+
+The `compress` command will receive the path to the input file and the path to the output file. Both paths could be either absolute or relative. It may also take an optional parameter `-u` or `--use` specifying which algorithm to use. the algorithm should be specified using one of the identifiers included in the output of `<app> algorithms`.
+
+[source,bash]
+----
+<app> compress <path-to-input> <path-to-output>   
+----
+
+[source,bash]
+----
+<app> compress -u <algorithm-identifier> <path-to-input> <path-to-output>   
+----
+
+[source,bash]
+----
+<app> compress --use <algorithm-identifier> <path-to-input> <path-to-output>   
+----
+
+==== Decompression
+
+Decompression is achieved with the `decompress` command. It should receive the input and output file paths. As before, these could be relative or absolute paths. Notice that the users do not specify the algorithm. The application should discover with compression algorithm was used from the structure of the input file.
+
+Here is how this command will be used:
+
+[source,bash]
+----
+<app> decompress <path-to-input> <path-to-output>   
+----
+
+=== Error codes
+
+In the presence of an error, the application should exit with a corresponding and meaningful exit code after printing an error message. As usual, exit code `0` means that the execution was successful. The error message may contain any information students find necessary and it is not restricted.
+
+Here is a list of common errors and the exit code for each case:
+
+.Common errors and expected exit code
+|===
+| Error                               | Exit code 
+
+| Invalid command line                | 1
+| Wrong algorithm identifier provided | 2
+| Input file does not exist           | 3
+| Error reading input file            | 4
+| Error creating output file          | 5
+| Unexpected error                    | 100
+|===
+
+Students may report any other error not listed here. In that case, the exit code should a number greater than `5` and different than `100`. 
+
+TIP: In Java you can set the exit code of an application by invoking `System.exit(code)`, where `code` is an integer with the desired code value.
+
+IMPORTANT: The application *must comply* with the specification of the command line interface and the error codes above, as they will be used to guide the automatic evaluation. Failing to do so will therefore affect the grade.
+
+== Testing the application
+
+As minimum requirement for testing the project must contain at least a unit test suite able to execute no less than 60% of all the application code. The test suite must execute on a _Continuous Integration_ server after each commit and code coverage should be monitored regularly.
+
+Beyond that, students are expected to apply more than one testing technique introduced in the course, namely but not restricted to:
+
+- Static code analysis
+- Code coverage monitoring
+- Mutation testing for test suite evaluation
+- Fuzzing for random test input generation
+- Automatic test generation
+
+*Applying these techniques and acting upon the findings they make is the most relevant part of the project.*
+
+As said before, it is not enough to integrate some tools into the project. Students must solve the issues discovered by these tools.
+
+There are several ways to integrate testing tools in the project. The least automated way is to run the tools by hand in the local machine. A better automated way is to execute the tools in a _Continuous Integration_ server, after a commit or accepting a pull request.
+
+Either way, if a tool finds an issue, students must evaluate it. If the issue should be solved, then students must create an issue in their issue tracker (all proposed hosting services provide a way to create, list and handle issues) where they describe the problem the tool has detected. This issue should be solve by a posterior commit, explaining how the issue was resolved. A better automated testing process may automatically create the issue after the execution of the tool.
+
+If the team uses automatically generated test cases, then, when these tests are incorporated to the project's test suite students must create a commit with a message reflecting this integration. Something similar could be done for coverage and those commits made to increase it.
+
+There are many tools that integrate with most repository hosting services. Some of them will be discussed in classes.
+
+WARNING: Do not wait until you have implemented the algorithm to start integrating tools or developing testing processes. Integrate them as soon as possible so you can get the best of them as you progress in the project. 
+
+== The report
+
+Each project should include a written report. The report should be created in a `README` file in the root of the project. This file should be written using Markdown or AsciiDoc. Should the report need more files like images or additional text files, they should be added in a `doc/` folder.
+
+The report should describe the architecture of the application. Should list its dependencies. It should also describe the problems the team fund while developing and testing the code and how they solve them. It should also describe how the testing tools were integrated into the project.
+
+The quality of the report will impact the grade. The report can be written in French.
+
+[#evaluation]
+== Evaluation
+
+The final grade will be impacted by a qualitative evaluation and an automatic quantitative evaluation.
+
+=== Qualitative evaluation
+
+The qualitative evaluation will consider the following aspects:
+
+The degree of completion of the application according to the requirements described in this document:: All the requirements described above should be met. Any additional, and relevant, functionality will  be considered as a plus granting a bonus for the grade.
+The quality of the report:: The report should describe the main problems students found during the development and testing of the application. It also should describe how the testing tools where integrated and examples of the issues that were solved with the help of these testing tools. The quality the report is affected by the clarity of the explanations and examples provided.
+The balance of the development history among team members:: All team members should contribute equally to the project. This shall be reflected in the development history, that is commits, issues, etc.
+How the application was tested:: Student are required to use testing tools and techniques. This is the most important aspect of the evaluation. The following aspects shall have an impact on the grade:
+- The number of tools/techniques used to test the project. The more the better. However, integrating a tool without actually using it to solve issues will not be considered as valid. That is, it is not valid to set a static analysis tool to run on every commit if there is no evidence that it was actually used, for example: if there are no issues in the tracker referring to problems discovered by the tool and commits solving these problems.
+- The quality of the solutions provided to solve the issues found with the help of testing tools.
+- The level of automation achieved in the integration of those tools. For example, that the tools execute automatically after every commit or that the tools are integrated in processes able to automatically create issues in the tracker.
+
+=== Quantitative evaluation
+
+The quantitative evaluation will be achieved with the help of  testing tools studied in the course with a custom configuration.
+
+It will include:
+
+- Static analysis for code smell detection
+- Code coverage evaluation
+- Mutation testing score
+- Extensive fuzzing of the application
+
+
+The issues found in this part of the evaluation will be reported back to the students. The evaluation will consider the number of the issues found and their severity.
+
+== Working on the project
+
+Students are expected to work on the project for at least an hour on each practical session and also on as much time as required outside the classes.
+
+IMPORTANT: Practical sessions are the preferred space to ask for questions and clarifications. *USE THAT TIME WISELY, ASK QUESTIONS* Do not wait until three days before the deadline. 
+
+The following section will list a series of milestones that students should be able to accomplish after learning the different topics of the course. It is not mandatory to complete them in that time, (it could be done before) but they could be used as guidance.
+
+[#milestones]
+=== Milestones
+
+This section presents some milestones that students can use to guide their progress. Also several ideas on how to integrate the testing tools into their projects.
+
+==== Setting up the project
+
+After the *first practical session* students should:
+- Have a partner. Teams must have only two members.
+- Notify the teacher the members of the team.
+- Create a repository in one hosting service.
+- Send the URL of the repository to the teacher and set the required permissions.
+- Agreed on the language, frameworks, libraries and development environments to use.
+- Read the specifications on this document.
+- Read the description of the algorithms.
+
+==== Static analysis
+
+After the *second practical session* students should be able to incorporate a tool like PMD to their project. Here are some ideas on how to achieve the integration:
+
+- Regularly execute the tool in the local machine. This is the easiest way to do it but also the least rewarded in the grade.
+
+- Integrate the tool in an automated build script using Jenkins, Travis Github Actions, Gitlab CI or Sonar. Explore the capabilities of SonarQube. Make the build script run on every commit and make it fail if one of the following scenarios take place:
+    * the number of detected problems is greater than a predefined threshold
+    * some critical problem is detected
+    * the value of a metric goes beyond a predefined threshold, for example, the McCabe complexity of a method is greater than 10 (this number is just an example)
+
+Another, more automated approach, is to make the build script automatically create issues in the tracker reflecting the problems the tool found.
+
+No matter the integration, students should check the problems detected by the static analysis tool. Decide which of them should be solved and which shouldn't. Fine tune the configuration of the tool to get better results. Solve the problems detected by the tool. Remember to reflect your actions in the issue tracker, the commits and the report.
+
+=== Unit testing
+
+After the *third practical session* students should be able to start working on creating test cases. Configure a build script in the hosting service so the test suite executes after every commit. Static analysis tools previously integrated could be also configured to find test smells.
+
+=== Evaluating the test suite
+
+After the *fourth practical session* students should be able to monitor the quality of the test suite. Use code coverage to discover the parts of the application code that are not tested. use mutation testing to discover potential flaws in the existing test suite.
+
+Here are some ideas for the integration of coverage and mutation testing:
+
+- Configure coverage monitoring tools like https://coveralls.io/[Coveralls] and https://stackshare.io/codecov[Codecov].
+- Make the build fail if the code coverage falls below a preconfigured threshold.
+- Run a mutation testing tool in the local environment when creating test cases for new code. For example, http://pitest.org[PIT] provides this functionality out-of-the-box.
+- Configure a mutation testing tool to run on a schedule, for example, every evening, or on each commit. Remember that mutation analysis could be expensive in terms fo execution time.
+- Make the build fail if the mutation score falls below a preconfigured threshold. PIT provides this functionality out-of-the-box.
+- Create commits with new test cases to kill live mutants.
+- Create commits with new test cases to increase coverage.
+
+=== Fuzzing
+
+After the *fifth practical session* students should be able to integrate fuzzing into their project.
+
+A compression algorithm is quite suited for fuzzing or property testing. For each compression algorithm we may have two functions (or methods, or another abstraction) `encode` and `decode`. For a given input `i`, then `decode(encode(i))` must be equal to `i`. So fuzzing could be used to generate random input and then check that the result of first compressing and then decompressing the input is equal to the initial input.
+
+Fuzzing can be integrated to achieve the following goals:
+
+- Create random inputs and keep those that increase the code coverage.
+- Create random inputs and keep those that kill live mutants.
+- Create random inputs and keep those that make the application. crash.
+- Set up a build task in the _Continuous Integration_ server, that runs every night until a given termination criterion is met.
+
+Reflect the inclusion of the new generated test input with commits.
+
