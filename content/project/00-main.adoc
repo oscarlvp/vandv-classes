@@ -38,6 +38,8 @@ Teams are free to choose which service to use. The hosted repository may be publ
 
 The development history of the repository will play an important role in the evaluation. Team members are expected to have the same amount of involvement in the project, which will be reflected in their contributions to the project.
 
+The project should produce a packed executable application. If the application is developed in Java, then the project should produce a `jar` file containing all the dependencies.
+
 [#algorithms]
 === The compression algorithms
 
@@ -66,6 +68,10 @@ TIP: When implementing the algorithms do not create classes for them that take `
 The application to develop shall receive its parameters from the command line. This section describes the commands and options expected from the product.
 
 TIP: Use a library to parse the command line arguments. Popular alternatives for Java are Apache Commons CLI, JOpt Simple and Piccoli. A comprehensive list of alternatives can be found here.
+
+In the following command specifications `<app>` represents the way the application is invoke, which depends on the language, framework and how the executable was generated. For Java it should be the way a `jar` file was executed, for example, `java -jar app.jar` where `app.jar` is the name of the `jar` produced from the project containing all the dependencies.
+
+WARNING: `app.jar` is *just an example*. The project may produce a `jar` with an arbitrary names. As a matter of fact usindg creative names are encouraged.
 
 ==== Help
 
