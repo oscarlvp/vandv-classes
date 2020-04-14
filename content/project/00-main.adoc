@@ -6,7 +6,7 @@
 
 This document contains the specification of the evaluation project for the _Validation and Verification_ course at ISTIC, Master 2 level.
 
-The goal of the project is to develop an application while applygin the testing techniques introduced in classes. Therefore, students must use the materials from conferences and practical sessions. This document can be considered as the specification for the application to develop and a guide on the minimal requirements for the testing practices that should be used.
+The goal of the project is to develop an application while applying the testing techniques introduced in classes. Therefore, students must use the materials from conferences and practical sessions. This document can be considered as the specification for the application to develop and a guide on the minimal requirements for the testing practices that should be used.
 
 The evaluation of the project will consider:
 
@@ -24,8 +24,8 @@ The last three points are crucial. Students are expected to put in practice a ce
 The application to develop is a command line tool to compress and decompress a single given binary file. The path to the file will provided by the used as a parameter. The user must be able to choose between, at least, two different compression algorithms. The application should produce a single compressed file that will be created in an output path provided by the user as well.
 Users should also be able to decompress a given compressed file with the same application. In this case, the tool should automatically detect which decompression algorithm to use to obtain the original uncompressed file.
 
-The application may be developed in any language with any framework. However, since most students prefer Java, the code examples an tips in this document will refer to that particular language and related libraries and frameworks. Nevertheless, students developing in other languages may find similar alternatives. *Ask your teacher for guidance in that matter.* footnote:[The teacher is not presicely a Java fan so he will be really glad to help students achieve the project in other languages.]
-Teams must create a repository for the development of the application. This repository should be hosted in any hosting service/platform. Popular choises are:
+The application may be developed in any language with any framework. However, since most students prefer Java, the code examples an tips in this document will refer to that particular language and related libraries and frameworks. Nevertheless, students developing in other languages may find similar alternatives. *Ask your teacher for guidance in that matter.* footnote:[The teacher is not precisely a Java fan so he will be really glad to help students achieve the project in other languages.]
+Teams must create a repository for the development of the application. This repository should be hosted in any hosting service/platform. Popular choices are:
 
 - https://github.com[Github]
 - https://gitlab.com[Gitlab], 
@@ -43,7 +43,7 @@ The project should produce a packed executable application. If the application i
 [#algorithms]
 === The compression algorithms
 
-The application is expected to provide the implementation of, at least, two lossless compression algorithms.  Lossless means that no data is lost during compression, which also means that decompression should produce a file identical to the orginal uncompressed given file.
+The application is expected to provide the implementation of, at least, two lossless compression algorithms.  Lossless means that no data is lost during compression, which also means that decompression should produce a file identical to the original uncompressed given file.
 
 *Students are free to choose which compression algorithms they will implement*. Well known alternatives are:
 
@@ -71,7 +71,7 @@ TIP: Use a library to parse the command line arguments. Popular alternatives for
 
 In the following command specifications `<app>` represents the way the application is invoke, which depends on the language, framework and how the executable was generated. For Java it should be the way a `jar` file was executed, for example, `java -jar app.jar` where `app.jar` is the name of the `jar` produced from the project containing all the dependencies.
 
-WARNING: `app.jar` is *just an example*. The project may produce a `jar` with an arbitrary names. As a matter of fact usindg creative names are encouraged.
+WARNING: `app.jar` is *just an example*. The project may produce a `jar` with an arbitrary names. As a matter of fact using creative names are encouraged.
 
 ==== Help
 
@@ -250,6 +250,7 @@ This section presents some milestones that students can use to guide their progr
 ==== Setting up the project
 
 After the *first practical session* students should:
+
 - Have a partner. Teams must have only two members.
 - Notify the teacher the members of the team.
 - Create a repository in one hosting service.
@@ -257,6 +258,7 @@ After the *first practical session* students should:
 - Agreed on the language, frameworks, libraries and development environments to use.
 - Read the specifications on this document.
 - Read the description of the algorithms.
+- Sketch the global architecture of the project.
 
 ==== Static analysis
 
