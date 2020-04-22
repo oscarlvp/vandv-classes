@@ -1,0 +1,107 @@
+:numbered:
+== Code quality and static analysis
+
+The goal of any software project is to deliver a product of the highest possible quality, or at least it should be. Diomidis Spinellis in his book _Code Quality: The Open Source Perspective_ <<spinellis2006code>> presents four views of software quality:
+
+Quality in use:: This view is centered in the user experience, that is how users perceive the software. It is the extent to which users can achieve their goals in a particular environment. It does not care about how the product is built.
+External quality attributes:: These are attributes manifested in the execution of the software. They characterize how well the product conforms the specification. Observed failures which signal the presence of bugs: crashes, efficiency problems and alike degrade the external quality fo the software. External quality attributes directly affect the quality in use.
+Internal quality attributes:: They characterize the internal structure of the product. According to Martin Fowler, <<fowler2019is>>, internal software quality is impacted by how easy to understand the code is which in turn impacts how easy it is to maintain, add new features, improve and detect errors. Internal quality, that is, the quality of the code has a great impact in the external quality of the software.
+Process quality:: It is a direct expression of how the software product was built. It is affected by the methodologies, practices. tools, frameworks used to develop the software. A good development process favors actions that improve the internal quality of the product.
+
+In the end, all views of quality are deeply interconnected. The process quality impacts the internal quality. The internal quality affects in turn the external quality which directly affects the user experience.
+
+Several models of software quality attributes have been proposed and standardized along the years <<boehm1976quantitative>>, <<iso2011square>>. However they all insist, as the Consortium for IT Software Quality (CISQ) summarizes that high quality software products must be: 
+*reliable* (low risk level in use and low likelihood of potential failures), *efficient*, *secure*, and *maintainable*.
+
+Martin Fowler <<fowler2019is>> explains that, as time goes by and a project becomes more complex, it is harder to add new features and even small changes require programmers to understand large areas of code. Paying attention to internal quality is crucial to further develop the product. Fowler calls _cruft_ those deficiencies in internal quality that make it harder to modify and extend the system further. _Crufts_ are redundant, useless and dysfunctional pieces of code that become obstacles increasing maintenance costs known also as _Technical Debt_.
+
+While external quality attributes can be observed and improved with the help of testing, internal quality attributes are observed by analyzing the code without executing it, that is with the help of static code analysis. Some authors consider static analysis as a form of _static testing_. However, Meyer in its principles of testing <<meyer2008seven>> excludes these techniques from the testing umbrella. Either way, static analysis helps may help to reduce the presence of bugs and therefore may positively impact the testing process.
+
+=== (Working title) Code quality
+
+Coding guidelines:
+- Improve readability of the code, help improve understanding, ease collaboration, in the long term prevent bugs
+
+- Include naming conventions
+- How to organize the code and the project
+
+
+Levels:
+- Language
+- Framework/Tool
+- Project
+- Goal oriented, for example, security
+
+
+Code smells:
+- Eliminated by refactoring
+
+Antipatterns
+
+
+[quote]
+____
+A code smell is a surface indication that usually corresponds to a deeper problem in the system. The term was first coined by Kent Beck while helping me with my Refactoring book.
+
+The quick definition above contains a couple of subtle points. Firstly a smell is by definition something that's quick to spot - or sniffable as I've recently put it. A long method is a good example of this - just looking at the code and my nose twitches if I see more than a dozen lines of java.
+
+The second is that smells don't always indicate a problem. Some long methods are just fine. You have to look deeper to see if there is an underlying problem there - smells aren't inherently bad on their own - they are often an indicator of a problem rather than the problem themselves.
+____
+
+
+
+=== (Working title) How to detect code issues?
+
+Pattern matching (not to confuse with the term in AI)
+
+Each guideline lead to a well defined code pattern. (add an example related to the examples above) Sometimes even there can be an automatic fix
+
+Code smells might be vague, for example, a method should not be too long, so to automate we must define metrics that help to identify potential code patterns that could be smelly.
+
+Other forms of analysis like data flow to detect potential null reference exceptions.
+
+Examples of metrics
+
+==== (Working title) Static analysis tools
+Compilers: Errors prevent the creation of invalid programs, warnings help discover potential problems in type conversion as truncation errors, (remember the bugs from the previous classes), dead code elimination
+Linters: Extended syntax analysis, original tool was Lint from Bell Labs for the Protable C Compiler for the PDP-11. Its role was to detect bad code patterns and patterns of code that would introduce incompatibilities among architectures. The the term expanded to similar tools.
+Other tools to compute metrics and detect the occurrence of code patterns:
+- PMD
+- Findbugs
+usually extensible and configurable. May analyze source code or compiled code.
+Build your own?
+
+
+=== (Working title) How to incorporate in the development process
+
+- IDE: instant response, sometimes they also provide automatic fixing
+- Code reviews: Meetings, platforms
+- Make the build fail --> local environment or CI/CD
+- CI/CD 
+    --> SonarQube
+    --> https://github.com/ankitvgupta/pycodestyle-action this posts the result of the  static analysis as a comment in the pull request
+    --> Try to see an example of a check on code style in a pull request from Github/ Jenkins or Gitlab
+
+
+:numbered!:
+=== References
+
+- [[spinellis2006code,[{counter:references}&rsqb;]] [{references}] Spinellis, D. (2006). Code quality: the open source perspective. Adobe Press.
+
+- [[fowler2019is,[{counter:references}&rsqb;]] [{references}] Fowler M. (May 2019) Is High Quality Software Worth the Cost? https://martinfowler.com/articles/is-quality-worth-cost.html Last accessed on 22-04-2020
+
+- [[boehm1976quantitative,[{counter:references}&rsqb;]] [{references}] Boehm, B. W., Brown, J. R., & Lipow, M. (1976, October). Quantitative evaluation of software quality. In Proceedings of the 2nd international conference on Software engineering (pp. 592-605). IEEE Computer Society Press. https://dl.acm.org/citation.cfm?id=807736
+
+- [[iso2011square,[{counter:references}&rsqb;]] [{references}] ISO/IEC 25010:2011 Systems and software engineering — Systems and software Quality Requirements and Evaluation (SQuaRE) — System and software quality models. https://www.iso.org/standard/35733.html Last accessed on 22-04-2020
+
+
+
+https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions
+
+https://www.oracle.com/technetwork/java/codeconventions-150003.pdf
+
+https://google.github.io/styleguide/javaguide.html
+
+https://martinfowler.com/bliki/CodeSmell.html
+
+https://sourcemaking.com/refactoring/smells Divided into categories

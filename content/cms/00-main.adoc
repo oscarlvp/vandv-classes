@@ -8,3 +8,4 @@ Oscar Luis Vera-Pérez <oscarlvp@gmail.com>
 
 include::01-introduction.adoc[]
 
+include::02-static-analysis.adoc[]
