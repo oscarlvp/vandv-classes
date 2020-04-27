@@ -434,23 +434,23 @@ This course will be focused in the analytical approach of verification, more pre
 :numbered!:
 === References
 
-- [[andreessen2011why,[{counter:references}&rsqb;]] [{references}] Andreessen, M. (2011). Why software is eating the world. Wall Street Journal, 20(2011), C2. 
-- [[wikipedia2020bug,[{counter:references}&rsqb;]][{references}] Wikipedia. Software Bug. https://en.wikipedia.org/wiki/Software_bug, Last consulted: 17/03/2020.
-- [[ghahrai2018error,[{counter:references}&rsqb;]][{references}] Ghahrai A. (2018). Error, Fault and Failure in Software Testing. https://www.testingexcellence.com/error-fault-failure-software-testing/ Last accessed: 17/03/2020.
-- [[mancoridis2018slides,[{counter:references}&rsqb;]][{references}] Mancoridis S. Slides of his V&V course https://www.cs.drexel.edu/~spiros/teaching/SE320/slides/introduction.pdf)) Last accessed: 17/03/2020.
-- [[moller1993empirical,[{counter:references}&rsqb;]][{references}] Moller, K-H., and Daniel J. Paulish. (1993). An empirical investigation of software fault distribution. Proceedings First International Software Metrics Symposium. IEEE (1993).
-- [[fruhlinger2017what,[{counter:references}&rsqb;]][{references}] Fruhlinger J. (2017). What is the Heartbleed bug, how does it work and how was it fixed?. CSO (2017) https://www.csoonline.com/article/3223203/vulnerabilities/what-is-the-heartbleed-bug-how-does-it-work-and-how-was-it-fixed.html. Last accessed: 17/03/2020.
-- [[slabodking1998software,[{counter:references}&rsqb;]][{references}] Slabodking G. (1998). Software glitches leave Navy Smart Ship dead in the water. GCN (1998) https://gcn.com/Articles/1998/07/13/Software-glitches-leave-Navy-Smart-Ship-dead-in-the-water.aspx Last accessed: 17/03/2020.
-- [[arnold2000patriot,[{counter:references}&rsqb;]][{references}] Arnold D. (2000). The Patriot Missile Failure. http://www-users.math.umn.edu/~arnold/disasters/patriot.html Last accessed 17/03/2020.
-- [[hansell1994glitch,[{counter:references}&rsqb;]][{references}] Hansell S. (1994). Glitch Makes Teller Machines Take Twice What They Give. https://www.nytimes.com/1994/02/18/business/glitch-makes-teller-machines-take-twice-what-they-give.html. Last accessed: 10/09/2018.
-- [[jezequel1997design,[{counter:references}&rsqb;]][{references}] Jézéquel, J-M., and Bertrand Meyer. (1997). Design by contract: The lessons of Ariane. Computer 30.1 (1997): 129-130.
-- [[ceguerra2001software,[{counter:references}&rsqb;]][{references}] Ceguerra A. (2001). Software Bug Report: Mars Climate Orbiter Assignment 1 for Verification. http://courses.engr.uky.edu/ideawiki/data/media/classes/06c/585/mars_climate_orbiter.pdf. Last accessed: 17/03/2020
-- [[johnson2012curiosity,[{counter:references}&rsqb;]][{references}] Johnson P. (2012). Curiosity about lines of code. https://www.itworld.com/article/2725085/big-data/curiosity-about-lines-of-code.html. Last accessed: 12/09/2018.
-- [[turing1936computable,[{counter:references}&rsqb;]][{references}] Turing, A. M. (1936). On computable numbers, with an application to the Entscheidungsproblem. J. of Math, 58(345-363), 5.
-- [[wikimedia2020lines,[{counter:references}&rsqb;]][{references}] Lines of Code Linux Kernel.svg. https://commons.wikimedia.org/wiki/File:Lines_of_Code_Linux_Kernel.svg. Last accessed: 17/03/2020.
-- [[opensignal2015android,[{counter:references}&rsqb;]][{references}] OpenSignal. (2015). Android Fragmentation. https://www.opensignal.com/sites/opensignal-com/files/data/reports/global/data-2015-08/2015_08_fragmentation_report.pdf). Last accessed 17/03/2020.
-- [[meyer2008seven,[{counter:references}&rsqb;]][{references}] Meyer, B. (2008). Seven principles of software testing. Computer, 41(8), 99-101. http://www2.computer.org/portal/web/csdl/doi/10.1109/MC.2008.306
-- [[netflix2011,[{counter:references}&rsqb;]][{references}] The Netflix Simian Army. (2011). https://netflixtechblog.com/the-netflix-simian-army-16e57fbab116
-- [[fowler2006continuous,[{counter:references}&rsqb;]][{references}] Continuous Integration. (2006). https://martinfowler.com/articles/continuousIntegration.html
-- [[thoughtworksintegration,[{counter:references}&rsqb;]][{references}] Continuous Integration. Last accessed 21-04-2020 https://www.thoughtworks.com/continuous-integration
+. [[andreessen2011why, ({counter:references})]] Andreessen, M. (2011). Why software is eating the world. Wall Street Journal, 20(2011), C2. 
+. [[wikipedia2020bug,({counter:references})]] Wikipedia. Software Bug. https://en.wikipedia.org/wiki/Software_bug, Last consulted: 17/03/2020.
+. [[ghahrai2018error,({counter:references})]] Ghahrai A. (2018). Error, Fault and Failure in Software Testing. https://www.testingexcellence.com/error-fault-failure-software-testing/ Last accessed: 17/03/2020.
+. [[mancoridis2018slides,({counter:references})]] Mancoridis S. Slides of his V&V course https://www.cs.drexel.edu/~spiros/teaching/SE320/slides/introduction.pdf)) Last accessed: 17/03/2020.
+. [[moller1993empirical,({counter:references})]] Moller, K-H., and Daniel J. Paulish. (1993). An empirical investigation of software fault distribution. Proceedings First International Software Metrics Symposium. IEEE (1993).
+. [[fruhlinger2017what,({counter:references})]] Fruhlinger J. (2017). What is the Heartbleed bug, how does it work and how was it fixed?. CSO (2017) https://www.csoonline.com/article/3223203/vulnerabilities/what-is-the-heartbleed-bug-how-does-it-work-and-how-was-it-fixed.html. Last accessed: 17/03/2020.
+. [[slabodking1998software,({counter:references})]] Slabodking G. (1998). Software glitches leave Navy Smart Ship dead in the water. GCN (1998) https://gcn.com/Articles/1998/07/13/Software-glitches-leave-Navy-Smart-Ship-dead-in-the-water.aspx Last accessed: 17/03/2020.
+. [[arnold2000patriot,({counter:references})]] Arnold D. (2000). The Patriot Missile Failure. http://www-users.math.umn.edu/~arnold/disasters/patriot.html Last accessed 17/03/2020.
+. [[hansell1994glitch,({counter:references})]] Hansell S. (1994). Glitch Makes Teller Machines Take Twice What They Give. https://www.nytimes.com/1994/02/18/business/glitch-makes-teller-machines-take-twice-what-they-give.html. Last accessed: 10/09/2018.
+. [[jezequel1997design,({counter:references})]] Jézéquel, J-M., and Bertrand Meyer. (1997). Design by contract: The lessons of Ariane. Computer 30.1 (1997): 129-130.
+. [[ceguerra2001software,({counter:references})]] Ceguerra A. (2001). Software Bug Report: Mars Climate Orbiter Assignment 1 for Verification. http://courses.engr.uky.edu/ideawiki/data/media/classes/06c/585/mars_climate_orbiter.pdf. Last accessed: 17/03/2020
+. [[johnson2012curiosity,({counter:references})]] Johnson P. (2012). Curiosity about lines of code. https://www.itworld.com/article/2725085/big-data/curiosity-about-lines-of-code.html. Last accessed: 12/09/2018.
+. [[turing1936computable,({counter:references})]] Turing, A. M. (1936). On computable numbers, with an application to the Entscheidungsproblem. J. of Math, 58(345-363), 5.
+. [[wikimedia2020lines,({counter:references})]] Lines of Code Linux Kernel.svg. https://commons.wikimedia.org/wiki/File:Lines_of_Code_Linux_Kernel.svg. Last accessed: 17/03/2020.
+. [[opensignal2015android,({counter:references})]] OpenSignal. (2015). Android Fragmentation. https://www.opensignal.com/sites/opensignal-com/files/data/reports/global/data-2015-08/2015_08_fragmentation_report.pdf). Last accessed 17/03/2020.
+. [[meyer2008seven,({counter:references})]] Meyer, B. (2008). Seven principles of software testing. Computer, 41(8), 99-101. http://www2.computer.org/portal/web/csdl/doi/10.1109/MC.2008.306
+. [[netflix2011,({counter:references})]] The Netflix Simian Army. (2011). https://netflixtechblog.com/the-netflix-simian-army-16e57fbab116
+. [[fowler2006continuous,({counter:references})]] Continuous Integration. (2006). https://martinfowler.com/articles/continuousIntegration.html
+. [[thoughtworksintegration,({counter:references})]] Continuous Integration. Last accessed 21-04-2020 https://www.thoughtworks.com/continuous-integration
 https://martinfowler.com/bliki/ContinuousDelivery.html
