@@ -5,6 +5,7 @@ Oscar Luis Vera-Pérez <oscarlvp@gmail.com>
 :source-highlighter: coderay
 :icons: font
 :toc: left
+:xrefstyle: short
 
 include::01-introduction.adoc[]
 

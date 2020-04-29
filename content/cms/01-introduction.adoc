@@ -9,9 +9,10 @@ This course will briefly introduce some of the most relevant techniques and tool
 
 === What is a bug?
 
-The term, in informatics, has been usually attributed to Grace Hooper. She was involved in the programming and operation of the Mark II, an electromechanical computer of 23 tons and the size of a room. She was also the creator of the first compiler and the only woman to be ranked admiral in the U.S. Navy. Her group traced a malfunction to a moth in one of the relays of the machine. This is the first documented case of a computer bug. The moth was included in one of the notebooks that were used to log the computer's operation. It can be seen nowadays at the Smithsonian Institution's National Museum of American History in Washington D.C. However, some historians say that Thomas Alva Edison already used the term for something similar in his inventions <<wikipedia2020bug>>.
+The term, in informatics, has been usually attributed to Grace Hooper. She was involved in the programming and operation of the Mark II, an electromechanical computer of 23 tons and the size of a room. She was also the creator of the first compiler and the only woman to be ranked admiral in the U.S. Navy. Her group traced a malfunction to a moth in one of the relays of the machine. This is the first documented case of a computer bug. The moth was included in one of the notebooks that were used to log the computer's operation. It can be seen nowadays at the Smithsonian Institution's National Museum of American History in Washington D.C <<img-bug>>. However, some historians say that Thomas Alva Edison already used the term for something similar in his inventions <<wikipedia2020bug>>.
 
-[#img-bug.text-center]
+[[img-bug]]
+[role=text-center]
 .First known case of an actual bug! _Photo taken from Wikipedia._
 image::first-bug.jpg[First bug, 300]
 
@@ -38,10 +39,13 @@ Local bugs can be traced to very specific code locations. They can be originated
 * Wrong approximations _e.g._ wrong values due to type conversions or using the wrong partial results
 
 In the next sections we present some famous local bugs and briefly inspect their causes.
+
 ===== The case of Zune
 
-_Zune 30_, was released to the public in November 2006. It was the first portable media player released by Microsoft. Suddenly, on December 31^st^ 2008, all Zune devices hang and stopped working. The problem was traced back to a piece of code in the firmware equivalent to the following snippet:
+_Zune 30_, was released to the public in November 2006. It was the first portable media player released by Microsoft. Suddenly, on December 31^st^ 2008, all Zune devices hang and stopped working. The problem was traced back to a piece of code in the firmware equivalent to <<zune-bug>>.
 
+[[zune-bug,Listing {counter:listing}]]
+.Listing {listing}. Bug in Zune 30
 [source,java]
 ----
 while (days > 365) {
@@ -59,7 +63,8 @@ while (days > 365) {
 ----
 <1> On December 31^st^, 2008 `year` was 2008 and `days` 366 so `isLeapYear(year)` evaluated to `true`.
 <2> Since `days` was 366 `days > 366` evaluated to `false`. This is the error that caused the bug, it should have been `>=`.
-<3> <4> These instructions were not executed, so the values of `year` and `days` do not change and the loop never ends.
+<3> This is not executed, therefore the value of `days` does not change.
+<4> This is not executed, therefore the value of `year` does not change.
 
 By the next day, `days` would be 367 and the code would run perfectly. So Zune devices stop working on December 31^st^ of every leap year.
 
@@ -73,16 +78,16 @@ As part of these protocols, a computer should send a *heartbeat*, an encrypted m
 
 The webcomic https://xkcd.com/[XKCD] explains this vilnerability in a very intuitive manner. See <<heartbleed-xkcd>>. 
 
-[[heartbleed-xkcd, a more intuitive explanation by XKCD]]
+[[heartbleed-xkcd]]
 [.text-center]
 .Heartbleed explanation by XKCD https://xkcd.com/1354/
 image::heartbleed.png[Heartbleed, 400]
 
 In <<heartbleed-source>> you can see a fragment of the code containing the bug.
 
-[[heartbleed-source, the concerned source code]]
+[[heartbleed-source, Listing {counter:listing}]]
+.Listing {listing}. Heartbleed source code
 [source,c]
-.Heartbleed source code
 ----
 ...
 n2s(p, payload); // <1>
@@ -124,8 +129,11 @@ Some sources of global bugs could be:
 
 A race condition appears when the output of a system depends on the sequence or timing of other uncontrollable events. This may lead to a bug when not carefully considering its effects. For example, in a multithreaded application, a piece of code may be (wrongly) assumed to run before another.
 
-Consider the following snippet of a Java applet:
+The code in <<race-condition>> shows a simplified example of a race condition.
 
+
+[[race-condition, Listing {counter:listing}]]
+.Listing {listing}. Example of race condition
 [source,java]
 ----
 public class SimpleApplet extends Applet {
@@ -169,9 +177,10 @@ Software inevitably fails. The causes for this are widely varied and may occur a
 
 First of all, programs are very complex artifacts, even those we may consider simple or trivial.
 
-The following snippet shows a very short algorithm:
+Consider the algorithm presented in <<>collatz>.
 
-.Will the alarm sound for all given inputs?
+[[collatz, Listing {counter:listing}]]
+.Listing {listing}. Will the alarm sound for all given inputs?
 [source,python]
 ----
 n = input()
@@ -191,16 +200,20 @@ For this particular example, let use assume that `n` is a 32-bits unsigned integ
 
 The general case of determining if a procedure halts when given an specific input is undecidable. This problem is known as the *Halting Problem* <<turing1936computable>>. 
 
-Suppose that it is possible to write a function `halts` that tells whether a given function `f` halts when given an input `x`. That is, `halts` returns `True` if `f` halts when invoked with `x` as input.
+Suppose that it is possible to write a function `halts` that tells whether a given function `f` halts when given an input `x`. That is, `halts` returns `True` if `f(x)` halts (<<halts-func>>).
 
+[[halts-func, Listing {counter:listing}]]
+.Listing {listing}. A supposed function that, given a function `f` and an input `x` for `f`, returns `True` if `f(x)` halts.
 [source,python]
 ----
 def halts(f, x):
     ...
 ----
 
-If the `halts` function exists, then we can create another function, `confused`, that will loop forever if `halts` returns `True`.
+If the `halts` function exists, then we can create a procedure, `confused`, that will loop forever if `halts` returns `True` (<<confused-proc>>).
 
+[[confused-proc, Listing {counter:listing}]]
+.Listing {listing}. A procedure that does not halt when `hatls(f, f)` is `True`, otherwise it does halt.
 [source,python]
 ----
 def confused(f):
@@ -273,11 +286,11 @@ Another example is _Chaos engineering_ popularized by Netflix with its Simian Ar
 
 The constructive approach tries to guarantee the absence of bugs by construction. It involves the manual or automatic formal proof of all components of the system. It is usually based on logical modeling and reasoning and used on specific parts of critical software.
 
-Constructive approaches may use tools such as link:https://coq.inria.fr/[_Coq_], a language to express assertions and mechanically check formal proofs or link:https://isabelle.in.tum.de/overview.html[_Isabelle_] an interactive theorem prover. The following <<coq-example>> shows how to use Coq to proof a property for a function.
+Constructive approaches may use tools such as link:https://coq.inria.fr/[_Coq_], a language to express assertions and mechanically check formal proofs or link:https://isabelle.in.tum.de/overview.html[_Isabelle_] an interactive theorem prover. <<coq-example>> shows how to use Coq to proof a property for a function.
 
-[[coq-example, small example]]
+[[coq-example, Listing {counter:listing}]]
+.Listing {listing}. Small example of a proof achieved with the help of Coq. Taken from https://github.com/coq/coq/wiki/Quick-Reference-for-Beginners
 [source,coq]
-.Small example of a proof achieved with the help of Coq. Taken from https://github.com/coq/coq/wiki/Quick-Reference-for-Beginners
 ----
 Module TreeExample.
 
@@ -425,8 +438,9 @@ On its side, *Continuous Deployment* is an automated process to set artifacts pr
 
 CI/CD approaches find great realization in *DevOps*. DevOps is a modern development culture in which team members of all roles commit to the quality of the final product and not just divide themselves into silos like the "development team" or "operation team". Automation is at the core of DevOps as every development phase is backed by automated processes and state-of-the-art tools. In DevOps, all phases: _plan_, _code_, _build_, _test_, _release_, _deploy_, _operate_, _monitor_ are imbricated in an infinite loop (<<devops>>) and the outcome of one phase impacts the other. For example, crashes observed in production by monitoring the system, automatically become an issue for developers and are incorporated to the set of tests.
 
-[#devops.text-center]
-.DevOps.
+[[devops]]
+[role=text-center]
+.DevOps diagram
 image::devops.svg[DevOps, 600]
 
 This course will be focused in the analytical approach of verification, more precisely in testing with a special attention to the DevOps context.
