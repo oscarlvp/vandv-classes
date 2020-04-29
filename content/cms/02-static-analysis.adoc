@@ -1,29 +1,167 @@
 :numbered:
 == Code quality and static analysis
 
-The goal of any software project is to deliver a product of the highest possible quality, or at least it should be. Diomidis Spinellis in his book _Code Quality: The Open Source Perspective_ <<spinellis2006code>> presents four views of software quality:
+The goal of any software project is to deliver a product of the highest possible quality, or at least it should be. Good software has scarce bugs. However, the notion of quality also characterizes how the product is being built and structured. Observing these aspects should help, in the end, to avoid the introduction of bugs. Diomidis Spinellis in his book _Code Quality: The Open Source Perspective_ <<spinellis2006code>> presents four views of software quality:
 
-Quality in use:: This view is centered in the user experience, that is how users perceive the software. It is the extent to which users can achieve their goals in a particular environment. It does not care about how the product is built.
-External quality attributes:: These are attributes manifested in the execution of the software. They characterize how well the product conforms the specification. Observed failures which signal the presence of bugs: crashes, efficiency problems and alike degrade the external quality fo the software. External quality attributes directly affect the quality in use.
-Internal quality attributes:: They characterize the internal structure of the product. According to Martin Fowler, <<fowler2019is>>, internal software quality is impacted by how easy to understand the code is which in turn impacts how easy it is to maintain, add new features, improve and detect errors. Internal quality, that is, the quality of the code has a great impact in the external quality of the software.
+Quality in use:: This view is centered in the user experience, that is, how users perceive the software. It is the extent to which users can achieve their goals in a particular environment. It does not care about how the product is built. If a word processor makes it hard to edit a document, then it does not serve it purposes.
+External quality attributes:: These attributes manifest themselves in the execution of the program. They characterize how well the product conforms to the specification. Observed failures signal the presence of bugs. Crashes, efficiency problems and alike degrade the external quality fo the software. External quality attributes directly affect the quality in use.
+Internal quality attributes:: They characterize the internal structure of the product. According to Martin Fowler, <<fowler2019is>>, internal software quality is impacted by how easy it is to understand the code. This, in turn, impacts how easy it is to maintain the product, add new features, improve and detect errors. Internal quality has a great impact in the external quality of the software.
 Process quality:: It is a direct expression of how the software product was built. It is affected by the methodologies, practices. tools, frameworks used to develop the software. A good development process favors actions that improve the internal quality of the product.
 
 In the end, all views of quality are deeply interconnected. The process quality impacts the internal quality. The internal quality affects in turn the external quality which directly affects the user experience.
 
-Several models of software quality attributes have been proposed and standardized along the years <<boehm1976quantitative>>, <<iso2011square>>. However they all insist, as the Consortium for IT Software Quality (CISQ) summarizes that high quality software products must be: 
+Several models of software quality attributes have been proposed and standardized throughout the years <<boehm1976quantitative>>, <<iso2011square>>. However they all insist, as the Consortium for IT Software Quality (CISQ) summarizes, that high quality software products must be: 
 *reliable* (low risk level in use and low likelihood of potential failures), *efficient*, *secure*, and *maintainable*.
 
-Martin Fowler <<fowler2019is>> explains that, as time goes by and a project becomes more complex, it is harder to add new features and even small changes require programmers to understand large areas of code. Paying attention to internal quality is crucial to further develop the product. Fowler calls _cruft_ those deficiencies in internal quality that make it harder to modify and extend the system further. _Crufts_ are redundant, useless and dysfunctional pieces of code that become obstacles increasing maintenance costs known also as _Technical Debt_.
+Martin Fowler <<fowler2019is>> explains that, as time goes by and a project becomes more complex, it is harder to add new features. At this point, even small changes require programmers to understand large areas of code. Paying attention to internal quality is crucial to further develop the product. Fowler calls _cruft_ those deficiencies in internal quality that make it harder to modify and extend the system. _Crufts_ are redundant, useless and dysfunctional pieces of code that become obstacles and increase increase maintenance costs. This is also known as _Technical Debt_.
 
-While external quality attributes can be observed and improved with the help of testing, internal quality attributes are observed by analyzing the code without executing it, that is with the help of static code analysis. Some authors consider static analysis as a form of _static testing_. However, Meyer in its principles of testing <<meyer2008seven>> excludes these techniques from the testing umbrella. Either way, static analysis helps may help to reduce the presence of bugs and therefore may positively impact the testing process.
+External quality attributes can be observed and improved with the help of testing. Meanwhile internal quality attributes are observed by analyzing the code without executing it, that is, with the help of static code analysis. Some authors consider static analysis as a form of _static testing_. However, Meyer in its principles <<meyer2008seven>> excludes these techniques from the testing umbrella. Either way, static analysis helps to spot potential problems earlier and therefore impacts the testing process.
 
-=== (Working title) Code quality
+=== Code quality
 
-Coding guidelines:
-- Improve readability of the code, help improve understanding, ease collaboration, in the long term prevent bugs
+Internal quality is assured by good code and good development practices. Good code is easy to understand and maintain. But, what may be easy to understand for one developer might be hard to understand for another, and even for the same developer two weeks after the code was written. Fortunately, the community has gathered and shared practices shown to work well, or not, according to experience. 
 
-- Include naming conventions
-- How to organize the code and the project
+==== Coding guidelines
+
+Some good development practices are presented as _coding guidelines_ or _coding conventions_. These are rules that specify how the code should be written so it can be understood by everyone. They may go from how to name a class or a method and how to handle exceptions to how and when to insert blank spaces in the code.
+
+Coding guidelines may be specific to a programming language, to a particular framework, library, or tool, they may even be specific to a company or even a project. There are also guidelines general enough so they could be applied anywhere or guidelines that pursue an specific goal such as reducing security breaches in a program.
+
+The following <<java-naming-conventions>> is an extract from the Java coding conventions <<oracle1997java>>. This fragment specifies how developers should name classes, interfaces and methods.
+
+[[java-naming-conventions]]
+.Java naming conventions for classes, interfaces and methods
+====
+Class names should be nouns, in mixed case with the first letter of each internal word capitalized. Try to keep your class names simple
+and descriptive. Use whole words—avoid acronyms and abbreviations (unless the abbreviation is much more widely used than the
+long form, such as URL or HTML).
+
+Interface names should be capitalized like class names.
+
+Methods should be verbs, in mixed case with the first letter lowercase, with the first letter of each internal word capitalized.
+====
+
+<<java-naming-example>> shows a piece of code respecting the naming conventions form <<java-naming-conventions>>.
+
+[[java-naming-example, Listing {counter:listing}]]
+.Listing {listing}. Java code matching naming conventions for classes, interfaces and methods
+[source,java]
+----
+public class ArrayList extends AbstractList implements RandomAccess {
+    public void ensureCapacity(int minCapacity) { ... }
+}
+----
+
+<<csharp-naming-conventions>> contains an extract of the naming conventions for C# <<microsoft2008naming>>. 
+
+[[csharp-naming-conventions]]
+.C# naming conventions
+====
+✔️ DO name classes and structs with nouns or noun phrases, using PascalCasing. This distinguishes type names from methods, which are named with verb phrases.
+
+✔️ DO name interfaces with adjective phrases, or occasionally with nouns or noun phrases.
+
+❌ DO NOT give class names a prefix (e.g., "C").
+
+✔️ CONSIDER ending the name of derived classes with the name of the base class.
+
+✔️ DO prefix interface names with the letter I, to indicate that the type is an interface.
+
+✔️ DO ensure that the names differ only by the "I" prefix on the interface name when you are defining a class–interface pair where the class is a standard implementation of the interface.
+====
+
+There are similarities between the naming conventions for Java and C#. For example, class names should be noun phrases starting with a capital letter and using _PascalCasing_ (Also called _UpperCamelCase_ or _DromedaryCase_). While method names in both languages should be verb phrases indicating an action, in Java developers use _camelCasing_. Notice that, in C#, interfaces should be prefixed with `I` but classes should not be prefixed with `C`. <<csharp-naming-example>> shows a code fragment matching these naming conventions. The `I` prefix helps to quickly differentiate between classes and interfaces.
+
+[[csharp-naming-example, Listing {counter:listing}]]
+.Listing {listing}. C# code respecting naming conventions
+[source,csharp]
+----
+public class ComplexNode : Node, IEnumerable {
+    public void RemoveNode(Node node) { ... }
+}
+----
+
+Python developers use conventions to further differentiate method and functions from classes and user defined classes from built-in types <<vanrossum2001style>>. See <<python-naming-conventions>> .
+
+[[python-naming-conventions]]
+.Naming conventions for Python
+====
+Class names should normally use the CapWords convention.
+The naming convention for functions may be used instead in cases where the interface is documented and used primarily as a callable.
+
+Note that there is a separate convention for builtin names: most builtin names are single words (or two words run together), with the CapWords convention used only for exception names and builtin constants.
+
+Function names should be lowercase, with words separated by underscores as necessary to improve readability.
+====
+
+With this, one can easily infer that `Node` names a class, `str` is a built-in type and `remove_node` is a function.
+
+
+
+Security oriented guidelines
+
+When designing and writing your code, you need to protect and limit the access that code has to resources, especially when using or invoking code of unknown origin. So, keep in mind the following techniques to ensure your code is secure:
+- Do not use Code Access Security (CAS).
+- Do not use partial trusted code.
+- Do not use the AllowPartiallyTrustedCaller attribute (APTCA).
+- Do not use .NET Remoting.
+- Do not use Distributed Component Object Model (DCOM).
+- Do not use binary formatters.
+
+https://docs.microsoft.com/en-us/dotnet/standard/security/secure-coding-guidelines
+
+Everyone has its own conventions
+
+Brace placement	Styles
+
+
+.Table
+[cols="a,a,a"]
+|===
+| [source,c]
+----
+while (x == y) {
+    something();
+    somethingelse();
+}
+----
+K&R
+| [source,c]
+----
+while (x == y) {
+    something();
+    somethingelse();
+    }
+----
+Ratliff
+| [source,c]
+----
+while (x == y)
+  { something()
+  ; somethingelse()
+  ; 
+  }
+----
+Haskell
+|===
+
+https://en.wikipedia.org/wiki/Indentation_style
+
+
+Apply commons sense the most important thing is to be consistent
+
+C#:
+
+This is very readable and explains the relationship clearly. Some examples of this in code are: ArgumentOutOfRangeException, which is a kind of Exception, and SerializableAttribute, which is a kind of Attribute. However, it is important to use reasonable judgment in applying this guideline; for example, the Button class is a kind of Control event, although Control doesn’t appear in its name.
+
+Python:
+
+A style guide is about consistency. Consistency with this style guide is important. Consistency within a project is more important. Consistency within one module or function is the most important.
+However, know when to be inconsistent -- sometimes style guide recommendations just aren't applicable. When in doubt, use your best judgment. Look at other examples and decide what looks best. And don't hesitate to ask!
+In particular: do not break backwards compatibility just to comply with this PEP!
+
+
+
 
 
 Levels:
@@ -32,6 +170,16 @@ Levels:
 - Project
 - Goal oriented, for example, security
 
+Coding guidelines:
+- Improve readability of the code, help improve understanding, ease collaboration, in the long term prevent bugs
+
+- Include naming conventions
+- How to organize the code and the project
+
+
+
+
+==== Code smells and antipatterns
 
 Code smells:
 - Eliminated by refactoring
@@ -86,15 +234,20 @@ Build your own?
 :numbered!:
 === References
 
-- [[spinellis2006code,[{counter:references}&rsqb;]] [{references}] Spinellis, D. (2006). Code quality: the open source perspective. Adobe Press.
+[start = {counter:references}]
+. [[spinellis2006code,({references})]] Spinellis, D. (2006). Code quality: the open source perspective. Adobe Press.
 
-- [[fowler2019is,[{counter:references}&rsqb;]] [{references}] Fowler M. (May 2019) Is High Quality Software Worth the Cost? https://martinfowler.com/articles/is-quality-worth-cost.html Last accessed on 22-04-2020
+. [[fowler2019is,({counter:references})]] Fowler M. (May 2019). Is High Quality Software Worth the Cost? https://martinfowler.com/articles/is-quality-worth-cost.html Last accessed on 22-04-2020
 
-- [[boehm1976quantitative,[{counter:references}&rsqb;]] [{references}] Boehm, B. W., Brown, J. R., & Lipow, M. (1976, October). Quantitative evaluation of software quality. In Proceedings of the 2nd international conference on Software engineering (pp. 592-605). IEEE Computer Society Press. https://dl.acm.org/citation.cfm?id=807736
+. [[boehm1976quantitative,({counter:references})]] Boehm, B. W., Brown, J. R., & Lipow, M. (1976, October). Quantitative evaluation of software quality. In Proceedings of the 2nd international conference on Software engineering (pp. 592-605). IEEE Computer Society Press. https://dl.acm.org/citation.cfm?id=807736
 
-- [[iso2011square,[{counter:references}&rsqb;]] [{references}] ISO/IEC 25010:2011 Systems and software engineering — Systems and software Quality Requirements and Evaluation (SQuaRE) — System and software quality models. https://www.iso.org/standard/35733.html Last accessed on 22-04-2020
+. [[iso2011square,({counter:references})]] ISO/IEC 25010:2011 Systems and software engineering — Systems and software Quality Requirements and Evaluation (SQuaRE) — System and software quality models. https://www.iso.org/standard/35733.html Last accessed on 22-04-2020
 
+. [[oracle1997java, ({counter:references})]] Oracle (1997). Java Code Conventions https://www.oracle.com/technetwork/java/codeconventions-150003.pdf Last accessed on 28-04-2020
 
+. [[microsoft2008naming, ({counter:references})]] Microsoft (2008). Names of Classes, Structs, and Interfaces https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/names-of-classes-structs-and-interfaces Last accessed on 28-04-2020
+
+. [[vanrossum2001style, ({counter:references})]] van Rossum G. (2001). Style Guide for Python Code https://www.python.org/dev/peps/pep-0008/ Last accessed on 29-04-2020
 
 https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions
 
