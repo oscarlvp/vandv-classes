@@ -449,7 +449,7 @@ This course will be focused in the analytical approach of verification, more pre
 === References
 
 . [[andreessen2011why, ({counter:references})]] Andreessen, M. (2011). Why software is eating the world. Wall Street Journal, 20(2011), C2. 
-. [[wikipedia2020bug,({counter:references})]] Wikipedia. Software Bug. https://en.wikipedia.org/wiki/Software_bug, Last consulted: 17/03/2020.
+. [[wikipedia2020bug,({counter:references})]] Wikipedia. Software Bug. https://en.wikipedia.org/wiki/Software_bug, Last accessed: 17/03/2020.
 . [[ghahrai2018error,({counter:references})]] Ghahrai A. (2018). Error, Fault and Failure in Software Testing. https://www.testingexcellence.com/error-fault-failure-software-testing/ Last accessed: 17/03/2020.
 . [[mancoridis2018slides,({counter:references})]] Mancoridis S. Slides of his V&V course https://www.cs.drexel.edu/~spiros/teaching/SE320/slides/introduction.pdf)) Last accessed: 17/03/2020.
 . [[moller1993empirical,({counter:references})]] Moller, K-H., and Daniel J. Paulish. (1993). An empirical investigation of software fault distribution. Proceedings First International Software Metrics Symposium. IEEE (1993).
@@ -462,9 +462,8 @@ This course will be focused in the analytical approach of verification, more pre
 . [[johnson2012curiosity,({counter:references})]] Johnson P. (2012). Curiosity about lines of code. https://www.itworld.com/article/2725085/big-data/curiosity-about-lines-of-code.html. Last accessed: 12/09/2018.
 . [[turing1936computable,({counter:references})]] Turing, A. M. (1936). On computable numbers, with an application to the Entscheidungsproblem. J. of Math, 58(345-363), 5.
 . [[wikimedia2020lines,({counter:references})]] Lines of Code Linux Kernel.svg. https://commons.wikimedia.org/wiki/File:Lines_of_Code_Linux_Kernel.svg. Last accessed: 17/03/2020.
-. [[opensignal2015android,({counter:references})]] OpenSignal. (2015). Android Fragmentation. https://www.opensignal.com/sites/opensignal-com/files/data/reports/global/data-2015-08/2015_08_fragmentation_report.pdf). Last accessed 17/03/2020.
+. [[opensignal2015android,({counter:references})]] OpenSignal. (2015). Android Fragmentation. https://www.opensignal.com/sites/opensignal-com/files/data/reports/global/data-2015-08/2015_08_fragmentation_report.pdf). Last accessed: 17/03/2020.
 . [[meyer2008seven,({counter:references})]] Meyer, B. (2008). Seven principles of software testing. Computer, 41(8), 99-101. http://www2.computer.org/portal/web/csdl/doi/10.1109/MC.2008.306
-. [[netflix2011,({counter:references})]] The Netflix Simian Army. (2011). https://netflixtechblog.com/the-netflix-simian-army-16e57fbab116
-. [[fowler2006continuous,({counter:references})]] Continuous Integration. (2006). https://martinfowler.com/articles/continuousIntegration.html
-. [[thoughtworksintegration,({counter:references})]] Continuous Integration. Last accessed 21-04-2020 https://www.thoughtworks.com/continuous-integration
-https://martinfowler.com/bliki/ContinuousDelivery.html
+. [[netflix2011,({counter:references})]] The Netflix Simian Army. (2011). https://netflixtechblog.com/the-netflix-simian-army-16e57fbab116 Last accessed: 01/05/2020
+. [[fowler2006continuous,({counter:references})]] Continuous Integration. (2006). https://martinfowler.com/articles/continuousIntegration.html Last accessed: 01/05/2020
+. [[thoughtworksintegration,({counter:references})]] Continuous Integration. https://www.thoughtworks.com/continuous-integration Last accessed: 01/05/2020
