@@ -27,6 +27,15 @@ Some good development practices are presented as _coding guidelines_ or _coding 
 
 Coding guidelines may be specific to a programming language, to a particular framework, library, or tool, they may even be specific to a company or even a project. There are also guidelines general enough so they could be applied anywhere or guidelines that pursue an specific goal such as reducing security breaches in a program.
 
+===== Naming conventions
+
+[quote, Phil Karlton,  Product Architect at Netscape]
+____
+There are only two hard things in Computer Science: cache invalidation and naming things.
+____ 
+
+Part of the coding guidelines is devoted to help developers know how to name program elements such as classes or methods. These guidelines are different from one language to the other, although they share common ideas. This section contains three examples from Java, C# and Python.
+
 The following <<java-naming-conventions>> is an extract from the Java coding conventions <<oracle1997java>>. This fragment specifies how developers should name classes, interfaces and methods.
 
 [[java-naming-conventions]]
@@ -63,7 +72,7 @@ public class ArrayList extends AbstractList implements RandomAccess {
 
 ❌ DO NOT give class names a prefix (e.g., "C").
 
-✔️ CONSIDER ending the name of derived classes with the name of the base class.
+...
 
 ✔️ DO prefix interface names with the letter I, to indicate that the type is an interface.
 
@@ -81,7 +90,7 @@ public class ComplexNode : Node, IEnumerable {
 }
 ----
 
-Python developers use conventions to further differentiate method and functions from classes and user defined classes from built-in types <<vanrossum2001style>>. See <<python-naming-conventions>> .
+Python developers use conventions to further differentiate method and functions from classes and user defined classes from built-in types <<vanrossum2001style>>. See <<python-naming-conventions>>.
 
 [[python-naming-conventions]]
 .Naming conventions for Python
@@ -96,45 +105,34 @@ Function names should be lowercase, with words separated by underscores as neces
 
 With this, one can easily infer that `Node` names a class, `str` is a built-in type and `remove_node` is a function.
 
+===== Indentation
 
+In most language extra white spaces do not change the semantics of a program but sure they play an important role in readability. Each language tries to enforce an indentation style, but even for the same language different developers have follow different styles. Keeping a consistent style helps fast delimiting blocks in a program and improves understanding.
 
-Security oriented guidelines
+<<indentation-examples>> shows three examples of different indentation styles applied to the same fragment of code. Notice how different the program looks in each case.
 
-When designing and writing your code, you need to protect and limit the access that code has to resources, especially when using or invoking code of unknown origin. So, keep in mind the following techniques to ensure your code is secure:
-- Do not use Code Access Security (CAS).
-- Do not use partial trusted code.
-- Do not use the AllowPartiallyTrustedCaller attribute (APTCA).
-- Do not use .NET Remoting.
-- Do not use Distributed Component Object Model (DCOM).
-- Do not use binary formatters.
-
-https://docs.microsoft.com/en-us/dotnet/standard/security/secure-coding-guidelines
-
-Everyone has its own conventions
-
-Brace placement	Styles
-
-
-.Table
+[[indentation-examples]]
+.Examples of indentation styles taken from https://en.wikipedia.org/wiki/Indentation_style[Wikipedia] <<wikipedia2020indentation>>
 [cols="a,a,a"]
 |===
-| [source,c]
+| *Kernighan & Ritchie*
+[source,c]
 ----
 while (x == y) {
     something();
     somethingelse();
 }
 ----
-K&R
-| [source,c]
+| *Ratliff*
+[source,c]
 ----
 while (x == y) {
     something();
     somethingelse();
     }
 ----
-Ratliff
-| [source,c]
+| *Haskell*
+[source,c]
 ----
 while (x == y)
   { something()
@@ -142,75 +140,148 @@ while (x == y)
   ; 
   }
 ----
-Haskell
 |===
 
-https://en.wikipedia.org/wiki/Indentation_style
+The _Kernighan & Ritchie_ style, also known as "`_the one true brace style_`" and "`Egyptian braces`" was used in the influential book _The C Programming Language_ written by Brian Kernighan and Dennis Ritchie (creator of C). Besides C, this style is also used in C++ and Java. C# however, uses the Allman style, in which the first brace is written in a separated line. The Allman style is also used in Pascal and SQL.
 
+Wikipedia lists nine different indentation styles most of them with additional variants <<wikipedia20202indentation>>.
 
-Apply commons sense the most important thing is to be consistent
+===== Framework and company specific guidelines
 
-C#:
+Companies and even communities around a framework or project may impose specific guideline to override or extend language conventions.
+
+Sometimes these guidelines have a concrete goal other than readability. <<microsoft-security-example>> shows an extract of the guidelines Microsoft enforces to write secure code using the .NET framework <<microsoft2018secure>>.
+
+[[microsoft-security-example]]
+.Microsoft's secure coding guidelines for the .NET framework.
+====
+When designing and writing your code, you need to protect and limit the access that code has to resources, especially when using or invoking code of unknown origin. So, keep in mind the following techniques to ensure your code is secure:
+
+- Do not use Code Access Security (CAS).
+- Do not use partial trusted code.
+- Do not use the AllowPartiallyTrustedCaller attribute (APTCA).
+- Do not use .NET Remoting.
+- Do not use Distributed Component Object Model (DCOM).
+- Do not use binary formatters.
+====
+
+<<google-conventions>> shows how Google extends the Java coding conventions to their own projects <<google2020java>>.
+
+[[google-conventions]]
+.Google conventions for Java
+====
+When a reference to a static class member must be qualified, it is qualified with that class's name, not with a reference or expression of that class's type.
+[source, java]
+----
+Foo aFoo = ...;
+Foo.aStaticMethod(); // good
+aFoo.aStaticMethod(); // bad
+somethingThatYieldsAFoo().aStaticMethod(); // very bad
+----
+====
+
+===== Should conventions be always enforced?
+
+Conventions are created to set a common ground for understanding. This is specially useful when learning a new language, for a newcomer and to ease the collaboration between different developers in a project. However, there are cases in which strictly following these conventions actually has the opposite effect. For example, when dealing with legacy code that followed different guidelines, it is better to stick to the practices in place rather than introducing new conventions. 
+
+In any case, the ultimate goal must be to write consistent code that can be understood for all team/project members. Common sense is always the best guideline.
+
+<<microsoft-base-name>> explains how to name extending classes with respect to the base class, but it also wars against over-use <<microsoft2008naming>>.
+
+[[microsoft-base-name]]
+.Microsoft's guideline to name extending classes with a warning on when not to use it 
+====
+✔️ CONSIDER ending the name of derived classes with the name of the base class.
 
 This is very readable and explains the relationship clearly. Some examples of this in code are: ArgumentOutOfRangeException, which is a kind of Exception, and SerializableAttribute, which is a kind of Attribute. However, it is important to use reasonable judgment in applying this guideline; for example, the Button class is a kind of Control event, although Control doesn’t appear in its name.
+====
 
-Python:
+<<python-guidelines-warning>> shows an extract from the Python coding guidelines stressing the idea that keeping consistency is more important than following the guidelines <<vanrossum2001style>>.
 
+[[python-guidelines-warning]]
+.Python guidelines on consistency and guidelines applications
+====
 A style guide is about consistency. Consistency with this style guide is important. Consistency within a project is more important. Consistency within one module or function is the most important.
+
 However, know when to be inconsistent -- sometimes style guide recommendations just aren't applicable. When in doubt, use your best judgment. Look at other examples and decide what looks best. And don't hesitate to ask!
+
 In particular: do not break backwards compatibility just to comply with this PEP!
+====
 
+==== Code Smells and AntiPatterns
 
+Thorough the years, developers have identified patterns of code that usually become symptoms of hidden problems affecting the quality of the software. Such code patterns are known as _Code Smells_, a term coined by Kent Beck and first presented in Martin Fowler's _Refactoring_ book <<fowler2006codesmells>>.
 
+Code smells do not always lead to a problem or a bug. But, in most, cases, their presence makes the code harder to understand and maintain, and in Fowler's words "`they are often an indicator of a problem rather than the problem themselves`". Code smells can be eliminated by refactoring, that is, restructuring the program to make it simpler.
 
+The https://sourcemaking.com/[Source Making Blog] presents a list of well known code smells and how they could be solved <<source2020smells>>. Internet is full with such lists they might differ on the (generally catchy) name they use to categorize a smell and some might miss one or two patters.
 
-Levels:
-- Language
-- Framework/Tool
-- Project
-- Goal oriented, for example, security
+The following is a small sample of that list.
 
-Coding guidelines:
-- Improve readability of the code, help improve understanding, ease collaboration, in the long term prevent bugs
+Long method:: A method that contains too many lines of code or too many statements. Long methods tend to hide unwanted duplicated code and are harder to maintain. It can be solved by splitting the code in shorter methods easier to reuse, maintain and understand.
 
-- Include naming conventions
-- How to organize the code and the project
+Long class:: A class containing too many methods, fields and lines of code. Large classes can be split into several classes and even into a hierarchy in which each smaller class has a very well defined purpose.
 
+Long parameter list:: A method with a long list of parameters is harder to use. Parameters could be replaced by method calls or passing complete objects.
 
+Primitive obsession:: Abuse of primitive types instead of creating one's own abstractions.
 
+Temporary fields:: Fields in classes that are used only under certain circumstances in one or very few methods, otherwise they are not used. These fields could be promoted most of the times to local variables.
 
-==== Code smells and antipatterns
+Feature envy:: A method that accesses the data of another object more than its own data. This method's behavior will probably better placed in the class of the external object.
 
-Code smells:
-- Eliminated by refactoring
+Code smells are very well localized program fragments. However, there are more global patterns that are often used as solutions to a problem but they may bring more harm than benefits and are better to avoid. These bad solutions are described as _AntiPatterns_. The same https://sourcemaking.com/[Source Making Blog] provides an interesting list of them AntiPatterns can be related to coding practices, software architecture designs and even related to the management of a project. Identifying these bad solutions helps also in finding a better alternative <<source2020anti>>.
 
-Antipatterns
+Here are some examples:
 
+Golden Hammer:: Using a single tool to solve most problems even when it is not the best alternative. Leads to inferior performance and less suited solutions, requirements are accommodated more to match the tool than what users may need, design choices are dictated by the tool's capabilities and new development relies heavily in the tool.
 
-[quote]
-____
-A code smell is a surface indication that usually corresponds to a deeper problem in the system. The term was first coined by Kent Beck while helping me with my Refactoring book.
+Cut-And-Paste Programming:: This one is self-descriptive: code is reused by copying and pasting fragments in different places. In the case that the originally copied code has a bug, then the issue will reoccur in all places where the code was pasted and it will be harder to solve.
 
-The quick definition above contains a couple of subtle points. Firstly a smell is by definition something that's quick to spot - or sniffable as I've recently put it. A long method is a good example of this - just looking at the code and my nose twitches if I see more than a dozen lines of java.
+Swiss Army Knife:: An excessively complex class interface attempting to provide for all possible uses of the class. These classes include too many method signatures for a single class. It denotes an unclear abstraction or purpose.
 
-The second is that smells don't always indicate a problem. Some long methods are just fine. You have to look deeper to see if there is an underlying problem there - smells aren't inherently bad on their own - they are often an indicator of a problem rather than the problem themselves.
-____
+Design By Committee:: A software design, usually from a committee, is so complex and so full of different features and variants that it becomes impossible to complete in a reasonable lapse of time.
 
+==== Code Metrics
 
-
-=== (Working title) How to detect code issues?
-
-Pattern matching (not to confuse with the term in AI)
+Pattern matching (not to confuse with the term in AI) to detect some code smells and guideline violations.
 
 Each guideline lead to a well defined code pattern. (add an example related to the examples above) Sometimes even there can be an automatic fix
 
 Code smells might be vague, for example, a method should not be too long, so to automate we must define metrics that help to identify potential code patterns that could be smelly.
 
-Other forms of analysis like data flow to detect potential null reference exceptions.
-
 Examples of metrics
+    Lines of Code
+    Non-commenting source statements
+    Class cohesion
+    Class coupling
+    Cyclomatic Complexity
+    Number of acyclic paths
 
-==== (Working title) Static analysis tools
+==== Demeter's Law
+
+
+
+=== (Working title) Static analysis
+
+Static analysis
+Programs that take as input the source code 
+Often rely on a visitor pattern
+
+Detect patterns corresponding to guidelines and code smells
+Compute metrics and detect code smells based on the metrics.
+
+Control flow analysis
+    Cyclic dependencies
+    Dead/unreachable code
+Data flow analysis
+    Uninitialized variables
+    Buffer overflows
+    Null pointers
+API analysis
+    Consistency between interface and implementation
+
+
 Compilers: Errors prevent the creation of invalid programs, warnings help discover potential problems in type conversion as truncation errors, (remember the bugs from the previous classes), dead code elimination
 Linters: Extended syntax analysis, original tool was Lint from Bell Labs for the Protable C Compiler for the PDP-11. Its role was to detect bad code patterns and patterns of code that would introduce incompatibilities among architectures. The the term expanded to similar tools.
 Other tools to compute metrics and detect the occurrence of code patterns:
@@ -219,6 +290,7 @@ Other tools to compute metrics and detect the occurrence of code patterns:
 usually extensible and configurable. May analyze source code or compiled code.
 Build your own?
 
+Limitations of static analysis
 
 === (Working title) How to incorporate in the development process
 
@@ -237,24 +309,27 @@ Build your own?
 [start = {counter:references}]
 . [[spinellis2006code,({references})]] Spinellis, D. (2006). Code quality: the open source perspective. Adobe Press.
 
-. [[fowler2019is,({counter:references})]] Fowler M. (May 2019). Is High Quality Software Worth the Cost? https://martinfowler.com/articles/is-quality-worth-cost.html Last accessed on 22-04-2020
+. [[fowler2019is,({counter:references})]] Fowler M. (May 2019). Is High Quality Software Worth the Cost? https://martinfowler.com/articles/is-quality-worth-cost.html Last accessed: 22/04/2020
 
 . [[boehm1976quantitative,({counter:references})]] Boehm, B. W., Brown, J. R., & Lipow, M. (1976, October). Quantitative evaluation of software quality. In Proceedings of the 2nd international conference on Software engineering (pp. 592-605). IEEE Computer Society Press. https://dl.acm.org/citation.cfm?id=807736
 
-. [[iso2011square,({counter:references})]] ISO/IEC 25010:2011 Systems and software engineering — Systems and software Quality Requirements and Evaluation (SQuaRE) — System and software quality models. https://www.iso.org/standard/35733.html Last accessed on 22-04-2020
+. [[iso2011square,({counter:references})]] ISO/IEC 25010:2011 Systems and software engineering — Systems and software Quality Requirements and Evaluation (SQuaRE) — System and software quality models. https://www.iso.org/standard/35733.html Last accessed: 22/04/2020
 
-. [[oracle1997java, ({counter:references})]] Oracle (1997). Java Code Conventions https://www.oracle.com/technetwork/java/codeconventions-150003.pdf Last accessed on 28-04-2020
+. [[oracle1997java, ({counter:references})]] Oracle (1997). Java Code Conventions https://www.oracle.com/technetwork/java/codeconventions-150003.pdf Last accessed: 28/04/2020
 
-. [[microsoft2008naming, ({counter:references})]] Microsoft (2008). Names of Classes, Structs, and Interfaces https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/names-of-classes-structs-and-interfaces Last accessed on 28-04-2020
+. [[microsoft2008naming, ({counter:references})]] Microsoft (2008). Names of Classes, Structs, and Interfaces https://docs.microsoft.com/en-us/dotnet/standard/design-guidelines/names-of-classes-structs-and-interfaces Last accessed: 28/04/2020
 
-. [[vanrossum2001style, ({counter:references})]] van Rossum G. (2001). Style Guide for Python Code https://www.python.org/dev/peps/pep-0008/ Last accessed on 29-04-2020
+. [[vanrossum2001style, ({counter:references})]] van Rossum G. (2001). Style Guide for Python Code https://www.python.org/dev/peps/pep-0008/ Last accessed: 29/04/2020
 
-https://docs.microsoft.com/en-us/dotnet/csharp/programming-guide/inside-a-program/coding-conventions
+. [[wikipedia2020indentation, ({counter:references})]] Wikipedia. Indentation style. https://en.wikipedia.org/wiki/Indentation_style Last accessed: 30/04/2020
 
-https://www.oracle.com/technetwork/java/codeconventions-150003.pdf
+. [[microsoft2018secure, ({counter:references})]] Microsoft (2018). Secure coding guidelines. https://docs.microsoft.com/en-us/dotnet/standard/security/secure-coding-guidelines Last accessed: 30/04/2020
 
-https://google.github.io/styleguide/javaguide.html
+. [[google2020java, ({counter:references})]] Google. Google Java Style Guide. https://google.github.io/styleguide/javaguide.html Last accessed: 30/04/2020
 
-https://martinfowler.com/bliki/CodeSmell.html
+. [[fowler2006codesmell, ({counter:references})]] Forwler. M. (2006). CodeSmell https://martinfowler.com/bliki/CodeSmell.html Last accessed: 01/05/2020
 
-https://sourcemaking.com/refactoring/smells Divided into categories
+. [[source2020smells, ({counter:references})]] Source Making. Code Smells https://sourcemaking.com/refactoring/smells Last accessed: 01/05/2020
+
+. [[source2020anti, ({counter:references})]] Source Making. AntiPatterns. https://sourcemaking.com/antipatterns Last accessed: 30/04/2020
+
