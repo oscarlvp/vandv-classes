@@ -20,7 +20,7 @@ When developing a software product, engineers should follow a set of requirement
 
 Then, a bug appears when the software does not match the requirements: it does not perform correctly a functional requirement, like saving a document, or does something that should not do according to these requirements like closing the window when the maximize button is pressed or when it violates non-functional constraints, e. g., it is too slow.
 
-Three general terms are related to the concept of bugs <<ghahrai2018error>>:
+Bugs are produced by _errors_ in the development process and discovered through _failures_ when the product is being tested or exploited. It is then important to distinguish between the three terms <<ghahrai2018error>>:
 
 Error, Mistake:: a human action that produces an incorrect result. Also called a *mistake*.
 Fault, Defect, Bug:: a manifestation of an error in software. It is a flaw or imperfection found within the code <<moller1993empirical>>.
@@ -177,7 +177,7 @@ Software inevitably fails. The causes for this are widely varied and may occur a
 
 First of all, programs are very complex artifacts, even those we may consider simple or trivial.
 
-Consider the algorithm presented in <<>collatz>.
+Consider the algorithm presented in <<collatz>>.
 
 [[collatz, Listing {counter:listing}]]
 .Listing {listing}. Will the alarm sound for all given inputs?
