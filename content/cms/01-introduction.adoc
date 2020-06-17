@@ -20,12 +20,14 @@ When developing a software product, engineers should follow a set of requirement
 
 Then, a bug appears when the software does not match the requirements: it does not perform correctly a functional requirement, like saving a document, or does something that should not do according to these requirements like closing the window when the maximize button is pressed or when it violates non-functional constraints, e. g., it is too slow.
 
-Bugs are produced by _errors_ in the development process and discovered through _failures_ when the product is being tested or exploited. It is then important to distinguish between the three terms <<ghahrai2018error>>:
+Bugs are produced by _mistakes_ in the development process and discovered through _failures_ when the product is being tested or exploited. It is then important to distinguish between the three terms <<ghahrai2018error>>, <<amman2016introduction>>:
 
-Error, Mistake:: a human action that produces an incorrect result. Also called a *mistake*.
-Fault, Defect, Bug:: a manifestation of an error in software. It is a flaw or imperfection found within the code <<moller1993empirical>>.
-Failure:: a deviation of the software from its expected delivery or service.
-An error leads to a fault and a fault leads to a failure when the software is in production. A failure is the manifestation of a bug.
+Mistake:: a human action that produces an incorrect result.
+Software Fault, Software Defect, Bug:: a manifestation of an error in software. It is a static flaw or imperfection found within the code <<moller1993empirical>>.
+Software Error:: An incorrect internal state of the program during execution and produced by a bug. 
+Software Failure:: a deviation of the software from its expected delivery or service.
+
+A mistake leads to a fault, a fault leads to an error which leads to a failure when the software is executed. A failure is the manifestation of a bug.
 
 A bug may come from very different sources. Some of them could be traced to a very localized and specific part of the code. Other may have a global scope as they arise from the interaction of several of the components that conform the system.
 
@@ -451,6 +453,7 @@ This course will be focused in the analytical approach of verification, more pre
 . [[andreessen2011why, ({counter:references})]] Andreessen, M. (2011). Why software is eating the world. Wall Street Journal, 20(2011), C2. 
 . [[wikipedia2020bug,({counter:references})]] Wikipedia. Software Bug. https://en.wikipedia.org/wiki/Software_bug, Last accessed: 17/03/2020.
 . [[ghahrai2018error,({counter:references})]] Ghahrai A. (2018). Error, Fault and Failure in Software Testing. https://www.testingexcellence.com/error-fault-failure-software-testing/ Last accessed: 17/03/2020.
+. [[amman2016introduction,({counter:references})]] Ammann, P., & Offutt, J. (2016). Introduction to software testing. Cambridge University Press.
 . [[mancoridis2018slides,({counter:references})]] Mancoridis S. Slides of his V&V course https://www.cs.drexel.edu/~spiros/teaching/SE320/slides/introduction.pdf)) Last accessed: 17/03/2020.
 . [[moller1993empirical,({counter:references})]] Moller, K-H., and Daniel J. Paulish. (1993). An empirical investigation of software fault distribution. Proceedings First International Software Metrics Symposium. IEEE (1993).
 . [[fruhlinger2017what,({counter:references})]] Fruhlinger J. (2017). What is the Heartbleed bug, how does it work and how was it fixed?. CSO (2017) https://www.csoonline.com/article/3223203/vulnerabilities/what-is-the-heartbleed-bug-how-does-it-work-and-how-was-it-fixed.html. Last accessed: 17/03/2020.
