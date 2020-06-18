@@ -446,6 +446,65 @@ int sumOfNonPrimes(int limit) {
 }
 ....
 
+===== Coupling between objects or class coupling
+
+A class is coupled to another if the former uses a method or a field from the latter. Coupling between classes can not be avoided, it is, in fact, desirable. We create classes as functionality units for reuse. At some point, existing classes will be leveraged to create new functionalities. However, coupling has important implications: changing a class most of the times will require changing its dependent classes. Therefore too much coupling harms modularity, makes a software too sensitive to change and harder to maintain <<chidamber1994metrics>> <<fowler2001reducing>>.
+
+_Class coupling_ or _Coupling Between Objects_ (CBO) of a class is the number of external classes it uses. In <<coupling-example>>, `Point` has CBO of 0.. It only depends on `double` and the metric does not count primitive types. `Line`, on the other hand, depends on `Point` and has a CBO of 1. The metric counts only unique classes. In the example, `Line` uses `Point` several times, but it is counted only once.
+
+[[coupling-example, Listing {counter:listing}]]
+.Listing {listing}. Two classes: `Point` as CB=0 coupling and `Line` 1.
+[source, java]
+....
+class Point {
+
+    private double x, y;
+
+    public Point(double x, double y) {
+        this.x = x;
+        this.y = y;
+    }
+
+    public double getX() {
+        return this.x;
+    }
+
+    public double getY() {
+        return this.y;
+    }
+
+    public double dot(Point p) {
+        return x*p.x + y*p.y;
+    }
+
+    public Point sub(Point p) {
+        return new Point(x - p.x, y - p.y);
+    }
+
+}
+
+class Segment {
+
+    private Point a, b;
+
+    public class Segment(Point a, Point b) {
+        this.a = a;
+        this.b = b;
+    }
+
+    public boolean has(Point p) {
+        Point pa = p.sub(a);
+        Point ab = a.sub(b);
+        double product = pa.dot(ab);
+        return 0 <= product && product <= ab.dot(ab);
+    }
+}
+....
+
+Classes with low coupling are easier to reuse. Classes with large coupling should be avoided and refactored. If a class with a large coupling becomes necessary, then these it requires rigorous testing to correctly verify its interaction with its dependencies. A study from 2010 performed on the Eclipse project concluded that, among other metrics, CBO is a significant predictor on how prone a class is to bugs. The same study says that a CBO greater than 9 signals a high risk to introduce a fault.
+
+Coupling could measured not only at the class level but also between any modules that conform a system.
+
 ===== Class cohesion and coupling
 
 ////
@@ -510,8 +569,8 @@ Discuss limitations of static analysis
 TODO:
 
 - IDE: instant response, sometimes they also provide automatic fixing
-- Code reviews: Meetings, platforms
 - Make the build fail --> local environment or CI/CD
+- Code reviews: Meetings, platforms
 - CI/CD 
     --> SonarQube
     --> https://github.com/ankitvgupta/pycodestyle-action this posts the result of the  static analysis as a comment in the pull request
@@ -557,5 +616,9 @@ TODO:
 
 . [[hummel2014mccabe, ({counter:references})]] Hummel B. (2014) McCabe's Cyclomatic Complexity and Why We Don't Use It. https://www.cqse.eu/en/news/blog/mccabe-cyclomatic-complexity/ Last accessed: 17/06/2020
 
+. [[chidamber1994metrics, ({counter:references})]]  Chidamber, S. R., & Kemerer, C. F. (1994). A metrics suite for object oriented design. IEEE Transactions on software engineering, 20(6), 476-493. Online: http://www.pitt.edu/~ckemerer/CK%20research%20papers/MetricForOOD_ChidamberKemerer94.pdf Last accessed: 18/06/2020
+
+. [[fowler2001reducing, ({counter:references})]] Fowler, M. (2001). Reducing Coupling. IEEE Softw., 18, 102-104. Online: https://martinfowler.com/ieeeSoftware/coupling.pdf Last accessed 18/06/2020
 
 Code Metrics – Class Coupling https://docs.microsoft.com/en-us/archive/blogs/zainnab/code-metrics-class-coupling
+
