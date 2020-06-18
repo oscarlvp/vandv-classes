@@ -647,6 +647,3 @@ TODO:
 . [[fowler2001reducing, ({counter:references})]] Fowler, M. (2001). Reducing Coupling. IEEE Softw., 18, 102-104. Online: https://martinfowler.com/ieeeSoftware/coupling.pdf Last accessed 18/06/2020
 
 . [[appleton_demeter, ({counter:references})]] Appleton B. Introducing Demeter and its Laws. http://www.bradapp.com/docs/demeter-intro.html Last accessed 18/06/2020
-
-Code Metrics – Class Coupling https://docs.microsoft.com/en-us/archive/blogs/zainnab/code-metrics-class-coupling
-
