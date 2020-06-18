@@ -448,7 +448,7 @@ int sumOfNonPrimes(int limit) {
 
 ===== Coupling between objects or class coupling
 
-A class is coupled to another if the former uses a method or a field from the latter. Coupling between classes can not be avoided, it is, in fact, desirable. We create classes as functionality units for reuse. At some point, existing classes will be leveraged to create new functionalities. However, coupling has important implications: changing a class most of the times will require changing its dependent classes. Therefore too much coupling harms modularity, makes a software too sensitive to change and harder to maintain <<chidamber1994metrics>> <<fowler2001reducing>>.
+A class is coupled to another if the former uses a method or a field from the latter. Coupling between classes can not be avoided, it is, in fact, desirable. We create classes as functionality units for reuse. At some point, existing classes will be leveraged to create new functionalities. However, coupling has important implications: changing a class most of the times will require changing its dependent classes. Therefore tight coupling between classes harms modularity, makes a software too sensitive to change and harder to maintain <<chidamber1994metrics>> <<fowler2001reducing>>.
 
 _Class coupling_ or _Coupling Between Objects_ (CBO) of a class is the number of external classes it uses. In <<coupling-example>>, `Point` has CBO of 0.. It only depends on `double` and the metric does not count primitive types. `Line`, on the other hand, depends on `Point` and has a CBO of 1. The metric counts only unique classes. In the example, `Line` uses `Point` several times, but it is counted only once.
 
@@ -501,20 +501,46 @@ class Segment {
 }
 ....
 
-Classes with low coupling are easier to reuse. Classes with large coupling should be avoided and refactored. If a class with a large coupling becomes necessary, then these it requires rigorous testing to correctly verify its interaction with its dependencies. A study from 2010 performed on the Eclipse project concluded that, among other metrics, CBO is a significant predictor on how prone a class is to bugs. The same study says that a CBO greater than 9 signals a high risk to introduce a fault.
+Classes with low CBO values, or loosely coupled are easier to reuse. Classes with large CBO values or tightly coupled should be avoided and refactored. If a tightly coupled class is necessary, then these it requires rigorous testing to correctly verify its interaction with its dependencies. A study from 2010 performed on the Eclipse project concluded that, among other metrics, CBO is a significant predictor on how prone a class is to bugs. The same study says that a CBO greater than 9 signals a high risk to introduce a fault.
 
 Coupling could measured not only at the class level but also between any modules that conform a system.
 
-===== Class cohesion and coupling
+The _Law of Demeter_ (LoD)  or _principle of least knowledge_ is a guideline aiming to keep classes loosely coupled <<appleton_demeter>>. Its idea is that any unit should only "talk" to "its closest friends" and not to "strangers". In the context of object-oriented programming, it means that a method can only invoke methods from `this`, a parameter, an object instantiated in the method and an attribute of the class. <<demeter-example>> shows examples of violations of this principle.
+
+[[demeter-example, Listing {counter:listing}]]
+.Listing {listing}. Examples of violations of the Law of Demeter.
+[source,java]
+....
+public class Foo {
+
+    public void example(Bar b) {
+       C c = b.getC(); //<1>
+        
+       c.doIt(); //<2>
+        
+       b.getC().doIt(); //<3>
+        
+       D d = new D(); 
+       d.doSomethingElse(); //<4>
+    }
+}
+....
+<1> Conforms to LoD
+<2> Violates LoD as `c` was not created inside `example`
+<3> Chaining method invocations does not conform to LoD
+<4> Conforms to LoD, as `d` was created inside the method
+
+LoD also has downsides. A strict adherence to its postulates may produce many unnecessary wrapper methods. In <<demeter-example>> the class `Bar` should had a wrapper method `doItInC` whose code could be `this.getC().doIt()` or something alike. This kind of wrapper would be widespread in the code and it could become a challenge for maintenance. On the other hand, fluent APIs encourage the use of method chains, which also tend to improve readability. As with any principle, the use of LoD should be balanced.
+
+===== Class cohesion
 
 ////
 
 TODO: 
 
-Define both metrics
+Define the metric
 Show examples,
 Discuss values
-Explain Demeter's Law
 
 ////
 
@@ -619,6 +645,8 @@ TODO:
 . [[chidamber1994metrics, ({counter:references})]]  Chidamber, S. R., & Kemerer, C. F. (1994). A metrics suite for object oriented design. IEEE Transactions on software engineering, 20(6), 476-493. Online: http://www.pitt.edu/~ckemerer/CK%20research%20papers/MetricForOOD_ChidamberKemerer94.pdf Last accessed: 18/06/2020
 
 . [[fowler2001reducing, ({counter:references})]] Fowler, M. (2001). Reducing Coupling. IEEE Softw., 18, 102-104. Online: https://martinfowler.com/ieeeSoftware/coupling.pdf Last accessed 18/06/2020
+
+. [[appleton_demeter, ({counter:references})]] Appleton B. Introducing Demeter and its Laws. http://www.bradapp.com/docs/demeter-intro.html Last accessed 18/06/2020
 
 Code Metrics – Class Coupling https://docs.microsoft.com/en-us/archive/blogs/zainnab/code-metrics-class-coupling
 
