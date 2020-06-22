@@ -611,8 +611,6 @@ __Tight Class Cohesion__ (TCC) and _Loose Class Cohesion_ (LCC) are other two we
 
 <<cohesion-graph>> shows the graph that results from the class `Point`. In this example, stem:[\text{TCC = 5/6 = 0.83] as there are 5 direct connections and only 6 method pairs. On the other hand stem:[\text{LCC} = 6/6 = 1] as all pairs of methods are indirectly or directly connected. For the `Group` class both LCC and TCC are 0, as no method is connected to the other. 
 
-
-[[cohesion-graph]]
 [graphviz, cohesion-graph, png, layout=neato]
 .Description
 ....
@@ -634,17 +632,70 @@ graph {
 In object-oriented programs a class may inherit methods and instance variables from its base classes. In those cases, computing the cohesion of a subclass may: include only inherited methods, only inherited fields, or both. The original definition of TCC and LCC leaves this inclusion open to the users of the metrics <<bieman1995cohesion>>.
 
 
-=== (Working title) Static analysis
+=== Static analysis
 
+Enforcing coding guidelines, detecting code smells and computing code metrics, can and *should be* automated. All these goals can be achieve by inspecting the code without executing the program. This is known as _static analysis_. Any form of static analysis takes as input the code of a program. It may be a high level code, such as Python, or Java, or it could also target compiled code as the JVM bytecode. The static inspection of code also enables the early detection of problems like cyclic dependencies, potential null pointer exceptions, buffer overflows. Since it does not require the execution of the program, static analysis is, in most cases, very efficient in terms of computation time.
+
+There are plenty of available tools that can perform many types of static analysis. Some of them are highly configurable to, for example, select the coding guidelines a team wants to enforce. Many of these tools are also extensible and may allow the incorporation of new metrics, code smell definitions and other unforeseen functionalities. There are also libraries that make it easy to implement custom static analysis tools. This section presents some of these libraries and tools for Java.
+
+==== Implementing a static analysis
+
+Most code analyses start with the two same initial phases of a compiler, lexicographic and syntactic analysis.
+
+Given a source code, say in Java as the one in <<static-analysis-example>>, lexicographical analyzer, lexer, or scanner, groups together sequences of characters. These sequences are usually are associated with a type  and are called _tokens_. The lexer produces as output a sequence of tokens.
+
+[[static-analysis-example, Listing {counter:listing}]]
+.Listing {listing}. A simple Java class.
+[source, java]
+....
+class A {
+
+    public void method() {
+        System.out.println("Hello");
+    }
+}
+....
+
+<<tokens>> shows the first tokens produced by a lexer for the code in <<static-analysis-example>>. A lexer also removes character that are not needed for subsequent phases like white spaces and comments.
+
+
+[[tokens, Listing {counter:listing}]]
+.Listing {listing}. First tokens produced for <<static-analysis-example>>
+....
+("class", CLASS_KEYWORD)
+("A", IDENTIFIER)
+("{", "OPEN_BRACE")
+("public", PUBLIC_KEYWORD)
+("void", VOID_KEYWORD)
+("method", IDENTIFIER)
+....
+
+The sequence of tokens is used as input for the syntactic analysis where a _parser_ checks that the order of the tokens is correct with respect to a formal specification or grammar and builds an _Abstract Syntax Tree_ (AST). An AST is a hierarchical representation of the source code. The nodes represent the elements in the code in a way that, for example, nodes representing classes have children representing methods and fields, and nodes representing methods contain nodes representing instructions. The AST does not contain purely syntactical elements such as semicolons or braces. <<ast-example>> shows a simplified version of an AST for the code in <<static-analysis-example>>.
+
+[graphviz, ast-example, png]
+.Description
+....
+graph {
+    A -- method;
+    method -- public, void, body
+    body -- invocation
+    invocation -- access, println, arguments
+    access -- System, out
+    arguments -- "\"Hello\""
+}
+....
+
+//TODO: Link to GoF
+Most static analyses are implemented by tracing the AST and most implementations are based on the visitor pattern. The visitor pattern abstracts the operations to be performed over an object structure. Each operation is implemented as a visitor. The structure is traversed and each visitor is selected according to the elements of the structure that is being visited. In the case of a static analysis over an AST, each visitor could be a class or a method, designed to operate over a specific type of node, for example, a class will be handled by a _class visitor_. The static analysis is then carried by the joint actions of these visitors.
+
+//TODO: Link to Spoon, JavaParser and ASM
+There are libraries that facilitate the implementation of static analyses by accomplishing the construction of the AST and even providing abstractions to implement the visitor pattern. For Java sources two of the most famous are Spoon and JavaParser. There are other libraries that offer similar functionalities but targeting compiled code. One most famous JVM bytecode analysis tool is ASM. The following sections will show how to implement simple static analysis tasks in both Spoon and ASM.
 
 
 ////
 
 TODO:
 
-Present a common workflow for static analysis: lexer, parser, AST
-Explain that static analysis could inspect compiled code as well
-Explain the visitor pattern as a form of implementation
 
 Explain that one could implement it or use an existing tool
 
