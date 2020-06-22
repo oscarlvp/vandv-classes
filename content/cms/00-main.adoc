@@ -1,6 +1,7 @@
 = Validation and Verification : Course Notes
 Oscar Luis Vera-Pérez <oscarlvp@gmail.com>
 :sectnums:
+:stem:
 :imagesdir: images/
 :source-highlighter: coderay
 :icons: font
