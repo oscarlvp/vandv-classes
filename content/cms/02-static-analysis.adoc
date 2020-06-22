@@ -534,18 +534,108 @@ LoD also has downsides. A strict adherence to its postulates may produce many un
 
 ===== Class cohesion
 
-////
+A class in an object-oriented program, or a module in general, is expected to have a responsibility over a single and well defined part of the software's functionalities. All services/methods of the module/class should be aligned with this responsibility and this responsibility should be entirely encapsulated in the class. This ensures that the module/class is only changed when the requirements concerning the specific responsibility change. Changes to different requirements should not make a single class to change <<martin2006agile>> <<martin2014single>>. This known as the The _Single Responsibility Principle_ was coined by Robert C. Martin in the late 1990's and is the *S* in the *SOLID* principles of object-oriented programming.
 
-TODO: 
+If a class violates this principle, then it can probably be divided in two or more classes with different responsibilities. In this case we say that the class lacks _cohesion_. In a more concrete view, a cohesive class performs different operations on the same set of instance variables <<chidamber1994metrics>>.
 
-Define the metric
-Show examples,
-Discuss values
+There are several metrics to evaluate cohesion in classes, but most of them are based in the _Lack of Cohesion Of Methods_ (LCOM) <<chidamber1994metrics>>. This metric is defined as follows:
 
-////
+Let stem:[C] be a class with stem:[n] methods: stem:[M_1, ..., M_n], let stem:[I_j] the set of instance variables used by the method stem:[M_j]. Let stem:[P = { (I_i, I_j) | I_i \cap I_j = \emptyset, i \gt j }], that is, the pairs of methods that use disjoint sets of instance variables, and stem:[Q = { (I_i, I_j) | I_i \cap I_j \ne \emptyset, i \gt j}], all pairs of methods using at least one instance variable in common. Then stem:[\text{LCOM}(C) = |P| - |Q| \text{ if } |P| \gt |Q| \text{ 0} \text{ otherwise}].
+
+This means that _LCOM_ is equal to the number of pairs of methods using a disjoint set of instance variables minus the number of pairs of methods using variables in common. If the class has more methods using disjoint sets of instance variables then it is less cohesive. A class is cohesive if its methods use the same variables to compute different things. Low values of LCOM are preferred.
+
+<<variables-methods-point>> shows the set of all instance variables used by each method declared in the `Point` class shown in <<coupling-example>>. Constructors are not used to compute this metric, as their role is to initialize the variables and they virtually access all of them. In this particular example, all methods use the instance variables directly. However, a method could use an instance variable indirectly by invoking other methods.  In that case, the variables are also said to be used by the initial method. For example, any new method invoking `getX` in `Point` would also use variable `x`.
+
+[[variables-methods-point]]
+. Set of instance variables used by each method of the class `Point` shown in <<coupling-example>>.
+[options="header"]
+|=== 
+
+| Method | Instance variables  
+
+| `getX` | { `x` }
+
+| `getY` | { `y` }
+
+| `dot` | { `x`, `y` }
+
+| `sub` | { `x`, `y` }
+
+|=== 
+
+<<intersection-methods-point>> shows the instance variables used un common for all pairs of methods declared in `Point`. Only `getX` and `getY` do not use any variable in common.
+
+[[intersection-methods-point]]
+. Intersection of instance variables used by all pairs of methods in `Point`.
+[options="header", cols="h,1,1,1"]
+|===
+|        | `getX`           | `getY`           | `dot`
+| `sub`  | { `x` }          | { `y` }          | { `x`, `y` } 
+| `dot`  | { `x` }          | { `y` }          h|
+| `getY` | stem:[\emptyset] 2+h| 
+|===
+
+Given that we obtain: stem:[ | P | =  | \{ (I_\text{getX},I_\text{getY}) \} | = 1 ] and: stem:[ | Q | = | \{ (I_\text{getX},I_\text{sub}), (I_\text{getX},I_\text{dot}), (I_\text{getY},I_\text{sub}), (I_\text{getY},I_\text{dot}), (I_\text{dot},I_\text{sub}) \} | = 4] producing: stem:[ \text{LCOM}(C) = 0 ] as stem:[ | P | \lt | Q | ]. Which means that the `Point` class is cohesive, its carries the responsibility to represent the concept of a two-dimensional point. Only a change in the requirements of this representation will make this class change.
+
+Lack of cohesion implies that a class violates the principle of single functionality and could be split in two different classes. <<cohesion-example>> shows the `Group` class. The only two methods in this class use a disjoint set of fields. `compareTo` uses `weight` while `draw` uses `color` and `name`. Computing the metric we get: stem:[\text{LCOM}(C = |P| - |Q| = 1 - 0 = 1].
+
+[[cohesion-example, Listing {counter:listing}]]
+.Listing {listing}. Example of a non-cohesive class. `compareTo` and `weight` could be separated from the rest.
+[source, java]
+....
+class Group {
+
+    private int weight;
+    private String name;
+    private Color color;
+
+    public Group(String name, Color color, int weight) {
+        this.name = name;
+        this.color = color;
+        this.weight = weight;
+    }
+
+    public int compareTo(Group other) {
+        return weight - other.weight;
+    }
+
+    public void draw() {
+        Screen.rectangle(color, name);
+    }
+
+}
+....
+
+__Tight Class Cohesion__ (TCC) and _Loose Class Cohesion_ (LCC) are other two well known and used metrics to evaluate the cohesion of a class <<bieman1995cohesion>>. Both these metrics start by creating a graph from the class. The graph is constructed as follows: Given a class `C`, each method `m` declared in the class becomes a node. Given any two pairs `m` and `n` declared in `C` we add an edge between `m` and `n` if and only if, `m` and `n` use at least one instance variable in common. Going back to the definition of `LCOM`, we add an edge between `m` and `n` if stem:[I_{m,n} \ne \emptyset]. TCC is defined as the ratio of directly connected pairs of node in the graph to the number or all pairs of nodes. On its side, LCC is the number of pairs of connected (directly or indirectly) nodes to all pairs of node. As before, constructors are not used.
+
+
+<<cohesion-graph>> shows the graph that results from the class `Point`. In this example, stem:[\text{TCC = 5/6 = 0.83] as there are 5 direct connections and only 6 method pairs. On the other hand stem:[\text{LCC} = 6/6 = 1] as all pairs of methods are indirectly or directly connected. For the `Group` class both LCC and TCC are 0, as no method is connected to the other. 
+
+
+[[cohesion-graph]]
+[graphviz, cohesion-graph, png, layout=neato]
+.Description
+....
+graph {
+    rankdir=LR;
+    getX[pos="0,1!"];
+    dot[pos="1,0!"];
+    sum[pos="1,2!"];
+    getY[pos="2,1!"];
+    getX -- sum[label=x] 
+    getY -- sum[label=y];
+    getX -- dot[label=x];
+    getY -- dot[label=y];
+    sum -- dot [label="x,y"];
+}
+....
+
+
+In object-oriented programs a class may inherit methods and instance variables from its base classes. In those cases, computing the cohesion of a subclass may: include only inherited methods, only inherited fields, or both. The original definition of TCC and LCC leaves this inclusion open to the users of the metrics <<bieman1995cohesion>>.
 
 
 === (Working title) Static analysis
+
 
 
 ////
@@ -647,3 +737,10 @@ TODO:
 . [[fowler2001reducing, ({counter:references})]] Fowler, M. (2001). Reducing Coupling. IEEE Softw., 18, 102-104. Online: https://martinfowler.com/ieeeSoftware/coupling.pdf Last accessed 18/06/2020
 
 . [[appleton_demeter, ({counter:references})]] Appleton B. Introducing Demeter and its Laws. http://www.bradapp.com/docs/demeter-intro.html Last accessed 18/06/2020
+
+. [[martin2006agile, ({counter:references})]]  Martin, R. C., & Martin, M. (2006). Agile principles, patterns, and practices in C# (Robert C. Martin). Prentice Hall PTR. Online: https://ivanderevianko.com/wp-content/uploads/2013/10/Agile-Principles-Patterns-and-Practices-in-C.pdf Last accessed: 19/06/2020
+
+. [[martin2014single, ({counter:references})]] Martin, R.  (2014) The Single Responsibility Principle https://blog.cleancoder.com/uncle-bob/2014/05/08/SingleReponsibilityPrinciple.html Last accessed: 19/06/2020
+
+. [[bieman1995cohesion, ({counter:references})]] Bieman, J. M., & Kang, B. K. (1995). Cohesion and reuse in an object-oriented system. ACM SIGSOFT Software Engineering Notes, 20(SI), 259-262.
+
