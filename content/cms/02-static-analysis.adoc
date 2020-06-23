@@ -298,8 +298,11 @@ Including blank lines or lines with comments in the metric may be misleading for
 A method with many branches and logical decisions is, in general, hard to understand. This affects the maintainability of the code. Back in 1976, Thomas J. McCabe  proposed a metric to assess the complexity of a program <<mccabe1976complexity>>. McCabe's original idea was to approximate the complexity of a program by computing the _cyclomatic number_ of its control flow graph. This is why the metric is also known as _McCabe's Cyclomatic Complexity_. The goal of the metric was to provide a quantitative basis to determine whether a software module was hard to understand, maintain and test.
  
 A sequence of code instructions, and by extension the body of a method, could be represented by a directed graph named _control flow graph_. The procedure is as follows:
+ - Initially, the graph has two special nodes: the _start_ node and the _end_ node.
  - A sequence of instructions with no branches is called a _basic block_. Each basic block becomes a node of the graph.
  - Each branch in the code becomes an edge. The direction of edge coincides with the direction of the branch.
+ - There is an edge from the start node to the node with the first instruction.
+ - There is an edge from all nodes that could terminate the execution of the code, to the end node.
 
 For example, the method in <<max-method>> computes the maximum of three given integers. The control flow for this method is shown in <<control-flow-max-method>>.
 
@@ -308,24 +311,22 @@ For example, the method in <<max-method>> computes the maximum of three given in
 [source, java]
 ----
 public static int max(int a, int b, int c) {
-    int result;
     if (a > b) {
         if(a > c) {
-            result = a;
+            return a;
         }
         else {
-            result = c;
+            return c;
         }
     }
     else {
         if (b > c) {
-            result = b;
+            return b;
         }
         else {
-            result = c;
+            return c;
         }
     }
-    return result;
 }
 ----
 
@@ -334,31 +335,36 @@ public static int max(int a, int b, int c) {
 .Control flow graph from the method in <<max-method>> 
 ....
 digraph {
-    n1[label="int result;\na > b"];
-    n2[label="a > c"];
-    n3[label="b > c"];
-    n4[label="result = a;"];
-    n5[label="result = b;"];
-    n6[label="result = c;"];
-    n7[label="result = c;"];
-    n8[label="return result;"]
+    start[shape=rectangle];
+    end[shape=rectangle];
+    start
+    
+    p1[label="a > b"];
+    p2[label="a > c"];
+    p3[label="b > c"];
+    
+    ra[label="result = a;"];
+    rb[label="result = b;"];
+    rc1[label="result = c;"];
+    rc2[label="result = c;"];
 
-    n1 -> n2 -> n4;
-    n2 -> n5;
-    n1 -> n3 -> n6;
-    n3 -> n7;
-    n4 -> n8;
-    n5 -> n8;
-    n6 -> n8;
-    n7 -> n8;
+    start -> p1 -> p2 -> ra;
+    p2 -> rc1;
+    p1 -> p3 -> rb;
+    p3 -> rc2;
+
+    ra -> end;
+    rb -> end;
+    rc1 -> end;
+    rc2 -> end;
 }
 ....
 
 The cyclomatic number, or circuit rank of an undirected graph, is the minimum number of edges that has to be removed in order to break all cycles and obtain its spanning tree. The cyclomatic number stem:[v(G)] of a graph stem:[G] is computed as stem:[v(G) = E - V + 2P], where stem:[N] is the number of nodes, stem:[E] the number of edges and stem:[P] the number of connected components. If the graph is strongly connected, that is, there is a path from any node to any other node, then the cyclomatic number is equal to the maximum number of linearly independent circuits. The linearly independent circuits form a basis of all circuits in the graph. Therefore, all circuits in the graph are formed by a combinations of these linearly independent circuits. 
 
-The cyclomatic complexity of a method is the cyclomatic number of the underlying undirected graph of the control flow graph. If required, the control flow graph could be extended by adding fictitious start and end nodes so the graph has only one entry point and only one exit point. 
+The cyclomatic complexity of a method is defined as the cyclomatic number of the underlying undirected graph of the control flow graph. 
 
-McCabe showed that the computation of the  cyclomatic complexity could be simplified as the number of predicate nodes (conditionals) plus one. The method in <<max-method>> has a cyclomatic complexity of stem:[v(G) = 4 = 3 + 1], as it has three conditionals: `a > b`, `a > c` and `b > c`. It can be also computed as stem:[v(G) = 4 = 10 - 8 + 2], as it has 10 edges and eight nodes.
+McCabe showed that the computation of the  cyclomatic complexity could be simplified as the number of predicate nodes (conditionals) plus one. The method in <<max-method>> has a cyclomatic complexity of stem:[v(G) = 4 = 3 + 1], as it has three conditionals: `a > b`, `a > c` and `b > c`. It can be also computed as stem:[v(G) = 4 = 11 - 9 + 2], as it has eleven edges, nine nodes and only one connected component.
 
 The cyclomatic complexity has implications for testing. It sets a lower bound for the number of inputs that should be used to test the method. Any execution path in the control flow graph of the method is a combination of the linearly independent circuits. Therefore, to ensure that the tests execute all conditions in the code, all linearly independent circuits should be used once in the executions paths of all inputs. The number of different test inputs must be greater or equal to the cyclomatic complexity of the method.
 
@@ -686,10 +692,17 @@ graph {
 ....
 
 //TODO: Link to GoF
-Most static analyses are implemented by tracing the AST and most implementations are based on the visitor pattern. The visitor pattern abstracts the operations to be performed over an object structure. Each operation is implemented as a visitor. The structure is traversed and each visitor is selected according to the elements of the structure that is being visited. In the case of a static analysis over an AST, each visitor could be a class or a method, designed to operate over a specific type of node, for example, a class will be handled by a _class visitor_. The static analysis is then carried by the joint actions of these visitors.
+Most static analyses are implemented by tracing the AST and most implementations are based on the visitor pattern. The visitor pattern abstracts the operations to be performed over an object structure <<gamma1994design>>. Each operation is implemented as a visitor. The structure is traversed and each visitor is selected according to the elements of the structure that is being visited. In the case of a static analysis over an AST, each visitor could be a class or a method, designed to operate over a specific type of node, for example, a class will be handled by a _class visitor_. The static analysis is then carried by the joint actions of these visitors.
 
 //TODO: Link to Spoon, JavaParser and ASM
-There are libraries that facilitate the implementation of static analyses by accomplishing the construction of the AST and even providing abstractions to implement the visitor pattern. For Java sources two of the most famous are Spoon and JavaParser. There are other libraries that offer similar functionalities but targeting compiled code. One most famous JVM bytecode analysis tool is ASM. The following sections will show how to implement simple static analysis tasks in both Spoon and ASM.
+There are libraries that facilitate the implementation of static analyses by accomplishing the construction of the AST and even providing abstractions to implement the visitor pattern. For Java sources two of the most famous are http://spoon.gforge.inria.fr/[Spoon] and JavaParser. There are other libraries that offer similar functionalities but targeting compiled code. One most famous JVM bytecode analysis tool is https://asm.ow2.io/[ASM]. The following sections will show how to implement simple static analysis tasks in both Spoon and ASM.
+
+
+===== Using Spoon
+
+===== Using ASM
+
+=== Tools for static analysis
 
 
 ////
@@ -795,3 +808,4 @@ TODO:
 
 . [[bieman1995cohesion, ({counter:references})]] Bieman, J. M., & Kang, B. K. (1995). Cohesion and reuse in an object-oriented system. ACM SIGSOFT Software Engineering Notes, 20(SI), 259-262.
 
+. [[gamma1994design, ({counter:references})]]  Gamma, E., Helm, R., Johnson, R., & Vlissides, J. (1994). Design Patterns Elements of reusable object-oriented sofware. Addison Wesley.
