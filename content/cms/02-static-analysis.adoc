@@ -923,40 +923,48 @@ Of course, JavaParser also includes functionalities to analyze a full Java proje
 
 === Tools for static analysis
 
+There are plenty of static analysis tools for all languages and frameworks. Compilers are the first of such tools we use. They rely on static analysis to check the syntactic and semantic validity of the program. Compilers may also detect unreachable code, unused variables and potential conversion errors.
+
+Other tools, often called _linters_, help improve the quality of the program by detecting code smells, proposing code improvements and enforcing coding guidelines. In most cases they are highly customizable and extendable so each team, project or company can adapt the linter's functionalities to their own practices and goals. The term linter comes from _lint_  a tool conceived to analyze portability issues for C programs back in the 70's. 
+
+In Java, the most popular alternatives are:
+
+- https://errorprone.info/index[Error Prone]: Detects common bug patterns and proposes potential fixes. For example, the tool is able to detect wrong printf-style formats used in the code.
+
+- https://spotbugs.github.io/[SpotBugs]: Also finds known bug patterns and bad practices, but targets the compiled bytecode instead of the source code. For example it can propose use a more efficient equivalent method such as use `Integer.valueOf` instead of `new Integer`.
+
+- https://checkstyle.sourceforge.io/[checkstyle]: Detects coding guideline violations. For example, it checks that a class with only one private constructor is declared as final, as it can not be extended anyways.
+
+- https://pmd.github.io/[PMD]: A cross-language static analysis tool able to detect code smells, compute code metrics, and detect guideline violations. For example, it computes the Cyclomatic Complexity of a method and the Tight Class Cohesion (TCC) as seen before. It can also recommend, for example, when to replace a `for` by a `foreach`.
+
+All the tools mentioned above are able to detect several hundreds of know bug patterns, code smells and bad practices. They are also configurable and extensible via plugins.
+
+==== Using and extending PMD
+
+PMD is one of the most complete alternatives available. It uses a huge and modifiable set of rule definitions to detect code patterns representing code smells and potential bugs. It can extended with custom rules and metrics. This section shows how to use PMD and how to extend it.
+
+The tool can be freely downloaded from its website as a zip file. This file contains the PMD program itself and the files corresponding to the rule definitions. It can be used from the command line as follows:
+
+[source, bash]
+....
+<path-to-pmd-folder>/bin/run.sh pmd -d <path-to-java-file> -f text -R <path-to-rule> 
+....
+
+The line above runs PMD over a single Java file using a single rule and outputs the result in plain text in the console.
+
 
 
 ////
 
 TODO:
 
-Present tools:
-
-Compilers: Errors prevent the creation of invalid programs, warnings help discover potential problems in type conversion as truncation errors, (remember the bugs from the previous classes), dead code elimination
-Linters: Extended syntax analysis, original tool was Lint from Bell Labs for the Protable C Compiler for the PDP-11. Its role was to detect bad code patterns and patterns of code that would introduce incompatibilities among architectures. The the term expanded to similar tools.
-Other tools to compute metrics and detect the occurrence of code patterns:
-- PMD
-- Findbugs
-usually extensible and configurable. May analyze source code or compiled code.
-
-Discuss limitations of static analysis
-
-Present other forms of static analysis?
-
-Control flow analysis
-    Cyclic dependencies
-    Dead/unreachable code
-Data flow analysis
-    Uninitialized variables
-    Buffer overflows
-    Null pointers
-API analysis
-    Consistency between interface and implementation
-
-
+Example with CloseResource, highlight the limitations.
+Show how to create a rule with Xpath and how to implement one in Java.
+Use number of public methods as example for the metric.
 ////
 
 
-=== (Working title) How to incorporate in the development process
+=== Static analysis in the development process
 
 ////
 TODO:
