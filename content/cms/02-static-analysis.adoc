@@ -695,28 +695,252 @@ graph {
 Most static analyses are implemented by tracing the AST and most implementations are based on the visitor pattern. The visitor pattern abstracts the operations to be performed over an object structure <<gamma1994design>>. Each operation is implemented as a visitor. The structure is traversed and each visitor is selected according to the elements of the structure that is being visited. In the case of a static analysis over an AST, each visitor could be a class or a method, designed to operate over a specific type of node, for example, a class will be handled by a _class visitor_. The static analysis is then carried by the joint actions of these visitors.
 
 //TODO: Link to Spoon, JavaParser and ASM
-There are libraries that facilitate the implementation of static analyses by accomplishing the construction of the AST and even providing abstractions to implement the visitor pattern. For Java sources two of the most famous are http://spoon.gforge.inria.fr/[Spoon] and JavaParser. There are other libraries that offer similar functionalities but targeting compiled code. One most famous JVM bytecode analysis tool is https://asm.ow2.io/[ASM]. The following sections will show how to implement simple static analysis tasks in both Spoon and ASM.
+There are libraries that facilitate the implementation of static analyses by accomplishing the construction of the AST and even providing abstractions to implement the visitor pattern. For Java sources two of the most famous are http://spoon.gforge.inria.fr/[Spoon] and JavaParser. There are other libraries that offer similar functionalities but targeting compiled code. One most famous JVM bytecode analysis tool is https://asm.ow2.io/[ASM].
+
+===== Using JavaParser
+
+This section explains how to implement a simple static analysis tool using JavaParser. As a library, JavaParser provides a hierarchy of classes to represent ASTs for Java programs and implementations of the visitor pattern to help analyze and transform those ASTs.
+
+<<javapaerser-classes>> shows a selection of classes representing AST nodes. `Node` is the base class of the hierarchy. The instances of `ClassOrInterfaceDeclaration` represent declarations of classes and interfaces in the program. These nodes contain information about the type parameters, base class and interfaces implemented in the corresponding declaration. `ClassOrInterfaceDeclaration` inherits from the more general `TypeDeclaration`, which contains among other properties a `name` and inherits from `BodyDeclaration`. This latter class is the base for all elements that could be included in the body of a type declaration. `Expression` is the super class of all abstractions of expressions as it is the case for `MethodCallExpr` and `FieldAccessExpr`. Both these classes contain information about the scope or receiver of the method call or the field access, as well as the name of the method or the field. `MethodCallExpr` also provides information about the arguments. On its side,`Statement` is the super class for all types representing statements in the program, as it is the case of the `IfSmt`. This last class has an `Expression` representing the condition and two `Statement` instances for the _then_ and _else_ parts of the conditional statement.
 
 
-===== Using Spoon
+[plantuml, javaparser-classes, png]
+.Extract of the class hierearchy representing AST nodes in JavaParser
+....
+class Node
 
-===== Using ASM
+class BodyDeclaration
+
+class TypeDeclaration {
+    NodeList<BodyDeclaration> members
+    SimpleName name
+}
+
+class ClassOrInterfaceDeclaration {
+    NodeList<TypeParameter> typeParameters
+    NodeList<ClassOrInterfaceType> extendedTypes
+    NodeList<ClassOrInterfaceType> implementedTypes
+}
+
+class Expression
+
+class MethodCallExpr {
+    Expression scope
+    NodeList<Type> typeArgs
+    NodeList<Expression> arguments
+    SimpleName name
+}
+
+class FieldAccessExpr {
+    Expression scope
+    SimpleName name
+}
+
+class Statement 
+
+class IfStmt {
+    Expression condition
+    Statement thenStmt
+    Statement elseStmt
+}
+
+Node <|-- BodyDeclaration
+Node <|-- Expression
+Node <|-- Statement
+BodyDeclaration <|-- TypeDeclaration
+TypeDeclaration <|-- ClassOrInterfaceDeclaration
+Expression <|-- MethodCallExpr
+Expression <|-- FieldAccessExpr
+Statement <|-- IfStmt
+....
+
+The visitor pattern is implemented in JavaParser by the interfaces `VoidVisitor` (<<voidvisitor-javaparser>>) and `GenericVisitor` (<<genericvisitor-javaparser>>). Both interfaces are very similar. They both contain `visit` methods for all concrete classes representing AST nodes. In the former interface these methods are `void` while the latter allows to return a value. This is the only difference. All `visit` overloads also accept an `arg` parameter to share information among nodes in the traversal of the AST.
+
+[[voidvisitor-javaparser, Listing {counter:listing}]]
+.Listing {listing}. An extract of the `VoidVisitor` class in JavaParser.
+[source, java]
+....
+public interface VoidVisitor<A> {
+
+    ...
+
+    void visit(ClassOrInterfaceDeclaration n, A arg);
+
+    void visit(IfStmt n, A arg);
+
+    void visit(MethodCallExpr n, A arg);
+
+    void visit(FieldAccessExpr n, A arg);
+
+    ...
+
+}
+....
+
+[[genericvisitor-javaparser, Listing {counter:listing}]]
+.Listing {listing}. An extract of the `GenericVisitor` class in JavaParser.
+[source, java]
+....
+public interface GenericVisitor<R, A> {
+    ...
+
+    R visit(ClassOrInterfaceDeclaration n, A arg);
+
+    R visit(IfStmt n, A arg);
+
+    R visit(MethodCallExpr n, A arg);
+
+    R visit(FieldAccessExpr n, A arg);
+
+    ...
+}
+....
+
+There is no need to directly implement these two interfaces. The library also provides some default implementations to ease reuse. For example, `VoidVisitorAdapter` and `GenericVisitorAdapter` implement the visitor interfaces and perform a depth-first traversal of the AST. A new visitor could extend one of these adapter classes and just redefine the `visit` overloads it actually needs and not all of them. `ModifierVisitor` enables a similar reuse, but specialized on the use case where the AST should be modified. <<modifiervisitor-javaparser>> shows a fragment of the code of this class implementing the `visit` method overload for `IfStmt`.
+
+[[modifiervisitor-javaparser, Listing {counter:listing}]]
+.Listing {listing}. An extract of the `ModifierVisitor` class in JavaParser.
+[source, java]
+....
+public class ModifierVisitor<A> implements GenericVisitor<Visitable, A> {
+
+    @Override
+    public Visitable visit(final IfStmt n, final A arg) {
+        Expression condition = (Expression) n.getCondition().accept(this, arg); //<1>
+        Statement elseStmt = n.getElseStmt().map(s -> (Statement) s.accept(this, arg)).orElse(null); //<2>
+        Statement thenStmt = (Statement) n.getThenStmt().accept(this, arg); //<3>
+        Comment comment = n.getComment().map(s -> (Comment) s.accept(this, arg)).orElse(null); //<4>
+        if (condition == null || thenStmt == null) //<5>
+            return null;
+        n.setCondition(condition); //<6>
+        n.setElseStmt(elseStmt);
+        n.setThenStmt(thenStmt);
+        n.setComment(comment);
+        return n;
+    }
+
+}
+....
+<1> The condition expression is visited and the result is stored in `condition`.
+<2> The _else_ part is visited and the result is stored in `elseStmt`.
+<3> The _then_ part is visited and the result is stored in `thenStmt`.
+<4> If there is any comment associated to the statement, it is also visited.
+<5> In the case there is no valid result for the mandatories condition and _then_ part, the result is `null`. 
+<6> Otherwise the node is updated with the result from visiting the children elements and the method returns its reference.
+
+With the help of JavaParser we will implement a small tool to enforce a coding convention. In Java, and many other languages, it is optional to use braces (`{}`) in loops and conditionals if the body contains only one statement. For example, it is not easy to see that the `else` belongs to the inner conditional statement in <<dangling-else>>. Also it is easy to missplace code when not using the braces.
+
+[[dangling-else, Listing {counter:listing}]]
+.Listing {listing}. Not using braces can harm readability.
+[source, java]
+....
+
+class A {
+    public void m() {
+        boolean a = true, b = false;
+        if (a) if(b) System.out.println("one"); else System.out.println("two");
+    }
+}
+....
+
+Using `ModifierVisitor` as base, we will implement a visitor that modifies the AST so that the _then_ and _else_ parts of all conditional statements are enclosed in braces, that is, the statements must be contained in a block. The implementation of this custom visitor is shown in <<blockenforcer-javaparser>>. The `BlockEnforcer` traverses the AST and modifies only `IfStmt` nodes. If ensures that each _then_ and _else_ parts are instances of `BlockStmt`. Notice the use of `Void` as a type parameter for the implementation as no extra information will be passed between nodes.
+
+
+[[blockenforcer-javaparser, Listing {counter:listing}]]
+.Listing {listing}. A JavaParser visitor to enforce the use of blocks in conditional statements.
+[source,java]
+....
+public class BlockEnforcer extends ModifierVisitor<Void> {
+
+    @Override
+    public Visitable visit(IfStmt n, Void arg) {
+        IfStmt result = (IfStmt) super.visit(n, arg); //<1>
+        if (result == null) { //<2>
+            return null;
+        }
+        result.setThenStmt(enforceBlockOn(result.getThenStmt())); //<3>
+        result.getElseStmt().ifPresent(statement ->
+                result.setElseStmt(enforceBlockOn(statement))); //<4>
+        return result;
+    }
+
+    public Statement enforceBlockOn(Statement stmt) { //<5>
+        if (stmt.isBlockStmt()) { //<6>
+            return stmt;
+        }
+        BlockStmt block = new BlockStmt(); //<7>
+        block.addStatement(stmt);
+        return block;
+    }
+}
+....
+<1> Perform the original traversal and propagate the analysis to the children elements.
+<2> Return `null` if the result from the children is also `null`.
+<3> Enforce a block in the _then_ part.
+<4> Enforce a block in the _else_ part if present.
+<5> `enforceBlockOn` takes a statement and returns a block.
+<6> Do nothing if the initial statement is already a block.
+<7> Otherwise, create a new `BlockStmt` containing the initial statement.
+
+<<blockenforcer-usage>> shows how to use `BlockEnforcer` to analyze a single Java file. The first step is to obtain an instance of `CompilationUnit`. A compilation unit in Java is a file that optionally declares a package and contains an arbitrary number of imports and type declarations. `StaticJavaParser` provides shortcut methods to get such objects from common `String`, `InputStream`, `Reader` and `File` inputs. Then the visitor is applied through the `accept` method. This snippet prints on the screen the result of the analysis by invoking the `toString` method of `CompilationUnit`. The result be also saved to a file on even rewrite the original source code.
+
+[[blockenforcer-usage, Listing {counter:listing}]]
+.Listing {listing}. Using `BlockEnforcer` to analyze a single Java file.
+[source,java]
+....
+CompilationUnit unit = StaticJavaParser.parse(input); //<1>
+unit.accept(new BlockEnforcer(), null); //<2>
+System.out.println(unit.toString()); //<3>
+....
+<1> Obtain a `CompilationUnit` instace. `input` could be a `String`, `Reader`, `InputStream` or `File`.
+<2> The compilation unit is visited to start the analysis.
+<3> The result is printed to the screen.
+
+When given the code in <<dangling-else>>, <<blockenforcer-usage>> produces <<blockenforcer-result>> as result.
+
+
+[[blockenforcer-result, Listing {counter:listing}]]
+.Listing {listing}. Result of the analysis when given <<dangling-else>> as input.
+[source,java]
+....
+class A {
+
+    public m() {
+        boolean a = true;
+        boolean b = false;
+        if (a) {
+            if (b) {
+                System.out.println("one");
+            } else {
+                System.out.println("two");
+            }
+        }
+    }
+}
+....
+
+Of course, JavaParser also includes functionalities to analyze a full Java project adn more. Further information can be found in https://javaparser.org/[the project's website].
 
 === Tools for static analysis
+
 
 
 ////
 
 TODO:
 
+Present tools:
 
-Explain that one could implement it or use an existing tool
+Compilers: Errors prevent the creation of invalid programs, warnings help discover potential problems in type conversion as truncation errors, (remember the bugs from the previous classes), dead code elimination
+Linters: Extended syntax analysis, original tool was Lint from Bell Labs for the Protable C Compiler for the PDP-11. Its role was to detect bad code patterns and patterns of code that would introduce incompatibilities among architectures. The the term expanded to similar tools.
+Other tools to compute metrics and detect the occurrence of code patterns:
+- PMD
+- Findbugs
+usually extensible and configurable. May analyze source code or compiled code.
 
-Libraries to implement static analysis: Spoon
-Examples on how to implement one simple metric or code smell detector
+Discuss limitations of static analysis
 
-Present other forms of static analysis:
-Maybe present this before talking about implementation?
+Present other forms of static analysis?
 
 Control flow analysis
     Cyclic dependencies
@@ -728,17 +952,6 @@ Data flow analysis
 API analysis
     Consistency between interface and implementation
 
-Present tools:
-
-Compilers: Errors prevent the creation of invalid programs, warnings help discover potential problems in type conversion as truncation errors, (remember the bugs from the previous classes), dead code elimination
-Linters: Extended syntax analysis, original tool was Lint from Bell Labs for the Protable C Compiler for the PDP-11. Its role was to detect bad code patterns and patterns of code that would introduce incompatibilities among architectures. The the term expanded to similar tools.
-Other tools to compute metrics and detect the occurrence of code patterns:
-- PMD
-- Findbugs
-usually extensible and configurable. May analyze source code or compiled code.
-Build your own?
-
-Discuss limitations of static analysis
 
 ////
 
