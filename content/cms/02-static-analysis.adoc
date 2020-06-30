@@ -947,22 +947,157 @@ The tool can be freely downloaded from its website as a zip file. This file cont
 
 [source, bash]
 ....
-<path-to-pmd-folder>/bin/run.sh pmd -d <path-to-java-file> -f text -R <path-to-rule> 
+<path-to-pmd-folder>/bin/run.sh pmd -d <path-to-java-file> -f text -R <path-to-rule-definition> 
 ....
 
-The line above runs PMD over a single Java file using a single rule and outputs the result in plain text in the console.
+The line above runs PMD over a single Java file using a single rule definition file and outputs the result to the console in plain text.
+
+https://pmd.github.io/latest/pmd_rules_java.html[The PMD documentation] contains a comprehensive list of all rules PMD includes for Java. These rules are sorted into categories according to their nature. For example, the _Design_ category contains rules that discover design issues. One of the rules inside this category is `AbstractClassWithoutAnyMethod`. As it name indicates, it finds and signals abstract classes without any declared method. The rationale behind this rule is that the abstract modifier has been added so no instance of this class can be created. In that case, it is better to have a private constructor.
+
+Let the code in <<silly-class>> be the content of `SillyClass.java`.
+
+[[silly-class,  Listing {counter:listing}]]
+[source, java]
+....
+public abstract class SillyClass {
+    String field;
+}
+....
+
+The rule can be invoked as follows:
+
+[source, bash]
+....
+<path-to-pmd-folder>/bin/run.sh pmd -d SillyClass.java -f text -R category/java/design.xml/AbstractClassWithoutAnyMethod
+....
+
+See that `category/java/design.xml` is an internal PMD route to the `design.xml` which contains the definition of all rules targeting design issues in Java.
 
 
+In the _Error Prone_ category, PMD includes the `CloseResource` rule. This rules finds code where resources are not properly closed. As an example in <<connection-not-closed>> the `Bar` class does not close the `Connection` resource. PMD signals an error when passed this code to the `CloseResource` rule. The solution is to call `c.close()` in a `finally` block.
 
-////
+[[connection-not-closed, Listing {counter:listing}]]
+.Listing {listing}. `Connection` is not closed.
+[source, java]
+....
+public class Bar {
+    
+    public void foo() {
+        Connection c = pool.getConnection();
+        try {
+            // do stuff
+        } catch (SQLException ex) {
+            // handle exception
+        }
+    }
+}
+....
 
-TODO:
+If the `CloseResource` rule is used in the code from <<close-resource-method>>, PMD will report an error even when the connection is effectively closed in another method. The analysis performed by this rule can not handle this case, as the code is not executed nor any method dependency is checked. This is an example of a _false positive_, that is an error reported by PMD in a situation where the problem does not occur.
 
-Example with CloseResource, highlight the limitations.
-Show how to create a rule with Xpath and how to implement one in Java.
-Use number of public methods as example for the metric.
-////
 
+[[close-resource-method, Listing {counter:listing}]]
+.Listing {listing}. `Connection` is closed in another method but PMD still produces an error.
+[source, java]
+....
+public class Bar {
+    
+    public void foo() {
+        Connection c = pool.getConnection();
+        try {
+            // do stuff
+        } catch (SQLException ex) {
+            // handle exception
+        } finally {
+            bar(c);
+        }
+    }
+
+    public void bar(Connection c) {
+        c.close();
+    }
+}
+....
+
+The `CloseResource` rule signals no error when given the code in <<stream-example>> as input. However, in this code it is clear that, if an exception is thrown, the resource will not be closed.  
+
+[[stream-example, Listing {counter:listing}]]
+.Listing {listing}. A piece of code where the resource is not always closed.
+[source, java]
+....
+public class Stream {
+    BufferedReader reader;
+
+    public void readData()  {
+        try {
+            String line = reader.readLine();
+            while (line != null) {
+                System.out.println(parseLine(line));
+                line = reader.readLine();
+            }
+            reader.close(); //<1>
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
+}
+....
+<1> If the code above throws an exception the resource is never closed.
+
+Tools like PMD search for patterns in the source code and these patterns may not include all cases, as seen in the two examples above. This is also a limitation of static analysis in general. The code is not executed, therefore therefore no dynamic behavior is considered, as in the case of <<stream-example>> where the issue is influenced by the input of the user.
+
+It is possible to extend PMD with new rule and metric definitions. This is useful to accommodate PMD to the requirements of a specific project and even define new sets of rules enforcing the team's best practices when using a third party library or framework like http://hibernate.org/[Hibernate] or https://spring.io/[Spring].
+
+PMD provides a complete API to implement custom rules and metrics. As with the libraries discussed before, this API relies on a visitor pattern over the AST of the source code. Defining new metrics or rules this way is very similar to what can be done with the help of libraries like Javaparser. 
+
+However, there is another simpler alternative that does not require to program a new rule. As long as the rule requires only to query the AST looking for patterns, it could be written using XPath.
+
+XPath stands for _XML Path Language_. It is a language used to express queries selecting nodes in an XMl document based on their relationship with their ancestors, descendants and the value of their attributes. An XML document is, in fact, a tree. Therefore it does not require any special adaptation to use XPath and select nodes from an AST. PMD allows to define rules in this way.
+
+A rule defined using XPath consists in a selection query. If the query finds a match, then an error is reported. Retaking the example of `BlockEnforcer` to signal that a conditional statement must use braces, the query would be:
+
+[source]
+....
+//IfStatement/Statement[not(./Block)]
+....
+
+`//IfStatement/Statement` matches the direct `Statement` children of any `IfStatement` node, this matches the _then_ and _else_ children nodes. `not(./Block)` matches no direct descendant of type `Block`. So the entire expression matches conditionals whose _then_ and _else_ nodes do not have a direct `Block` descendant.
+
+The rule must be specified in an XMl file. Those files may contain definitions of more than one rule. The full code for this example is shown in <<custom-rule-definition>>.
+
+[[custom-rule-definition, Listing {counter:listing}]]
+[source, xml]
+.Listing {listing}. Full definition of a PMD custom rule using XPath.
+....
+<?xml version="1.0"?>
+
+<ruleset name="Custom Rules"
+    xmlns="http://pmd.sourceforge.net/ruleset/2.0.0"
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+    xsi:schemaLocation="http://pmd.sourceforge.net/ruleset/2.0.0 http://pmd.sourceforge.net/ruleset_2_0_0.xsd">
+    <description>
+        Custom rules
+    </description>
+    <rule 
+    name="MandatoryBracesOnIf" 
+    language="java" 
+    message="Then and else parts of a conditional statement must be enclosed by braces"
+    class="net.sourceforge.pmd.lang.rule.XPathRule">
+    <description>
+        Then and else parts not enclosed by braces in a conditional statement 
+        may harm readability and facilitate the introduction of bugs.
+    </description>
+    <priority>3</priority>
+    <properties>
+        <property name="xpath">
+        <value><![CDATA[
+            //IfStatement/Statement[not(./Block)]
+        ]]></value>
+        </property>
+    </properties>
+    </rule>
+</ruleset>
+....
 
 === Static analysis in the development process
 
