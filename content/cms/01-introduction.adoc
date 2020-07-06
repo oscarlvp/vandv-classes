@@ -1,15 +1,16 @@
 :numbered:
+
 == Introduction
 
-Software has become omnipresent in our daily lives. Some people say that "`software is eating the world`" <<andreessen2011why>>. Nowadays, we depend more and more on the Internet and the Web, which are powered by complex interconnected software systems. We trust software to predict the weather, to guard our bank accounts and to order pizza.Through software we communicate with other people and share our photos. We listen to music and watch films through streaming services. 
+Software has become omnipresent in our daily lives. Some people say that "`software is eating the world`" <<andreessen2011why>>. Nowadays, we depend more and more on the Internet and the Web. They are powered by complex interconnected software systems. We trust software to predict the weather, to guard our bank accounts and to order pizza. Through software we communicate with other people and share our photos. We use streaming services to watch films and listen to music. 
 
-Due to its omnipresence there are consequences when software is not properly verified. In some cases, a software failure has no other repercussion than a hilarious "blue screen of death" in an advertising screen. But, software bugs may also cost important amounts of money, they may undermine the reputation of companies and, in some extreme cases, they might even cost human lives. 
+Due to its widespread presence there are consequences when software is not properly developed. In some cases, a software failure has no other repercussion than a hilarious "blue screen of death" in an advertising screen. But, software bugs may also cost important amounts of money, they may undermine the reputation of companies and, in some extreme cases, they might even cost human lives. 
 
-This course will briefly introduce some of the most relevant techniques and tools in use and under research for software verification.
+We need to verify software, in other words we need to check whether software works as expected and has no bugs. This course will briefly introduce some of the most relevant techniques and tools to achieve that goal. 
 
 === What is a bug?
 
-The term, in informatics, has been usually attributed to Grace Hooper. She was involved in the programming and operation of the Mark II, an electromechanical computer of 23 tons and the size of a room. She was also the creator of the first compiler and the only woman to be ranked admiral in the U.S. Navy. Her group traced a malfunction to a moth in one of the relays of the machine. This is the first documented case of a computer bug. The moth was included in one of the notebooks that were used to log the computer's operation. It can be seen nowadays at the Smithsonian Institution's National Museum of American History in Washington D.C <<img-bug>>. However, some historians say that Thomas Alva Edison already used the term for something similar in his inventions <<wikipedia2020bug>>.
+The term _bug_, in informatics, has been usually attributed to Grace Hooper. She was involved in the programming and operation of the Mark II, an electromechanical computer of 23 tons and the size of a room. She was also the creator of the first compiler and the only woman to be ranked admiral in the U.S. Navy. Her group traced a malfunction to a moth in one of the relays of the machine. This is the first documented case of a computer bug. The moth was included in one of the notebooks that were used to log the computer's operation. It can be seen nowadays at the Smithsonian Institution's National Museum of American History in Washington D.C <<img-bug>>. However, some historians say that Thomas Alva Edison already used the term for something similar in his inventions <<wikipedia2020bug>>.
 
 [[img-bug]]
 [role=text-center]
@@ -18,23 +19,53 @@ image::first-bug.jpg[First bug, 300]
 
 When developing a software product, engineers should follow a set of requirements which are called the product specification. In whatever format it is presented, the specification should describe the features of the product (functional requirements): e.g.: the program should open a document, save it, etc. and its constraints (non-functional requirements): e.g.: should be secure, easy to use, fast <<mancoridis2018slides>>.
 
-Then, a bug appears when the software does not match the requirements: it does not perform correctly a functional requirement, like saving a document, or does something that should not do according to these requirements like closing the window when the maximize button is pressed or when it violates non-functional constraints, e. g., it is too slow.
+A bug appears when the software does not match the requirements: it does not perform correctly a functional requirement or violates a non-functional requirement: for example, the window closes when the maximize button is pressed or there is a lag between when the user types something and when the text appears on the screen.
 
-Bugs are produced by _mistakes_ in the development process and discovered through _failures_ when the product is being tested or exploited. It is then important to distinguish between the three terms <<ghahrai2018error>>, <<amman2016introduction>>:
+Bugs or _faults_ are produced by human mistakes in the development process. A fault induces a wrong state or _error_ during the execution of the software. When the error produces an incorrect behavior we see a _failure_.
 
-Mistake:: a human action that produces an incorrect result.
-Software Fault, Software Defect, Bug:: a manifestation of an error in software. It is a static flaw or imperfection found within the code <<moller1993empirical>>.
-Software Error:: An incorrect internal state of the program during execution and produced by a bug. 
+We define _faults_, _errors_ and _failures_ as follows <<moller1993empirical>>, <<ghahrai2018error>>, <<amman2016introduction>>:
+
+Software Fault, Software Defect, Bug:: a manifestation of a human mistake in software. It is a static flaw or imperfection found within the code.
+Software Error:: An incorrect internal state of the program during execution and produced by a _fault_. 
 Software Failure:: a deviation of the software from its expected delivery or service.
 
-A mistake leads to a fault, a fault leads to an error which leads to a failure when the software is executed. A failure is the manifestation of a bug.
+A mistake leads to a fault, a fault leads to a software error which leads to a failure when the software is executed. A failure is the manifestation of a bug.
 
-A bug may come from very different sources. Some of them could be traced to a very localized and specific part of the code. Other may have a global scope as they arise from the interaction of several of the components that conform the system.
+<<fault-example>> shows a recursive implementation of a binary search over an ordered array. Given an ordered array and a number, the `search` method returns the position of the number in the array or -1. The private overload of the method uses two auxiliary parameters to delimit the slice of the array that is inspected on each call. The initial slice is the entire array. When the method is invoked, it compares the element in the middle of the slice with the number given as input. If they are equal, then he position in the middle is returned, otherwise the method is invoked with the first half or the second half of the slice.
+ 
 
+[[fault-example, Listing {counter:listing}]]
+[source, java]
+.Listing {listing}. Example of a bug of fault in a binary search implementation. The bug provokes an infinite recursion that leads to a stack overflow exception.
+....
+public static int search(int[] array, int element) {
+  return search(array, element, 0, array.length - 1);
+}
+
+private static int search(int[] array, int element, int first, int last) {
+  if(last < first) {
+    return -1;
+  }
+  int middle = (first + last)/2;
+  int median = array[middle];
+  if(element == median) {
+    return middle;
+  }
+  if(element < median) {
+    return search(array, element, first, middle - 1);
+  }
+  return search(array, element, middle, last); //<1>
+}
+....
+<1> The correct invocation should use `last + 1`.
+
+This implementation has a fault. The second recursive invocation of search: `search(array, element, half, last)` should use `half + 1` instead of `half`. This fault does not always produce an error. For example, `search(new int[]{0, 6, 8, 10}, 6)` produces the right result. However, `search(new []{0, 6, 8, 10}, 10)`, leads to an invocation where `first=9` and `last=10`. For this invocation `middle=9` and once the comparisons are done, the same method is invoked again with the same parameters, this is the error produced by the initial fault. As method is invoked again with the same parameters, it produces an infinite recursion that is manifested through a stack overflow exception. This exception is the failure that evidences the initial fault. 
+
+A fault may come from very different sources. Some of them could be traced to a very localized and specific part of the code, as in the example before. Others may be produced by the interaction of different components of the system and have a global scope. The following sections describe famous local and global bugs.
 
 ==== Local bugs and some famous cases
 
-Local bugs can be traced to very specific code locations. They can be originated from multiple types of errors such as:
+Local bugs can be traced to very specific locations in the code. They can be originated from multiple types of errors such as:
 * Omission of potential cases _e.g._ not considering that negative numbers could be used in certain operations
 * Lacks of checks _e.g._ check if the parameter is `null` or the divisor must be other than zero
 * Wrong conditions _e.g._ using the wrong comparison operator
@@ -44,9 +75,9 @@ In the next sections we present some famous local bugs and briefly inspect their
 
 ===== The case of Zune
 
-_Zune 30_, was released to the public in November 2006. It was the first portable media player released by Microsoft. Suddenly, on December 31^st^ 2008, all Zune devices hang and stopped working. The problem was traced back to a piece of code in the firmware equivalent to <<zune-bug>>.
+_Zune 30_, was released to the public in November 2006. It was the first portable media player released by Microsoft. Suddenly, on December 31^st^ 2008, all Zune devices hung and stopped working. The problem was traced back to a piece of code in the firmware equivalent to <<zune-bug>>.
 
-[[zune-bug,Listing {counter:listing}]]
+[[zune-bug, Listing {counter:listing}]]
 .Listing {listing}. Bug in Zune 30
 [source,java]
 ----
@@ -64,13 +95,15 @@ while (days > 365) {
 }
 ----
 <1> On December 31^st^, 2008 `year` was 2008 and `days` 366 so `isLeapYear(year)` evaluated to `true`.
-<2> Since `days` was 366 `days > 366` evaluated to `false`. This is the error that caused the bug, it should have been `>=`.
+<2> Since `days` was 366 `days > 366` evaluated to `false`. This is the fault, it should have been `>=`.
 <3> This is not executed, therefore the value of `days` does not change.
 <4> This is not executed, therefore the value of `year` does not change.
 
+The values of `days` and `years` do not change which produced a wrong internal state and thus the error. The software enters an infinite loop and the devices become non-responsive.
+
 By the next day, `days` would be 367 and the code would run perfectly. So Zune devices stop working on December 31^st^ of every leap year.
 
-The error was not on Microsoft's part. The code was written by another company for the clock chip. This bug is also an example of insufficient testing. Having tested the code with the right date, the bug could have been fixed before the release of the product.
+The issue was not on Microsoft's part. The code was written by another company for the clock chip. This bug is also an example of insufficient testing. Having tested the code with the right date, the bug could have been fixed before the release of the product.
 
 ===== Heartbleed
 
@@ -78,7 +111,7 @@ The error was not on Microsoft's part. The code was written by another company f
 
 As part of these protocols, a computer should send a *heartbeat*, an encrypted message that the receiver should replay back, to keep the connection alive. The *heartbeat* contains information about its own length. The code for the receiver never verified that the message had the specified length. To answer, it should allocate a memory buffer to store the content of the *heartbeat*. If the message was longer, then there is a buffer overflow and the computer would send more data than requested <<fruhlinger2017what>>. 
 
-The webcomic https://xkcd.com/[XKCD] explains this vilnerability in a very intuitive manner. See <<heartbleed-xkcd>>. 
+The webcomic https://xkcd.com/[XKCD] explains this vulnerability in a very intuitive manner. See <<heartbleed-xkcd>>. 
 
 [[heartbleed-xkcd]]
 [.text-center]
@@ -118,7 +151,7 @@ The Chemical Bank deducted by error about $15 million from more than 100000 cust
 
 ==== Global bugs and famous cases
 
-Rather than coming from a specific and localized error, some bugs may emerge from the interactions of the modules that compose the system. This evidences that the whole is more than the mere sum of its parts.
+Rather than coming from a specific and localized error, some bugs may emerge from the interactions of the modules that compose a system. This evidences that the whole is more than the mere sum of its parts.
 
 Some sources of global bugs could be:
 
@@ -129,7 +162,7 @@ Some sources of global bugs could be:
 
 ===== Race conditions and the Northeast blackout of 2003
 
-A race condition appears when the output of a system depends on the sequence or timing of other uncontrollable events. This may lead to a bug when not carefully considering its effects. For example, in a multithreaded application, a piece of code may be (wrongly) assumed to run before another.
+A race condition appears when the output of a system depends on the sequence or timing of other uncontrollable events. This may lead to a bug when the effects of this assumption are not carefully considered. For example, in a multithreaded application, a piece of code may be (wrongly) assumed to run before another.
 
 The code in <<race-condition>> shows a simplified example of a race condition.
 
@@ -155,9 +188,9 @@ public class SimpleApplet extends Applet {
 <2> `paint` could be invoked before invoking `init`.
 <3> If `paint` is invoked before `init` `art` is `null` which produces an error in this line.
 
-To prevent this race condition the code of `paint` should not assume that `art` will always point to an instance. To deal with this race condition it is enough to check if `art` is `null` or not.
+To prevent this race condition, the code of `paint` should not assume that `art` will always point to an instance. To deal with this race condition it is enough to check if `art` is `null` or not.
 
-On August 14^th^, 2003 the alarm of FirstEnergy (an electric utility in Akron, Ohio) should have alerted about an overload in the electricity transmission lines. A race condition stalled the alarm and the primary sever went down. A backup server started processing all demands and also went down after 13 minutes. With both servers down, the information being shown in the screens passed from a refresh rate of 1 to 3 seconds to 59 seconds. The operators were not aware of the actual condition of the grid and the system collapsed affecting an estimated of 50 million people.
+On August 14^th^, 2003 the alarm of FirstEnergy, an electric utility in Akron, Ohio, should have alerted about an overload in the electricity transmission lines. A race condition stalled the alarm and the primary sever went down. A backup server started processing all demands and also went down after 13 minutes. With both servers down, the information being shown in the screens passed from a refresh rate of 1 to 3 seconds to 59 seconds. The operators were not aware of the actual condition of the grid and the system collapsed affecting an estimated of 50 million people.
 
 WARNING: You may find an image circulating the Internet that is supposed to show a satellite view of this blackout. The image is in fact fake.
 
@@ -171,19 +204,19 @@ Part of the software was reused from _Ariane 4_. It used 16-bit floating point n
 
 ===== The Mars Climate Orbiter
 
-The Mars Climate Orbiter probe crashed when entering the orbit of Mars. The caused was tracked to the fact that one team was using the metric units and another team was using the Imperial Unit System units. The loss was estimated in US$235.9 million <<ceguerra2001software>>. 
+The Mars Climate Orbiter probe crashed when entering the orbit of Mars. The cause was tracked to the fact that one development team was using the metric units and another team was using the Imperial Unit System units. The loss was estimated in US$235.9 million <<ceguerra2001software>>. 
 
 === Why is it so hard to build correct software?
 
-Software inevitably fails. The causes for this are widely varied and may occur at very different levels. No domain related to software escapes from this fact. A failure can have multiple consequences even human lives. But why is it to hard to build correct software?
+Software inevitably fails. The causes for this are widely varied as we have seen from the previous examples. No domain related to software escapes from this fact. A failure can have multiple consequences even human lives. But why is it to hard to build correct software?
 
 First of all, programs are very complex artifacts, even those we may consider simple or trivial.
 
-Consider the algorithm presented in <<collatz>>.
+Consider the code presented in <<collatz>>.
 
 [[collatz, Listing {counter:listing}]]
 .Listing {listing}. Will the alarm sound for all given inputs?
-[source,python]
+[source, java]
 ----
 n = input()
 while n > 1:
@@ -195,14 +228,14 @@ sound_alarm()
 ----
 
 Is it possible to show that the alarm will sound for every value of `n`?
-For this particular example one could try to devise a proof. But good luck with that! Mathematicians have been trying to do it since 1937 with no success. This is, in fact, an implementation of what is known as the link:https://en.wikipedia.org/wiki/Collatz_conjecture[Collatz  conjecture].
+For this particular example one could attempt to devise a formal roof. But good luck with that! Mathematicians have been trying to do it since 1937 with no success. This is, in fact, an implementation of what is known as the link:https://en.wikipedia.org/wiki/Collatz_conjecture[Collatz  conjecture].
 
 One could also try to verify the program for every possible input, but this is impossible in the general case.
-For this particular example, let use assume that `n` is a 32-bits unsigned integer, then we have 2^32^ possible inputs, that is `4294967296` cases for a very simple code of barely 7 lines of code. If the computation of every input takes on average `2.78e-06` seconds, then we will spend 3 hours finding out the result, if the function stops for every input. 3 hours for 7 lines of code!
+For this particular example, let us assume that `n` is a 32-bits unsigned integer, then we have 2^32^ possible inputs, that is `4294967296` cases for a very simple code of barely 7 lines of code. If the computation of every input takes on average `2.78e-06` seconds, then we will spend 3 hours finding out the result, if the function stops for every input. 3 hours for 7 lines of code!
 
-The general case of determining if a procedure halts when given an specific input is undecidable. This problem is known as the *Halting Problem* <<turing1936computable>>. 
+Determining if a procedure halts when given an specific input is known as the *Halting Problem* <<turing1936computable>>. The general case of this problem is undecidable. This means that, in general, we can not known for a given procedure if it will halt when processing a given input.
 
-Suppose that it is possible to write a function `halts` that tells whether a given function `f` halts when given an input `x`. That is, `halts` returns `True` if `f(x)` halts (<<halts-func>>).
+Suppose that it is possible to write a function `halts` that tells whether a given function `f` halts when given an input `x`. That is, `halts` returns `True` if `f(x)` halts (<<halts-func>>) and `False` otherwise.
 
 [[halts-func, Listing {counter:listing}]]
 .Listing {listing}. A supposed function that, given a function `f` and an input `x` for `f`, returns `True` if `f(x)` halts.
@@ -228,9 +261,9 @@ def confused(f):
 
 If we try to compute `confused(confused)`, `halts(f, f)` is equivalent to `halts(confused, confused)`. If this evaluates to `True`, then it means that `confused(consfused)` halts, but then the procedure enters in an infinite loop and so, in fact, `confused(confused)`, which is what we are evaluating in the first time, does not halt. On the other hand, if the condition is `False`, it means that `confused(confused)` does not halt, but then, the procedure halts.
 
-Therefore, `confused(confused)` halts if and only if `confused(confused)` does not halt, which is a contradiction, so `halts` does not exist. This means that, in the general case, we can not prove that a program will halt for a given input. 
+Therefore, `confused(confused)` halts if and only if `confused(confused)` does not halt, which is a contradiction, so `halts` can not exist. This means that, in the general case, we can not prove that a program will halt when processing a given input. Of course, there are specific cases in which this is possible, but it can not be done for all existing procedures.
 
-Proving the correctness of a program is also a very difficult task. There are formal methods to try to achieve this, but they rely on mathematical models of the real world that might make unrealistic assumptions and, as abstractions, are different from the real machines in which programs execute.
+Proving the correctness of a program is a very difficult task. There are formal methods to try to achieve this, but they rely on mathematical models of the real world that might make unrealistic assumptions and, as abstractions, are different from the real machines in which programs execute.
 
 Software is, of course, much more complex than the small functions we have seen so far. As an example, notice that the number of lines of code has increased exponentially in time (though not always in sync with the complexity of the task that the program should achieve), just take a look at the following <<loc>>:
 
@@ -239,7 +272,7 @@ Software is, of course, much more complex than the small functions we have seen 
 .Comparison in lines of code. Image taken from <<johnson2012curiosity>>
 image::loc.jpg[Lines of code, 600]
 
-The software of the Apollo 11 Guidance Computer had 145,000 lines of code, while NASA's Curiosity rover was programmed with 2.5M lines of code. Clippy on the other hand, had more than 100M lines of code.
+The software of the Apollo 11 Guidance Computer had 145,000 lines of code, while NASA's Curiosity rover was programmed with 2.5M lines of code. The infamous Clippy on the other hand, had more than 100M lines of code.
 
 Projects such as the Linux Kernel, have triplicated their size in 10 years:
 
@@ -249,22 +282,21 @@ image::kernel.png[LOCs Linux kernel, 600]
 
 Firefox contains more than 36M lines of code and Chromium more than 18M. More statistics can be found link:https://www.openhub.net/[here]. 
 
-
 The complexity of software does not come only from its size. For example, in both, Firefox and Chromium developers use more than 15 different programming languages at the same time.
 
 Open source software also grows in complexity as the number of contributors increases. The Firefox project, for example, have had 6477 contributors and 996214 commits as for February 2018.
 
 Also, most software is expected to run in multiple hardware platforms. Probably the most dramatic scenario in this sense comes from the mobile world. By August 2015 the OpenSignal company reported the existence of 24,093 different Android devices from 1294 distinct brands <<opensignal2015android>>. Android applications are expected to run correctly in all of them. 
 
-Software is also present in systems with real-time computing constraints and sometimes implementing critical functionalities. For example, mp3 players, microwave ovens, GPS devices, medical equipments for vital sign monitoring, avionics (inertial guiding systems), automobiles, fire security systems and the list may go on. As a side note, a car nowadays contains more than 100M lines of code (mostly devoted to the entertainment system).
+Software is also present in systems with real-time computing constraints and sometimes implementing critical functionalities. For example, mp3 players, microwave ovens, GPS devices, medical equipment for vital sign monitoring, avionics (inertial guiding systems), automobiles, fire security systems and the list may go on. As a side note, a car nowadays contains more than 100M lines of code (mostly devoted to the entertainment system).
 
-Software is not a static artifact that we release in production and leave as it is. It needs to be maintained over time. For example, Windows 95, was released to manufacturing on August 15^th^, 1995, it latest release was published on November 26^th^ 1997. However, its mainstream mainstream support ended on December 31^st^, 2000 while the extended support ended on December 31^st^, 2001, that is 5 and six years after its latest release. On its side, Windows 7 was released to manufacturing in July 22^nd^, 2009, support ended on January 14^th^, 2020 and the extended support for professional users should end on January 10^th^ 2023 and most of us are not using it.
+On top of that, software is not a static artifact that we release in production and leave as it is. It needs to be maintained over time. For example, Windows 95, was released to manufacturing on August 15^th^, 1995, it latest release was published on November 26^th^ 1997. However, its mainstream support ended on December 31^st^, 2000 while the extended support ended on December 31^st^, 2001, that is five and six years after its latest release. On its side, Windows 7 was released to manufacturing in July 22^nd^, 2009, support ended on January 14^th^, 2020 and the extended support for professional users should end on January 10^th^ 2023 and most of us are not using it nowadays.
 
-Back in 1997 almost 80% of the world's business ran on COBOL with over 200 billion lines of code and 5 billion lines more being written annually. COBOL appeared in 1959. Most banks still have systems running on COBOL but the migration to more modern systems is risky. In 2012 the Commonwealth Bank of Australia replaced its core banking platform to modernize their system. The change ended up costing around 750 million dollars, which is why many banks have opted for trying to keep their COBOL systems going. Today there are 75-, 60-years-old consultants providing support for COBOL systems in banks. In the recent Covid-19 crisis, the state of New Jersey in the U. S. requested COBOL programmers to deal with the 40-years old system to handle the huge amount of unemployment claims they received.
-
+The COBOL language appeared in 1959. It was estimated that, in 1997, around 80% of business transactions ran in COBOL. Even today, it is even said that more than 220 billions lines of COBOL are in use <<trikha2020inevitable>>. Migrating these legacy systems may be risky. In 2012 the Commonwealth Bank of Australia replaced its core banking platform to modernize their system. The change ended up costing around 750 million dollars, which is why many banks have opted to keep their COBOL systems going. Today there are 75-, 60-years-old consultants providing support for COBOL systems in banks <<cnbc2017banks>>. In the recent Covid-19 crisis, the state of New Jersey in the U. S. requested COBOL programmers to deal with the 40-years old system to handle the huge amount of unemployment claims they received <<leswing2020bnew>>.
+  
 The software development process itself could be sometimes rather complex. There are many methodologies about how to build software, and they could even change during the creation of a new product.
 
-So, the complexity of software may come from its requirements, its size, the number of technologies involved on its creation the number of people working on its implementation and even the development process.
+So, the complexity of software may come from its requirements, its size as it can be huge, the number of technologies involved on its development as tens of languages and frameworks can be used at the same time, the number of people working on its implementation, that could even be hundreds and even the development process.
 
 === How to build reliable software?
 
@@ -280,15 +312,15 @@ Analytical approach:: Involves techniques to analyze the program in order to det
 
 This approach assumes that it is impossible to prevent the occurrence of bugs in production. So, it enhances the system with mechanisms to deal them.
 
-_N-version programming_ is an example of this approach. `N` different versions of the system are executed in parallel to get an agreement on the result.
+_N-version programming_ is an example of this approach. With an initial and rigorous specification, two or more versions of the same system are developed by different development teams. These versions are executed in parallel in production. The actual output of the entire system is an agreement of the results obtained from all versions.
 
-Another example is _Chaos engineering_ popularized by Netflix with its Simian Army. The main concept is to perform a controlled experiment in production to study how the entire system behaves under unexpected conditions. For example, in Netflix, they would simulate random server shutdowns to see how the system responds <<netflix2011>>. This is a form of _testing in production_. Main challenges are to design the experiments in a way that the system does not actually fail and to pick the system properties to observe. In the case of Netflix, the property they want to preserve is the availability of the content even when the quality has to be reduced.
+Another example is _Chaos engineering_ popularized by Netflix with its Simian Army. The main concept is to perform a controlled experiment in production to study how the entire system behaves under unexpected conditions. For example, in Netflix, they would simulate random server shutdowns to see how the system responds to this phenomenon <<netflix2011>>. This is a form of _testing in production_. Main challenges are to design the experiments in a way that the system does not actually fail and to pick the system properties to observe. In the case of Netflix, they want to preserve the availability of the content even when the quality has to be reduced.
 
 ==== Constructive approach
 
-The constructive approach tries to guarantee the absence of bugs by construction. It involves the manual or automatic formal proof of all components of the system. It is usually based on logical modeling and reasoning and used on specific parts of critical software.
+This approach tries to guarantee the absence of bugs by construction. It involves the manual or automatic formal proof of all the components of the system. It is usually based on logical modeling and reasoning and it is used on specific parts of critical software.
 
-Constructive approaches may use tools such as link:https://coq.inria.fr/[_Coq_], a language to express assertions and mechanically check formal proofs or link:https://isabelle.in.tum.de/overview.html[_Isabelle_] an interactive theorem prover. <<coq-example>> shows how to use Coq to proof a property for a function.
+The constructive approach may use tools such as link:https://coq.inria.fr/[_Coq_], a language to express assertions and mechanically check formal proofs or link:https://isabelle.in.tum.de/overview.html[_Isabelle_] an interactive theorem prover. <<coq-example>> shows how to use Coq to proof a property for a function.
 
 [[coq-example, Listing {counter:listing}]]
 .Listing {listing}. Small example of a proof achieved with the help of Coq. Taken from https://github.com/coq/coq/wiki/Quick-Reference-for-Beginners
@@ -393,17 +425,17 @@ These models can be used to generate concrete code that, for example, would be e
 
 ==== Analytical approach
 
-This approach is directed to find the presence of bugs in the system. It is regularly based on heuristics that could help to explore more efficiently the problem space. It can target all kinds of software artifacts: code, models, requirements, etc. Its more used variant is software testing. Testing presents, nowadays, the best trade-off between effort and result when it comes to the validation and verification of a software product. It will be the main focus of this course.
+This approach is directed to find the presence of bugs in the system. It is regularly based on heuristics and can target all kinds of software artifacts: code, models, requirements, etc. Its more used variant is *software testing*. Testing presents, nowadays, the best trade-off between effort and result when it comes to the validation and verification of a software product. It will be the main focus of this course.
 
 Bertrand Meyer proposes seven principles of testing <<meyer2008seven>>:
 
 Principle 1: To test a program is to try to make it fail:: This is the main purpose of testing, to find defects in the code. In the words of Meyer the _single goal_ of testing is _to uncover faults by triggering failures_. Testing can not be used to show the absence of bugs, as Dijkstra said and Meyer recalls. But it is extremely useful in finding those scenarios in which the software does not behave as intended. This definition of Meyer presents testing as a dynamic technic, that is, testing requires the execution of a program. However, there are some code analysis techniques and tools that help detecting potential faults by finding well known code patterns that are prone to errors, or that ensure code quality by forcing development guidelines. In the long term these techniques help reducing the occurrence of bugs at a lower cost, since they don't execute the program. Some authors refer to these analyses as _static testing_. There is controversy on whether these static analyses are in fact testing or not, but since they are of value for the quality of the software we shall discuss them in the course.
-Principle 2: Tests are no substitute for specifications:: Test are built from specific cases, instances of the different scenarios in which the software shall execute. The specification is composed of more general abstractions tied to human understanding. While the specification can be used to derive test cases the opposite is not necessarily true. However numerous, a finite amount of test cases might not capture the general properties of the system due to missing instances. 
-Principle 3: Any failed execution must yield a test case, to remain a permanent part of the project’s test suite:: Once a fault has been discovered there is always the peril that it can reappear later. It happens often in practice. Uncovered faults should then become test cases that prevent these regressions. This is called _regression testing_. 
-Principle 4: Determining success or failure of tests must be an automatic process:: Once a test is executed, one needs to know if the software behaved as expected. Thus, we need a _test oracle_ to produce such verdict. As the number of test cases grows, this task must be automated. It is not feasible to run hundreds of test cases, print the output of the program and the manually check whether the output is correct.
-Principle 5: An effective testing process must include both manually and automatically produced test cases:: Manually produced test cases come from the understanding developers have of the problem domain and the input or from *Principle 3*, as Meyer explains. But often corner and specific cases scape from human intuition. Complementing manually designed test cases with automatically produced test cases can help spot what developers missed. Computers are able to generate test cases to a level that humans can not reach and help explore unforeseen scenarios.
-Principle 6: Evaluate any testing strategy, however attractive in principle, through objective assessment using explicit criteria in a reproducible testing process:: Any testing strategy must be assessed empirically. No matter how sophisticated a testing technique can be, it is of no use if it can not discover faults.  Meyer recalls that simple techniques such as random testing are proven to be quite efficient. Then there is the question on how to evaluate the effectiveness of our testing strategy. 
-Principle 7: A testing strategy’s most important property is the number of faults it uncovers as a function of time:: Code coverage, that is, the parts of the code executed in the test cases is often used to evaluate the quality of tests. However, this is only useful to spot the parts of the code that aren't yet tested, not how well the executed parts are verified. So coverage is not in general a measure of the quality of the tests. The assessment of the tests should correspond to their ability to detect bugs. In this principle Meyer includes time. Of course, the faster faults are encountered, the better.
+Principle 2: Tests are no substitute for specifications:: Test are built from specific cases, instances of the different scenarios in which the software shall execute. The specification is composed of more general abstractions tied to human understanding. While the specification can be used to derive test cases the opposite is not necessarily true. Even in large numbers, a finite amount of tests may not capture the general properties of the system due to missing instances. 
+Principle 3: Any failed execution must yield a test case, to remain a permanent part of the project’s test suite:: Once a fault has been discovered there is always the peril that it can reappear later. It happens often in practice. Uncovered faults should then become test cases that prevent these regressions. This is known as _regression testing_. 
+Principle 4: Determining the success or failure of tests must be an automatic process:: Once a test is executed, one needs to know if the software behaved as expected. Thus, we need a _test oracle_ to produce such verdict. As the number of test cases grows, this task must be automated. It is not feasible to run hundreds of test cases, print the output of the program and the manually check whether the output is correct.
+Principle 5: An effective testing process must include both manually and automatically produced test cases:: Manually produced test cases come from the understanding developers have of the problem domain and the input or from *Principle 3*, as Meyer explains. But often corner and specific cases escape from human intuition. Complementing manually designed test cases with automatically produced test cases can help spot what developers missed. Computers are able to generate test cases to a level that humans can not reach and help explore unforeseen scenarios.
+Principle 6: Evaluate any testing strategy through objective assessment using explicit criteria in a reproducible testing process:: Any testing strategy must be assessed empirically. No matter how sophisticated a testing technique can be, it is of no use if it can not discover faults.  Meyer recalls that simple techniques such as random testing are proven to be quite efficient. Then there is the question on how to evaluate the effectiveness of our testing strategy. 
+Principle 7: A testing strategy’s most important property is the number of faults it uncovers as a function of time:: Code coverage, that is, the parts of the code executed in the test cases is often used to evaluate the quality of tests. However, this is only useful to spot the parts of the code that aren't yet tested, not how well the executed parts are verified. So, coverage is not, in general, a measure of the quality of the tests. The assessment of the tests should correspond to their ability to detect bugs. In this principle Meyer includes time. Of course, the faster faults are encountered, the better.
 
 This set of principles is not comprehensive and not all authors and practitioners agree with all aspects of their formulations.footnote:[As a matter of fact, the reader might want to check on the discussion sparked after the publication of Meyer's article.] However they reveal the essence of testing.
 
@@ -422,15 +454,13 @@ ____
 
 The frequent integration of each developer's work facilitate the early detection or errors as opposed to each developer working on isolation and then spending a lot of time to dealing with the combination of their individual efforts. Most software companies these days use a form of CI and commonly used source control hosting services such as Github, Gitlab and Bitbucket encourage these practices by making it easy to incorporate CI tools and even providing their own CI automation alternatives.
 
-According to Thoughtworks, <<thoughtworksintegration>> CI processes is supported by the following practices:
+According to Thoughtworks, <<thoughtworksintegration>> CI processes are supported by the following practices:
 
-Maintenance of a single source repository:: All team members should merge their changes into a global/unique code repository, hosted in a source control hosting service, either in-premises or a public service like Github. The source control repository plays an important role in the identification of a change and the detection of conflicts between simultaneous changes. The common practice nowadays is to use distributed source control systems like Git of Mercurial in opposition to the previous centralized systems like CVS or SVN. Even when the source control system is distribute, that is, every developer has a copy of the repository, the CI process should monitor one central repository to which all developers should push their changes. This does not exclude the creation of mirror repositories.
+Maintenance of a single source repository:: All team members should merge their changes into a global/unique code repository, hosted in a source control hosting service, either in-premises or a public service like Github. The source control repository plays an important role in the identification of a change and the detection of conflicts between simultaneous changes. The common practice nowadays is to use distributed source control systems like Git of Mercurial in opposition to the previous centralized systems like CVS or SVN. Even when the source control system is distributed, that is, every developer has a copy of the repository, the CI process should monitor one central repository to which all developers should push their changes. This does not exclude the creation of mirror repositories.
 
-Automate the build:: Once a developer pushes her changes into the global repository, a CI server checks out the changes and triggers a build process. This build process is expected to be *self-testing*, that is, as part of the build automated tests should be executed to verify the changes in the code. These tests should also be executed in an environment as *close* as possible *to* the *production conditions*. The build is also *expected to be fast* so developers have a quick feedback on the change they have integrated and the outcome of the build process should be accessible to all team members so they know the current state of the project.
+Automate the build:: Once a developer pushes her changes into the global repository, a CI server checks out the changes and triggers a build process. This build process is expected to be *self-testing*, that is, as part of the build automated tests should be executed to verify the changes in the code. These tests should also be executed in an environment as *close* as possible *to* the *production conditions*. The build is also *expected to be fast* so developers have a quick feedback on the change they integrated and the outcome of the build process should be accessible to all team members so they know the current state of the project.
 
-CI processes also impose responsibilities to developers as they are expected to push changes frequently. But also their changes should not be broken, untested and they are expected to not push changes while the automated build fails, that is when a previous change produced a failure in the CI build process either compiling or running the tests.
-
-When a build fails it should be fixed as fast as possible to ensure the quality of the integrated code in the global repository.
+CI processes also impose responsibilities to developers as they are expected to push changes frequently. But also their changes should not be broken, untested and they are expected to not push changes while the automated build fails, that is, when a previous change produced a failure in the CI build process either compiling or running the tests. When a build fails it should be fixed as fast as possible to ensure the quality of the integrated code in the global repository.
 
 CI processes are often accompanied by *Continuous Delivery* and *Continuous Deployment* processes.
 
@@ -444,8 +474,6 @@ CI/CD approaches find great realization in *DevOps*. DevOps is a modern developm
 [role=text-center]
 .DevOps diagram
 image::devops.svg[DevOps, 600]
-
-This course will be focused in the analytical approach of verification, more precisely in testing with a special attention to the DevOps context.
 
 :numbered!:
 === References
@@ -466,6 +494,9 @@ This course will be focused in the analytical approach of verification, more pre
 . [[turing1936computable,({counter:references})]] Turing, A. M. (1936). On computable numbers, with an application to the Entscheidungsproblem. J. of Math, 58(345-363), 5.
 . [[wikimedia2020lines,({counter:references})]] Lines of Code Linux Kernel.svg. https://commons.wikimedia.org/wiki/File:Lines_of_Code_Linux_Kernel.svg. Last accessed: 17/03/2020.
 . [[opensignal2015android,({counter:references})]] OpenSignal. (2015). Android Fragmentation. https://www.opensignal.com/sites/opensignal-com/files/data/reports/global/data-2015-08/2015_08_fragmentation_report.pdf). Last accessed: 17/03/2020.
+. [[trikha2020inevitable, ({counter:references})]] Trikha R. (2020, Jul 2^nd^). The Inevitable Return of COBOL Published by Ritika Trikha https://blog.hackerrank.com/the-inevitable-return-of-cobol/. Last accessed: 06/07/2020.
+. [[cnbc2017banks, ({counter:references})]] CNBC, Reuters (2017, Apr 11^th^) Banks scramble to fix old systems as IT ‘cowboys’ ride into sunset https://www.cnbc.com/2017/04/11/banks-scramble-to-fix-old-systems-as-it-cowboys-ride-into-sunset.html. Last accessed: 06/07/2020.
+. [[leswing2020bnew, ({counter:references})]] Leswing K., CNBC (2020 Apr 6^th^) New Jersey needs volunteers who know COBOL, a 60-year-old programming language https://www.cnbc.com/2020/04/06/new-jersey-seeks-cobol-programmers-to-fix-unemployment-system.html. Last accessed: 06/07/2020.
 . [[meyer2008seven,({counter:references})]] Meyer, B. (2008). Seven principles of software testing. Computer, 41(8), 99-101. http://www2.computer.org/portal/web/csdl/doi/10.1109/MC.2008.306
 . [[netflix2011,({counter:references})]] The Netflix Simian Army. (2011). https://netflixtechblog.com/the-netflix-simian-army-16e57fbab116 Last accessed: 01/05/2020
 . [[fowler2006continuous,({counter:references})]] Continuous Integration. (2006). https://martinfowler.com/articles/continuousIntegration.html Last accessed: 01/05/2020
