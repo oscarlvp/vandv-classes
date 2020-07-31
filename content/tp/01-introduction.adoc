@@ -1,0 +1,18 @@
+== Practical Session #1: Introduction
+
+1. Find in the web two different bugs reported by the press. Describe the bugs. Classify them as local or global. Explain the impact of these bugs for final consumers/users and for the company.
+
+2. Github uses its own issue tracker as a way to report bugs found by users or developers and to propose new features. Issues are also a way to track the progress of the project. Github uses _starts_ as a way to measure the popularity of projects. Using Github find two different Java projects with more than 500 stars. For each one of these projects find a bug reported in the issue tracker. For each bug:
+    - Describe the project in terms of:
+        - The product being developed.
+        - Number of commits.
+        - Number of contributors.
+        - Are they using any CI/CD server: Github Actions, Travis, Jenkins?
+        - Any other feature you find worthy of mention. 
+    - Describe the bug. Classify it as local or global.
+    - Who reported the bug?
+    - How was it discovered?
+    - Is it solved? If so, how?
+    - If it is not solved, is there a way to know why developers haven't been able to solve it?
+
+3. 
