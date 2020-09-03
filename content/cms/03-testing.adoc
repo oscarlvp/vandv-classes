@@ -1,0 +1,93 @@
+== Software Testing
+
+According to Ammann and Offutt <<amman2017introduction>> _Software Testing_ is the process of evaluating a software by observing its execution to reveal the presence of faults or as Meyer says in his principles <<meyer2008seven>> _"`to test a program is to try to make it fail`"_. Per this definition, testing is a form of dynamic analysis, as it requires the execution of the program or system under test. The testing process is achieved with the design and application of test cases. 
+
+In broad terms, a test case must provide the required _input_ and set the program in the desired state by _triggering specific behaviors_. It then, must _check the output_ of the program against expected results. Often, the output of the test execution is validated with an _oracle_, a predicate to tell whether the execution was successful or not. A test case may optionally include _prefix values_ which are inputs necessary to get the system ready for the input and _postfix values_ which are inputs needed to clean the environment after the execution of the test. Test cases may be _functional_, if it checks that a functionality is correct, or _non-functional_ if it is directed to evaluate properties like performance, security or even energy consumption. If a test case executes normally it is said to _pass_ otherwise, if the output is not correct we say that there is a _test failure_ and that the test _fails_.
+
+A test case exercises the system in one specific scenario. So, only one test case is not enough to correctly verify the system. Therefore we always create a set of multiple test cases usually called _test suite_. 
+
+=== Levels of testing
+
+Testing can (and should) be done at different levels of abstractions <<amman2017introduction>> <<aniche-software>>:
+
+Unit Testing:: It is the lowest level of testing and targets the code units of the program: procedures, functions or methods. The goal is to assess the _implementation_ of the software. For example, a unit test for a function that computes the factorial of a given number, would call the function with an input, say 5 and then check that the result is 120. 
+
+Module Testing:: Units are often grouped in _modules_ that could be classes, packages or files. This level of testing verifies each module in isolation and evaluates how the component units interact with each other. For example, a test for a `Stack` class may create an instance of the class, push an element onto the stack, pop it out and finally check that the stack is empty.
+
+NOTE: In Object-Oriented Programming a class is considered as both a unit and a module. Therefore the distinction between _unit tests_ and _module tests_ is not clear within this context. In fact, for most testers and developers both types of testing are known as _unit testing_ and it will be also the case for the rest of this text. 
+
+Integration Testing:: The goal of this level of testing is to assess the interaction between modules and verify that they are communicating correctly. Integration tests assume that modules work correctly, that is the task of the previous testing levels. As an example, an integration test for an online store may check the interaction between the shopping cart module and the payment gateway by creating and validating an order, or it could also verify that data access abstractions communicate correctly with the database by creating the right queries and interpreting the results in the right way.
+
+System Testing::  The goal of this level is to check whether the assembled system meets the specifications thus, It assumes that all subsystems work correctly, which is the task of the previous testing levels. Integration tests execute the system as a whole from beginning to end, that is why they are sometimes also referred as _end-to-end_ tests. An example of such tests in the context of an online store could verify that: a user can log in with the right credentials, she can create a shopping cart with a selection of products, she can validate the order, she receives an email with the invoice and then she is able to log out. Testing done from the graphical user interface is also a for of system testing.
+
+Acceptance Testing:: This level checks that the finished product meets the needs of the users, that is, if the system does what they want. These tests should be elaborated from the user's perspective and may be used to evaluate the requirements. Like system tests, these also verify the product from beginning to end.
+
+NOTE: There might be other, even finer-grained, classifications for tests and they all tend to be blurred sometimes ambiguous. Classifying one test case as unit, module, integration or system is not crucial. The most important message here is that testing should be carried at different levels, for each unit, whatever they may be, then how these units interact and then how the entire system behaves.
+
+Each level of testing has its own level of complexity. Unit tests tend to be easier to define and faster to execute. System tests are more complex and slower. Inputs for unit tests may not be completely realistic compared to the inputs that shall appear in production and they are not generally able to find faults arising from the interaction of modules. System tests tend to be more realistic  Also finding an implementation fault from a system test may be even impractical.
+
+Automating the execution of tests at all levels is key for modern software development practices. Manual tests are tedious, take a lot of time and are prone to errors. Automated test execution allows having more tests and therefore more scenarios are explored. As Meyer explains in his fourth principle,<<meyer2008seven>> it is not feasible to manually check the output of hundreds of tests. Automated tests help producing a faster, almost immediate feedback during development on whether certain types of faults are being inserted. In this way they enable efficient CI/CD processes which facilitate the integration of the work of development teams. Automated tests help also preventing _regressions_ that is, the reinsertion of an already solved fault. This is specially true if we adhere to Meyer's third principle "`Any failed execution must yield a test case, to remain a permanent part of the project’s test suite`" <<meyer2008seven>>.
+
+The accepted practice nowadays is to have most tests automated, while keeping only a small amount of manual tests, mainly as acceptance tests. Most organizations have a large number of unit tests, which are easier to write, faster to execute and easier to understand and less system tests which are more complex, expensive and harder to maintain. This is reflected on what is known as the _testing pyramid_ <<testing-pyramid>>.
+
+[#testing-pyramid.text-center]
+.The testing pyramid.
+image::testing-pyramid.png[Testing pyramid, 600]
+
+So, as we move in the pyramid from unit tests, which directly assess the implementation of the system,  up to acceptance tests which check the compliance of the system with the users' needs, we mode from verification to validation.
+
+=== Test automation frameworks: JUnit
+
+Test automation allows having more tests to explore more execution scenarios, provides a faster feedback and facilitates integration processes. It is achieved with the help of _test automation frameworks_ or _testing frameworks_.
+
+A testing framework is a set of tools and libraries providing mechanisms to define or specify test cases and execute them. One of the most famous alternatives at the moment is _JUnit_, initially developed by Kent Beck back in 1997. JUnit has become a sort of _de-facto_ standard for Java projects and has inspired the creation of similar frameworks for other languages and platforms which are informally called as the _xUnit_ family.
+Despite hading "`unit`" in the name and being widely used for unit testing, the framework can be use to implement all sort of automated tests.
+
+NOTE: At the moment of writing this material the latest stable version of JUnit is 5.6.2. This version will be used for all code examples.
+
+Suppose we have a `Stack` class that implements a _LIFO_ (Last In First Out) data structure. The class has a `void` method `push` to insert an element onto the stack and `pop` that removes the element on top of the stack and returns it. A typical unit test for this class written with the help of JUnit would look like the code shown in <<junit-example>>.
+
+[[junit-example, Listing {counter:listing}]]
+.Listing {listing}. A typical unit test written with JUnit.
+[source,java]
+----
+class StackTest {
+    @Test
+    public void testPushPop() {
+        int original = 1;
+        Stack stack = new Stack();
+        stack.push(original);
+        int onTop = stack.pop();
+        assertSame(item, onTop, "Element on top of the stack should be " + original);
+    }
+}
+----
+
+Test cases in JUnit are implemented inside _test classes_. These classes declare _test methods_ which contain the main code for the test cases. These test methods are identified with the `@Test` annotation. In <<junit-example>> the first four lines of `testPushPop` provide the input values of the test case and set the instance of `Stack` in the required state: an element has been pushed and then popped from the stack. 
+
+The last line uses an oracle to verify that the element obtained from the stack was the same that was pushed in the first place. This type of oracle is known as an _assertion_. It evaluates a given condition and if the condition is false an `AssertionError` is thrown. It also includes a message to use as output in the case the assertion fails. In the absence of any assertion in the code, JUnit tests have an implicit oracle that checks if unexpected errors occur, that is, if an unexpected exception is thrown.
+
+JUnit provides a set of utility methods implementing different assertions such as: `assetEquals` that checks if two given objects are equal, `assertNotEqual`, the contrary, `assertNull` which verifies if a given value is `null` or not, `assertSame` used in the example to verify if two objects are the same and many more.
+
+In some scenarios, a test case should verify whether an operation with the wrong input signals the right error. <<junit-throw>> shows how to achieve this. The test verifies that invoking `pop` in an empty `Stack` should throw an `IllegalOperationException`.
+
+[[junit-throw, Listing {counter:listing}]]
+.Listing {listing}. Verifying the correct error with JUnit.
+[source,java]
+----
+@Test
+public void testErrorPopEmptyStack() {
+    assertThrows(IllegalOperationException.class, () -> {
+        new Stack().pop();
+    });
+}
+----
+
+While the assertions included in JUnit cover a wide spectrum of scenarios, libraries like http://hamcrest.org/JavaHamcrest/[Hamcrest] and https://joel-costigliola.github.io/assertj/[AssertJ] help creating more expressive and higher level assertions.
+
+A test case in JUnit could be more than a single test method, it may include other methods supporting the test execution. For example, methods annotated with `@BeforeEach` and `@AfterEach` will be executed before and after each identified test cases in the same test class respectively. These are helpful to set prefix and postfix test inputs.
+
+JUnit includes many additional functionalities to facilitate the creation of tests, such as parameterized tests, special oracles to verify the performance of the code and even the dynamic creation of tests.
+
+It is important to add information that helps identifying the fault in the event of a test failure. In JUnit, and any other testing framework, a common practice to try to achieve this is to use descriptive names for test methods and set detailed messages for assertions. However, there are many other characteristics that good test cases must have in practice.
+

@@ -1,5 +1,3 @@
-:numbered:
-
 == Introduction
 
 Software has become omnipresent in our daily lives. Some people say that "`software is eating the world`" <<andreessen2011why>>. Nowadays, we depend more and more on the Internet and the Web. They are powered by complex interconnected software systems. We trust software to predict the weather, to guard our bank accounts and to order pizza. Through software we communicate with other people and share our photos. We use streaming services to watch films and listen to music. 
@@ -23,7 +21,7 @@ A bug appears when the software does not match the requirements: it does not per
 
 Bugs or _faults_ are produced by human mistakes in the development process. A fault induces a wrong state or _error_ during the execution of the software. When the error produces an incorrect behavior we see a _failure_.
 
-We define _faults_, _errors_ and _failures_ as follows <<moller1993empirical>>, <<ghahrai2018error>>, <<amman2016introduction>>:
+We define _faults_, _errors_ and _failures_ as follows <<moller1993empirical>>, <<ghahrai2018error>>, <<amman2017introduction>>:
 
 Software Fault, Software Defect, Bug:: a manifestation of a human mistake in software. It is a static flaw or imperfection found within the code.
 Software Error:: An incorrect internal state of the program during execution and produced by a _fault_. 
@@ -425,12 +423,12 @@ These models can be used to generate concrete code that, for example, would be e
 
 ==== Analytical approach
 
-This approach is directed to find the presence of bugs in the system. It is regularly based on heuristics and can target all kinds of software artifacts: code, models, requirements, etc. Its more used variant is *software testing*. Testing presents, nowadays, the best trade-off between effort and result when it comes to the validation and verification of a software product. It will be the main focus of this course.
+This approach is directed to find the presence of bugs in the system. It is regularly based on heuristics and can target all kinds of software artifacts: code, models, requirements, etc. Its more used variant is *software testing* which evaluates a program by observing its execution under different conditions <<ammann2017introduction>>. Testing presents, nowadays, the best trade-off between effort and result when it comes to the validation and verification of a software product. It will be the main focus of this course.
 
 Bertrand Meyer proposes seven principles of testing <<meyer2008seven>>:
 
 Principle 1: To test a program is to try to make it fail:: This is the main purpose of testing, to find defects in the code. In the words of Meyer the _single goal_ of testing is _to uncover faults by triggering failures_. Testing can not be used to show the absence of bugs, as Dijkstra said and Meyer recalls. But it is extremely useful in finding those scenarios in which the software does not behave as intended. This definition of Meyer presents testing as a dynamic technic, that is, testing requires the execution of a program. However, there are some code analysis techniques and tools that help detecting potential faults by finding well known code patterns that are prone to errors, or that ensure code quality by forcing development guidelines. In the long term these techniques help reducing the occurrence of bugs at a lower cost, since they don't execute the program. Some authors refer to these analyses as _static testing_. There is controversy on whether these static analyses are in fact testing or not, but since they are of value for the quality of the software we shall discuss them in the course.
-Principle 2: Tests are no substitute for specifications:: Test are built from specific cases, instances of the different scenarios in which the software shall execute. The specification is composed of more general abstractions tied to human understanding. While the specification can be used to derive test cases the opposite is not necessarily true. Even in large numbers, a finite amount of tests may not capture the general properties of the system due to missing instances. 
+Principle 2: Tests are no substitute for specifications:: Tests are built from specific cases, instances of the different scenarios in which the software shall execute. The specification is composed of more general abstractions tied to human understanding. While the specification can be used to derive test cases the opposite is not necessarily true. Even in large numbers, a finite amount of tests may not capture the general properties of the system due to missing instances. 
 Principle 3: Any failed execution must yield a test case, to remain a permanent part of the project’s test suite:: Once a fault has been discovered there is always the peril that it can reappear later. It happens often in practice. Uncovered faults should then become test cases that prevent these regressions. This is known as _regression testing_. 
 Principle 4: Determining the success or failure of tests must be an automatic process:: Once a test is executed, one needs to know if the software behaved as expected. Thus, we need a _test oracle_ to produce such verdict. As the number of test cases grows, this task must be automated. It is not feasible to run hundreds of test cases, print the output of the program and the manually check whether the output is correct.
 Principle 5: An effective testing process must include both manually and automatically produced test cases:: Manually produced test cases come from the understanding developers have of the problem domain and the input or from *Principle 3*, as Meyer explains. But often corner and specific cases escape from human intuition. Complementing manually designed test cases with automatically produced test cases can help spot what developers missed. Computers are able to generate test cases to a level that humans can not reach and help explore unforeseen scenarios.
@@ -474,30 +472,3 @@ CI/CD approaches find great realization in *DevOps*. DevOps is a modern developm
 [role=text-center]
 .DevOps diagram
 image::devops.svg[DevOps, 600]
-
-:numbered!:
-=== References
-
-. [[andreessen2011why, ({counter:references})]] Andreessen, M. (2011). Why software is eating the world. Wall Street Journal, 20(2011), C2. 
-. [[wikipedia2020bug,({counter:references})]] Wikipedia. Software Bug. https://en.wikipedia.org/wiki/Software_bug, Last accessed: 17/03/2020.
-. [[ghahrai2018error,({counter:references})]] Ghahrai A. (2018). Error, Fault and Failure in Software Testing. https://www.testingexcellence.com/error-fault-failure-software-testing/ Last accessed: 17/03/2020.
-. [[amman2016introduction,({counter:references})]] Ammann, P., & Offutt, J. (2016). Introduction to software testing. Cambridge University Press.
-. [[mancoridis2018slides,({counter:references})]] Mancoridis S. Slides of his V&V course https://www.cs.drexel.edu/~spiros/teaching/SE320/slides/introduction.pdf)) Last accessed: 17/03/2020.
-. [[moller1993empirical,({counter:references})]] Moller, K-H., and Daniel J. Paulish. (1993). An empirical investigation of software fault distribution. Proceedings First International Software Metrics Symposium. IEEE (1993).
-. [[fruhlinger2017what,({counter:references})]] Fruhlinger J. (2017). What is the Heartbleed bug, how does it work and how was it fixed?. CSO (2017) https://www.csoonline.com/article/3223203/vulnerabilities/what-is-the-heartbleed-bug-how-does-it-work-and-how-was-it-fixed.html. Last accessed: 17/03/2020.
-. [[slabodking1998software,({counter:references})]] Slabodking G. (1998). Software glitches leave Navy Smart Ship dead in the water. GCN (1998) https://gcn.com/Articles/1998/07/13/Software-glitches-leave-Navy-Smart-Ship-dead-in-the-water.aspx Last accessed: 17/03/2020.
-. [[arnold2000patriot,({counter:references})]] Arnold D. (2000). The Patriot Missile Failure. http://www-users.math.umn.edu/~arnold/disasters/patriot.html Last accessed 17/03/2020.
-. [[hansell1994glitch,({counter:references})]] Hansell S. (1994). Glitch Makes Teller Machines Take Twice What They Give. https://www.nytimes.com/1994/02/18/business/glitch-makes-teller-machines-take-twice-what-they-give.html. Last accessed: 10/09/2018.
-. [[jezequel1997design,({counter:references})]] Jézéquel, J-M., and Bertrand Meyer. (1997). Design by contract: The lessons of Ariane. Computer 30.1 (1997): 129-130.
-. [[ceguerra2001software,({counter:references})]] Ceguerra A. (2001). Software Bug Report: Mars Climate Orbiter Assignment 1 for Verification. http://courses.engr.uky.edu/ideawiki/data/media/classes/06c/585/mars_climate_orbiter.pdf. Last accessed: 17/03/2020
-. [[johnson2012curiosity,({counter:references})]] Johnson P. (2012). Curiosity about lines of code. https://www.itworld.com/article/2725085/big-data/curiosity-about-lines-of-code.html. Last accessed: 12/09/2018.
-. [[turing1936computable,({counter:references})]] Turing, A. M. (1936). On computable numbers, with an application to the Entscheidungsproblem. J. of Math, 58(345-363), 5.
-. [[wikimedia2020lines,({counter:references})]] Lines of Code Linux Kernel.svg. https://commons.wikimedia.org/wiki/File:Lines_of_Code_Linux_Kernel.svg. Last accessed: 17/03/2020.
-. [[opensignal2015android,({counter:references})]] OpenSignal. (2015). Android Fragmentation. https://www.opensignal.com/sites/opensignal-com/files/data/reports/global/data-2015-08/2015_08_fragmentation_report.pdf). Last accessed: 17/03/2020.
-. [[trikha2020inevitable, ({counter:references})]] Trikha R. (2020, Jul 2^nd^). The Inevitable Return of COBOL Published by Ritika Trikha https://blog.hackerrank.com/the-inevitable-return-of-cobol/. Last accessed: 06/07/2020.
-. [[cnbc2017banks, ({counter:references})]] CNBC, Reuters (2017, Apr 11^th^) Banks scramble to fix old systems as IT ‘cowboys’ ride into sunset https://www.cnbc.com/2017/04/11/banks-scramble-to-fix-old-systems-as-it-cowboys-ride-into-sunset.html. Last accessed: 06/07/2020.
-. [[leswing2020bnew, ({counter:references})]] Leswing K., CNBC (2020 Apr 6^th^) New Jersey needs volunteers who know COBOL, a 60-year-old programming language https://www.cnbc.com/2020/04/06/new-jersey-seeks-cobol-programmers-to-fix-unemployment-system.html. Last accessed: 06/07/2020.
-. [[meyer2008seven,({counter:references})]] Meyer, B. (2008). Seven principles of software testing. Computer, 41(8), 99-101. http://www2.computer.org/portal/web/csdl/doi/10.1109/MC.2008.306
-. [[netflix2011,({counter:references})]] The Netflix Simian Army. (2011). https://netflixtechblog.com/the-netflix-simian-army-16e57fbab116 Last accessed: 01/05/2020
-. [[fowler2006continuous,({counter:references})]] Continuous Integration. (2006). https://martinfowler.com/articles/continuousIntegration.html Last accessed: 01/05/2020
-. [[thoughtworksintegration,({counter:references})]] Continuous Integration. https://www.thoughtworks.com/continuous-integration Last accessed: 01/05/2020
