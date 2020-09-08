@@ -91,3 +91,194 @@ JUnit includes many additional functionalities to facilitate the creation of tes
 
 It is important to add information that helps identifying the fault in the event of a test failure. In JUnit, and any other testing framework, a common practice to try to achieve this is to use descriptive names for test methods and set detailed messages for assertions. However, there are many other characteristics that good test cases must have in practice.
 
+=== Test Antipatterns / Smells
+
+Automated test cases are code, _test code_, and like the _application code_ they should be maintained and we should care about their quality. Poorly written test cases bring no value to the development process. They negatively impact the fault detection capabilities of a test suite. They are also hard to understand and hard to leverage when identifying faults.
+
+As summarized in <<meszaros2003test>> automated test cases should be *concise* and *clear*: brief yet comprehensive and easy to understand, *self-checking*: they should report results without human intervention, *repeatable*, *robust* and *independent*: it should be possible to run them consecutive times without human intervention and they should always produce the same results whether their are run in isolation or with other tests. Tests should also be *efficient*: they should be run in a reasonable amount of time and should be *maintainable*: that is, they must be easy to modify and extend even when the system under test changes. Also, with respect to the application and the requirements, tests must be *sufficient* so all requirements of the system are verified, *necessary* so that everything in each test contributes to the specification of the desired behavior, with no redundancy and unneeded artifacts, each test should be *specific* so tests failures point to the specific fault, and *traceable* so that it can be easily mapped to the parts of the application code it verifies and the part of the specification it has been derived from. 
+
+Along the years, the testing community has identified bad practices, _smells_ that deviate from the principles mentioned above and impact the quality of tests. Garousi and Küçük <<garousi2018smells>> reviewed the scientific and industry literature on the subject and were able to identify 179 different test smells. It is important to notice that test smells are not bugs but affect the tests by lowering their efficiency, maintainability, readability, comprehension and their ability to find faults. This section presents and exemplifies some of these test smells.
+
+Manual intervention:: Happens when the person running the test case must do something manually before the test is run, during the execution or should manually verify the results. This goes in detriment of test automation.
+
+Testing Happy Path only:: Tests only verify the common scenario, and never check boundaries or input values that should result in exceptions. Most of the time developers program with the happy path / normal situation in mind and it is most likely that this scenario will work. Therefore testing the happy path only have lower chances to catch a bug. The test case in <<junit-example>> tests only the most expected scenario or happy path. We need to add test cases like <<junit-throw>> where we explore extreme scenarios like a pop on an empty stack or when a null element is pushed or if if there is a point at which we can push no more elements to the stack.
+
+Test logic in production code:: The application code put into production contains logic that should be exercised only during test execution. This logic has been put there only to support testing, for example, to help tests gain access to the internal state of the application. It also may happen that part of the production logic can not be executed in testing. This makes the system behaves differently in production and testing. An example is shown in <<test-logic-in-production>>.
+
+[[test-logic-in-production, Listing {counter:listing}]]
+.Listing {listing}. Example of test logic in production code.
+[source,java]
+----
+...
+if (System.getProperty("env", "prod").equals("test")) {
+    return new User('Jane Doe', 'janedoe@example.com'); //<1>
+}
+else {
+    User user = new User(Request.getParam(login), Request.getParam(name));
+    validateUser(user);
+    return user;
+}
+...
+----
+. <1> This line makes the code return a wired values to use in production.
+
+Another example of this type of smell is when a class does not require an implementation of `equals` and we do need it just for testing purposes. This is known as _equality pollution_. The application code is filled with unnecessary `equals` methods, whose logic may actually go against the requirements. 
+
+In general, all forms of this test smell make the application code more complex and introduces maintainability issues.
+
+A way to solve this smell, is to use _dependency injection_. The code that has to work differently in production and tests can be moved onto a dependency that can be exchanged without affecting the application logic. In case of equality pollution we could use an _equality comparer_, that is, a class that checks if two objects are equals per our needs.
+
+Eager test:: Also known as *The Test It All* or *Split Personality*. It is a single test that verifies too many functionalities. <<eager-roulette>> shows an example of this test smell. When such a test fails, it is hard to tell which is the actual functionality that contains the fault. The solution is to separate all verifications into different test cases.
+
+[[eager-roulette, Listing {counter:listing}]]
+.Listing {listing}. An example of a test that tries to test too much in the same test case (Eager Test) and it is also hard to know the fault in the presence of a test failure. Taken from <<xunitpatterns-assertion>>.
+[source,java]
+----
+@Test
+public void testFlightMileage_asKm2() throws Exception {
+    // setup fixture
+    // exercise contructor
+    Flight newFlight = new Flight(validFlightNumber);
+    // verify constructed object
+    assertEquals(validFlightNumber, newFlight.number);
+    assertEquals("", newFlight.airlineCode);
+    assertNull(newFlight.airline);
+    // setup mileage
+    newFlight.setMileage(1122);
+    // exercise mileage translater
+    int actualKilometres = newFlight.getMileageAsKm();    
+    // verify results
+    int expectedKilometres = 1810;
+    assertEquals( expectedKilometres, actualKilometres);
+    // now try it with a canceled flight:
+    newFlight.cancel();
+    try {
+        newFlight.getMileageAsKm();
+        fail("Expected exception");
+    } catch (InvalidRequestException e) {
+        assertEquals( "Cannot get cancelled flight mileage", e.getMessage());
+    }
+}
+----
+
+Assertion roulette:: Appears when it is hard to tell which of the many assertions of  a test method produced the test failure. This makes harder to diagnose the actual fault. Eager tests tend to also produce assertion roulettes as can be seen in <<eager-roulette>>. This smell also occurs when assertions do not have any message, as seen in <<no-message-assertion>>. To solve this smell we should refactor the test code and add a descriptive message to all assertions.
+
+[[no-message-assertion, Listing {counter:listing}]]
+.Listing {listing}. Example of a test case with several assertions with no message. In the case of a test failure it is hard to know which assertion failed and to diagnose the fault. Taken from <<xunitpatterns-assertion>>
+[source,java]
+----
+@Test
+public void testInvoice_addLineItem7() {
+    LineItem expItem = new LineItem(inv, product, QUANTITY);
+    // Exercise
+    inv.addItemQuantity(product, QUANTITY);
+    // Verify
+    List lineItems = inv.getLineItems();
+    LineItem actual = (LineItem)lineItems.get(0);
+    assertEquals(expItem.getInv(), actual.getInv());
+    assertEquals(expItem.getProd(), actual.getProd());
+    assertEquals(expItem.getQuantity(), actual.getQuantity());
+}
+----
+
+The Free Ride:: Also known as *Piggyback* and closely related to the two previous test smells. In this smell, rather than write a new test case method to test another feature or functionality, testers add new assertions to verify other functionalities. It can lead to eager tests and assertion roulettes. As with this two other smells, piggybacking makes it hard to diagnose the fault. <<piggybacking>> shows an actual example of this smell from the Apache Commons Lang project.
+
+[[piggybacking, Listing {counter:listing}]]
+.Listing {listing}. Actual example of the piggybacking test smell. Code can be consulted in the https://github.com/apache/commons-lang/blob/649dedbbe8b6ab61fb3c4792c86b7e0af7ec4a73/src/test/java/org/apache/commons/lang3/ArrayUtilsRemoveMultipleTest.java#L34[Apache Commons Lang code repository]. This is also an example of an eager test and assertion roulette.
+[source,java]
+----
+@Test
+public void testRemoveAllBooleanArray() {
+    boolean[] array;
+
+    array = ArrayUtils.removeAll(new boolean[] { true }, 0);
+    assertArrayEquals(ArrayUtils.EMPTY_BOOLEAN_ARRAY, array);
+    assertEquals(Boolean.TYPE, array.getClass().getComponentType());
+
+    array = ArrayUtils.removeAll(new boolean[] { true, false }, 0);
+    assertArrayEquals(new boolean[]{false}, array);
+    assertEquals(Boolean.TYPE, array.getClass().getComponentType());
+
+    array = ArrayUtils.removeAll(new boolean[] { true, false }, 1);
+    assertArrayEquals(new boolean[]{true}, array);
+    assertEquals(Boolean.TYPE, array.getClass().getComponentType());
+
+    array = ArrayUtils.removeAll(new boolean[] { true, false, true }, 1);
+    assertArrayEquals(new boolean[]{true, true}, array);
+    assertEquals(Boolean.TYPE, array.getClass().getComponentType());
+
+    array = ArrayUtils.removeAll(new boolean[] { true, false }, 0, 1);
+    assertArrayEquals(ArrayUtils.EMPTY_BOOLEAN_ARRAY, array);
+    assertEquals(Boolean.TYPE, array.getClass().getComponentType());
+
+    array = ArrayUtils.removeAll(new boolean[] { true, false, false }, 0, 1);
+    assertArrayEquals(new boolean[]{false}, array);
+    assertEquals(Boolean.TYPE, array.getClass().getComponentType());
+
+    array = ArrayUtils.removeAll(new boolean[] { true, false, false }, 0, 2);
+    assertArrayEquals(new boolean[]{false}, array);
+    assertEquals(Boolean.TYPE, array.getClass().getComponentType());
+
+    array = ArrayUtils.removeAll(new boolean[] { true, false, false }, 1, 2);
+    assertArrayEquals(new boolean[]{true}, array);
+    assertEquals(Boolean.TYPE, array.getClass().getComponentType());
+
+    array = ArrayUtils.removeAll(new boolean[] { true, false, true, false, true }, 0, 2, 4);
+    assertArrayEquals(new boolean[]{false, false}, array);
+    assertEquals(Boolean.TYPE, array.getClass().getComponentType());
+
+    array = ArrayUtils.removeAll(new boolean[] { true, false, true, false, true }, 1, 3);
+    assertArrayEquals(new boolean[]{true, true, true}, array);
+    assertEquals(Boolean.TYPE, array.getClass().getComponentType());
+
+    array = ArrayUtils.removeAll(new boolean[] { true, false, true, false, true }, 1, 3, 4);
+    assertArrayEquals(new boolean[]{true, true}, array);
+    assertEquals(Boolean.TYPE, array.getClass().getComponentType());
+
+    array = ArrayUtils.removeAll(new boolean[] { true, false, true, false, true, false, true }, 0, 2, 4, 6);
+    assertArrayEquals(new boolean[]{false, false, false}, array);
+    assertEquals(Boolean.TYPE, array.getClass().getComponentType());
+
+    array = ArrayUtils.removeAll(new boolean[] { true, false, true, false, true, false, true }, 1, 3, 5);
+    assertArrayEquals(new boolean[]{true, true, true, true}, array);
+    assertEquals(Boolean.TYPE, array.getClass().getComponentType());
+
+    array = ArrayUtils.removeAll(new boolean[] { true, false, true, false, true, false, true }, 0, 1, 2);
+    assertArrayEquals(new boolean[]{false, true, false, true}, array);
+    assertEquals(Boolean.TYPE, array.getClass().getComponentType());
+}
+----
+
+Interacting Tests:: Tests that depend on each other in some way. It may happen when one test depends of the outcome of another, for example, as a result of a test, a file is created which is used to execute another test. In this way a test may fail for reasons other than a fault in the behavior it is verifying.
+
+The Local Hero:: A test case depends on something specific to the development environment. It passes in a matching environment but fails under any other conditions. This may happen when tests depend on the existence of specific services or even machine features. Such assumptions should always be avoided.
+
+Conditional test logic:: Also known as *Guarded Test*. Consists in a test that contains code that may or may not be executed. It makes tests more complicated than actually needed and therefore less readable and maintainable. It usually appears with the use of control structures within a test method. <<conditional-logic>> shows an example.
+
+[[conditional-logic,Listing {counter:listing}]]
+.Listing {listing}. An example of conditional logic in a test. In this case, if the element is not returned by the iterator, the test executes without failing.
+[source, java]
+----
+ //  verify Vancouver is in the list:
+    actual = null;
+    i = flightsFromCalgary.iterator();
+    while (i.hasNext()) {
+        FlightDto flightDto = (FlightDto) i.next();
+        if (flightDto.getFlightNumber().equals( expectedCalgaryToVan.getFlightNumber())) //<1>
+        {
+            actual = flightDto;
+            assertEquals("Flight from Calgary to Vancouver", expectedCalgaryToVan, flightDto);
+            break;
+        }
+    }
+}
+----
+. <1> Checks the presence of an element. If the element is not there, then the test executes and does not fail.
+
+Fragile test:: A test that fails to compile or run when the system under test is changed in ways that do not affect the part the test is exercising. These tests increase the cost of maintenance. There are many causes for this smell, so code should be carefully inspected and refactored.
+
+
+
+Get really clever and use random numbers in your tests::
+
+Testing private methods:: Also known as  *X-Ray Specs*.  
