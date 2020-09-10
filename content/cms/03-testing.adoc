@@ -91,11 +91,13 @@ JUnit includes many additional functionalities to facilitate the creation of tes
 
 It is important to add information that helps identifying the fault in the event of a test failure. In JUnit, and any other testing framework, a common practice to try to achieve this is to use descriptive names for test methods and set detailed messages for assertions. However, there are many other characteristics that good test cases must have in practice.
 
-=== Test Antipatterns / Smells
+=== Best practices and antipatterns in testing
 
 Automated test cases are code, _test code_, and like the _application code_ they should be maintained and we should care about their quality. Poorly written test cases bring no value to the development process. They negatively impact the fault detection capabilities of a test suite. They are also hard to understand and hard to leverage when identifying faults.
 
 As summarized in <<meszaros2003test>> automated test cases should be *concise* and *clear*: brief yet comprehensive and easy to understand, *self-checking*: they should report results without human intervention, *repeatable*, *robust* and *independent*: it should be possible to run them consecutive times without human intervention and they should always produce the same results whether their are run in isolation or with other tests. Tests should also be *efficient*: they should be run in a reasonable amount of time and should be *maintainable*: that is, they must be easy to modify and extend even when the system under test changes. Also, with respect to the application and the requirements, tests must be *sufficient* so all requirements of the system are verified, *necessary* so that everything in each test contributes to the specification of the desired behavior, with no redundancy and unneeded artifacts, each test should be *specific* so tests failures point to the specific fault, and *traceable* so that it can be easily mapped to the parts of the application code it verifies and the part of the specification it has been derived from. 
+
+==== Test smells
 
 Along the years, the testing community has identified bad practices, _smells_ that deviate from the principles mentioned above and impact the quality of tests. Garousi and Küçük <<garousi2018smells>> reviewed the scientific and industry literature on the subject and were able to identify 179 different test smells. It is important to notice that test smells are not bugs but affect the tests by lowering their efficiency, maintainability, readability, comprehension and their ability to find faults. This section presents and exemplifies some of these test smells.
 
@@ -273,12 +275,186 @@ Conditional test logic:: Also known as *Guarded Test*. Consists in a test that c
     }
 }
 ----
-. <1> Checks the presence of an element. If the element is not there, then the test executes and does not fail.
+<1> Checks the presence of an element. If the element is not there, then the test executes and does not fail.
 
 Fragile test:: A test that fails to compile or run when the system under test is changed in ways that do not affect the part the test is exercising. These tests increase the cost of maintenance. There are many causes for this smell, so code should be carefully inspected and refactored.
 
+Erratic tests:: Also known as *Flaky Tests*. Test that behave erratically, sometimes they fail and sometimes they don't under the same conditions. These tests undermine the trust developers have on their test suites. It is hard to know whether the failure is due to an actual fault or not. There are many reasons this could happen, for example, the already mentioned *Interacting Tests* smell, incorrect handling of the resources the test should use, and any type of non-determinism in tests coming from race conditions, synchronization, concurrency, time-outs and randomly generated data. Erratic or flaky tests are more common in higher level testing such as integration or system tests. They are a true plague for companies that develop big systems. As an example, Google has reported that nearly 1.5% of their tests behave erratically  <<micco2016flaky>>. 
+
+Get really clever and use random numbers in your tests:: Using randomly generated data in tests cases is not necessarily a bad idea. Random tests can discover cases that developers have missed. However, random data has to be carefully managed to avoid creating *Erratic Tests* and to ensure that tests can be *repeatable*. Some of the key actions to consider are, to use pseudo-random numbers and store or log the seed used to generate the data and log the data used in case of a failure, so the test can be repeated in a posterior moment to diagnose the fault.
+
+Testing private methods:: Also known as  *X-Ray Specs*. Tests should verify results, not the implementation. Results are most likely to remain the same even when the implementation changes, also results come from the specification the implementation should follow. Private  methods are implementation artifacts hidden from external users. Verifying results should only involve the public API and not knowing the internals of a module or class. Also, trying to test private methods, requires a non-trivial plumbing, that would make tests more complicated. So, tests should not directly target private methods, but they _must assess their effect_ through the public API.
+
+==== Real examples of good testing practices
+
+The previous sections presented the features a good test should have and described a selection of common antipatterns in testing. This section presents examples of good testing practices in Apache Commons Math, a serious open-source Java library quite used and popular. 
+
+For each: presence of good features, and kinds of antipatterns they avoid
 
 
-Get really clever and use random numbers in your tests::
+<<testing-exceptional-case>> shows a good example on how to handle the verification of exceptional cases and avoiding to test only the happy path. In this example, developers did two things. First the use of an special assertion for when the exception should expected, which can be seen in the annotation. This example uses JUnit 4. In JUnit 5, `assertThrows` is preferred. Also, they used the special assertion `fail` to mark the part of the test code that should not be executed if the exception is not thrown. In this way they ensure that the test will not silently pass in the event of any faut. The original code can be seen https://github.com/apache/commons-math/blob/eb57d6d457002a0bb5336d789a3381a24599affe/src/test/java/org/apache/commons/math4/filter/KalmanFilterTest.java#L43
+[here].
 
-Testing private methods:: Also known as  *X-Ray Specs*.  
+[[testing-exceptional-case, Listing {counter:listing}]]
+.Listing {listing}. A test case, testing the exceptional case, notice the use of `fail` to avoid finishing the test silently.
+[source, java]
+----
+// In org.apache.commons.math3.filter.KalmanFilterTest
+@Test(expected=MatrixDimensionMismatchException.class) //<1>
+public void testTransitionMeasurementMatrixMismatch() {
+    // A and H matrix do not match in dimensions
+    // A = [ 1 ]
+    RealMatrix A = new Array2DRowRealMatrix(new double[] { 1d });
+    // no control input
+    RealMatrix B = null;
+    // H = [ 1 1 ]
+    RealMatrix H = new Array2DRowRealMatrix(new double[] { 1d, 1d });
+    // Q = [ 0 ]
+    RealMatrix Q = new Array2DRowRealMatrix(new double[] { 0 });
+    // R = [ 0 ]
+    RealMatrix R = new Array2DRowRealMatrix(new double[] { 0 });
+
+    ProcessModel pm
+        = new DefaultProcessModel(A, B, Q,
+                                    new ArrayRealVector(new double[] { 0 }), null);
+    MeasurementModel mm = new DefaultMeasurementModel(H, R);
+    new KalmanFilter(pm, mm);
+    Assert.fail("transition and measurement matrix should not be compatible"); //<2>
+}
+----
+<1> Annotation with an assertion to indicate that a `MatrixDimensionMismatchException` should be thrown.
+<2> This line must not be executed, if the exception is properly thrown. This is therefore a safeguard ensuring that the test should fail in case this line is executed.
+
+
+<<random-data>> shows and example on the use of random data in testing. Developers fixed the seed to generate the random numbers. It could be argued that this is in fact not random data, as the same numbers will be generated every time. However, this test reflects that the actual numbers play no role in the behavior being tested. On the other hand, the code is an example of a test case that should be divided in two. The actual code can be checked https://github.com/apache/commons-math/blob/eb57d6d457002a0bb5336d789a3381a24599affe/src/test/java/org/apache/commons/math4/linear/BlockFieldMatrixTest.java#L182[here].
+
+
+[[random-data, Listing {counter:listing}]]
+.Listing {listing}. Right use of random data. The test case fixes the seed, however it could be argued that it is in fact not exactly random.
+[source, java]
+----
+// In org.apache.commons.math3.linear.BlockFieldMatrixTest
+
+/** test copy functions */
+@Test
+public void testCopyFunctions() {
+  Random r = new Random(66636328996002l); //<1>
+  BlockFieldMatrix<Fraction> m1 = createRandomMatrix(r, 47, 83);
+  BlockFieldMatrix<Fraction> m2 = 
+	new BlockFieldMatrix<Fraction>(m1.getData());
+  Assert.assertEquals(m1, m2);
+  BlockFieldMatrix<Fraction> m3 = 	
+	new BlockFieldMatrix<Fraction>(testData);
+  BlockFieldMatrix<Fraction> m4 = 
+	new BlockFieldMatrix<Fraction>(m3.getData());
+  Assert.assertEquals(m3, m4);
+}
+----
+<1> Using a fixed seed to ensure repeatability.
+
+<<distribution-test>> provides an additional example of the use of random data. In this case developers are actually testing a random generator which should build a collection of vectors uniformly distributed around the unit sphere. Again, developers used a fixed seed. This test case also exemplifies the use of a good strong oracle, that validates the property of the distribution without assumptions on the actual numbers in use. Changing the seed it is most likely that will not change the result or make the test fail unnecessarily. The original code can be checked https://github.com/venkateshamurthy/java-quantiles/blob/master/src/test/java/org/apache/commons/math3/random/UnitSphereRandomVectorGeneratorTest.java#L29[here].
+
+[[distribution-test, Listing {counter:listing}]]
+.Listing {listing}. Another example on the use of random data. This time, he test case also has a strong verii
+[source, java]
+----
+// In org.apache.commons.math3.random.UnitSphereRandomVectorGeneratorTest
+@Test
+public void test2DDistribution() {
+    
+    RandomGenerator rg = new JDKRandomGenerator();
+    rg.setSeed(17399225432l); //<1>
+    UnitSphereRandomVectorGenerator generator = new UnitSphereRandomVectorGenerator(2, rg);
+
+    // In 2D, angles with a given vector should be uniformly distributed
+    int[] angleBuckets = new int[100];
+    int steps = 1000000;
+    for (int i = 0; i < steps; ++i) {
+        final double[] v = generator.nextVector();
+        Assert.assertEquals(2, v.length);
+        Assert.assertEquals(1, length(v), 1e-10);
+        // Compute angle formed with vector (1,0)
+        // Cosine of angle is their dot product, because both are unit length
+        // Dot product here is just the first element of the vector by construction
+        final double angle = FastMath.acos(v[0]);
+        final int bucket = (int) (angleBuckets.length * (angle / FastMath.PI));
+        ++angleBuckets[bucket];
+    }
+    // Simplistic test for roughly even distribution
+    final int expectedBucketSize = steps / angleBuckets.length;
+    for (int bucket : angleBuckets) { //<2>
+        Assert.assertTrue("Bucket count " + bucket + " vs expected " + expectedBucketSize,
+                            FastMath.abs(expectedBucketSize - bucket) < 350);
+    }
+}
+----
+<1> Fixed seed
+<2> Strong verification
+
+
+<<strong-data>> is an example of a test case with extensive data that has been carefully crafted to meet the requirements. The input data has been generated beforehand, possibly to ensure efficiency and repeatability. The generation process has been also carefully documented. The full test case can be seen https://github.com/venkateshamurthy/java-quantiles/blob/1dd682e8a00af5968ec4057b0613dd73d5eb704f/src/test/java/org/apache/commons/math3/special/GammaTest.java#L170[here].
+
+[[strong-data, Listing {counter:listing}]]
+.Listing {listing}. Example of carefully crafted input.
+[source, java]
+----
+//In org.apache.commons.math3.special.GammaTest
+
+    /**
+     * Reference data for the {@link Gamma#logGamma(double)} function. This data
+     * was generated with the following <a
+     * href="http://maxima.sourceforge.net/">Maxima</a> script.
+     * <pre>
+     * kill(all);
+     * fpprec : 64;
+     * gamln(x) := log(gamma(x));
+     * x : append(makelist(bfloat(i / 8), i, 1, 80),
+     *     [0.8b0, 1b2, 1b3, 1b4, 1b5, 1b6, 1b7, 1b8, 1b9, 1b10]);
+     * for i : 1 while i <= length(x) do
+     *     print("{", float(x[i]), ",", float(gamln(x[i])), "},");
+     * </pre>
+     */
+    private static final double[][] LOG_GAMMA_REF = {
+        { 0.125 , 2.019418357553796 },
+        { 0.25 , 1.288022524698077 },
+        { 0.375 , 8630739822706475 },  
+        //...129 more lines
+    };
+----
+
+<<custom-assertion>> shows an example of a custom assertion, built to support the testing process. This is a verification used in several test cases inside the test suite. So, it is a good practice to refactor the assertion condition into a method. This is also a way to avoid *Equality Pollution*. In this case, even the JUnit style have been respected. Also notice how `doubles` are compared using a precision. Floating point types should never be compared with direct equality due to numerical errors. The code can be checked https://github.com/joulupunikki/math/blob/master/src/test/java/org/apache/commons/math3/TestUtils.java#L165[here].
+
+[[custom-assertion, Listing {counter:listing}]]
+.Listing {listing}. A custom assertion.
+[source, java]
+----
+// In org.apache.commons.math3.TestUtils
+
+    /**
+     * Verifies that the relative error in actual vs. expected is less than or
+     * equal to relativeError.  If expected is infinite or NaN, actual must be
+     * the same (NaN or infinity of the same sign).
+     *
+     * @param msg  message to return with failure
+     * @param expected expected value
+     * @param actual  observed value
+     * @param relativeError  maximum allowable relative error
+     */
+    public static void assertRelativelyEquals(String msg, double expected,
+            double actual, double relativeError) {
+        if (Double.isNaN(expected)) {
+            Assert.assertTrue(msg, Double.isNaN(actual));
+        } else if (Double.isNaN(actual)) {
+            Assert.assertTrue(msg, Double.isNaN(expected));
+        } else if (Double.isInfinite(actual) || Double.isInfinite(expected)) {
+            Assert.assertEquals(expected, actual, relativeError);
+        } else if (expected == 0.0) {
+            Assert.assertEquals(msg, actual, expected, relativeError);
+        } else {
+            double absError = FastMath.abs(expected) * relativeError;
+            Assert.assertEquals(msg, expected, actual, absError);
+        }
+    }
+
+----
+
