@@ -458,3 +458,130 @@ public void test2DDistribution() {
 
 ----
 
+=== Test design
+
+Any testing process, automatic or manual, could be abstracted as <<testing-process>>  shows. The system or program under test is executed using selected test inputs. The result of the execution is evaluated with the help of an oracle based on the specification. If the oracle deems the result incorrect, then we must find the fault. Otherwise, we continue the testing process until a stopping criterion is met. 
+
+[graphviz, testing-process, png]
+.Testing process at a glance. 
+....
+digraph {
+
+    input[shape="rectangle", label="Test input"];
+    program[shape="rectangle", label="Program under test"];
+    execution[shape="polygon", sides="6", label="Execution"];
+    result[shape="rectangle", label="Result"];
+    specification[shape="rectangle", label="Specification"];
+    oracle[shape="polygon", sides="6", label="Oracle"];
+    verdict[shape="diamond", label="Verdict"];
+    stop[shape="rectangle", label="Stopping Criteria"];
+    fix[shape="plaintext", label="Locate and fix the fault"];
+
+    input -> execution;
+    program -> execution;
+    execution -> result;
+    result -> oracle;
+    specification -> oracle;
+    oracle -> verdict;
+    { rankdir=LR; verdict -> fix; }
+    verdict -> stop;
+    stop -> input[label="Not met"];
+}
+....
+
+This diagram puts in evidence three main problems to be solved when designing our tests. First we need to identify a set of test inputs that will become the starting point for the tests cases. Then, for each test case we need to define a strong oracle able to tell when the result of the execution meets the requirements or not. Also we need to know how much should we test, that is, to set a stopping criterion. Ideally we would test until there are no more faults or when we explore all possible inputs, but this can not be done in practice. Locating and fixing an identified fault is also a very important problem, but it is out of the scope of testing. However, tests failures should provide enough information for developers to find and correct the fault.
+
+Solving these problems is far from easy. Whatever decision is made, it should have as ultimate goal to design tests capable of discovering faults.
+
+==== Reachability, Infection, Propagation, Revealability
+
+The main goal of testing is to reveal the presence of faults. However, there are concrete conditions test cases should meet in order to be able to observe a fault. These are expressed in the _Reachability, Infection, Propagation, Revealability_ (RIPR) model  <<li2016test>>.
+
+<<ripr-faulty-program>> shows the `findLast` method. It should return the index of the last occurrence of a given element in a given array. If the element is not present the method should return -1 and if the array is `null` it should throw a `NullPointerException` exception. The method in question has a fault, the loop condition should be `i >= 0` otherwise the element in the first position is never inspected. Test cases in <<ripr-no-reachability>>, <<ripr-no-infection>>, <<ripr-no-propagation>>, <<ripr-no-revealability>> fail to observe the bug for different reasons.
+
+[[ripr-faulty-program, Listing {counter:listing}]]
+.Listing {listing}. `findLast` is supposed to return the index of the last occurrence of a given element in a given array. If the array is `null` the method should throw a `NullPointerException` exception. If the element is not present, then it should return -1. This method contains a fault as it never inspects the first element of the array.
+[source, java]
+----
+public static int findLast(int[] array, int element) {
+    for (int i = array.length - 1; i > 0 ; i--) { //<1>
+        if(array[i] == element)
+            return i;
+
+    }
+    return -1;
+}
+----
+<1> Loop condition should be `i >= 0`. 
+
+Reachability::
+
+For a test case to discover a fault it must first execute/reach, the code location where the bug is present. The test case in <<ripr-no-reachability>> tests the behavior of the method when the input array is `null`. Therefore this test case never executes the loop condition and does not reach the fault.  
++
+[[ripr-no-reachability, Listing {counter:listing}]]
+.Listing {listing}. A test case that does not reach the fault.
+[source, java]
+----
+@Test
+public void testNull() {
+    assertThrows(NullPointerException.class, ()  -> {
+        findLast(null, 1);
+    });
+}
+----
+
+Infection::
+
+Reaching the location of the fault is not the only condition that should be met to discover the fault. The test case should also produce an incorrect program state, that is it should _infect_ the program state with incorrect values. <<ripr-no-infection>> fails to do that. For this test case the element in the first position of the array is never inspected. The last occurrence of the element given as input is found at the last position of the array. The test case has the same behavior in the presence of the fault as is the program was correct. On the other hand, <<ripr-no-propagation>> do infect the state of the program. The first position is not checked in the faulty version which is not the case for the correct program.
++
+[[ripr-no-infection, Listing {counter:listing}]]
+.Listing {listing}. A test case that reaches the location of the fault but does not infect the program state.
+[source, java]
+----
+@Test
+public void testLastElement() {
+    int[] array = {0, 1, 2};
+    assertEquals(array.length - 1, findLast(array, 2));
+}
+----
+
+Propagation::
+
+<<ripr-no-propagation>> do infect the program but does not reveal the fault. A test case must reach the location of the fault, infect the program state but also _propagate_ the program state infection to the rest of the execution. <<<ripr-no-propagation>> produces an incorrect program state as the first position of the array is not inspected but returns the right result, so the error does not even reach the code of the test case.
++
+[[ripr-no-propagation, Listing {counter:listing}]]
+.Listing {listing}. A test case that reaches the fault, infects the program state but does not propagate the infection.
+[source, java]
+----
+@Test
+public void testNotFound() {
+    assertEquals(-1, findLast(new int[]{0, 1, 2}, 4));
+}
+----
+
+Revealability::
+
+It is very hard, if not impossible, to create an oracle to observe the entire state of the program. That is why, for a test case to discover a fault, it must not only reach the location, infect the program state and propagate the infection to the rest of the execution, it also must also observe the right portion of the state and use a strong condition to verify the state. <<ripr-no-revealability>> reaches the fault, infects the program state, produces a wrong result that propagates to the code of the test case, but the oracle is not adequate. The condition of the result to be greater than zero is met by the incorrect result `2`, it is an example of a weak oracle and the test case fails to _reveal_ the fault. 
++
+[[ripr-no-revealability, Listing {counter:listing}]]
+.Listing {listing}. A test case that fails to reveal the fault, due to a weak oracle. The method returns a worng value `2` when the correct value is `0`. Both values meet the assertion.
+[source, java]
+----
+@Test
+public void testRepeated() {
+    assertTrue(findLast( new int[]{0, 1, 0}, 0) >= 0);
+}
+----
++
+Only the test case in <<ripr-test>> meets all the conditions to reveal the fault in the method. The method produces an incorrect value, `-1`, which is not the expected value `0`.
++
+[[ripr-test, Listing {counter:listing}]]
+.Listing {listing}. A test case able to reveal the fault.
+[source, java]
+----
+@Test
+public void testFirst() {
+    assertEquals(0, findLast(new int[]{0, 1, 2}, 0));
+}
+----
+
