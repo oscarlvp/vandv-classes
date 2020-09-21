@@ -6,13 +6,33 @@ Oscar Luis Vera-Pérez <oscarlvp@gmail.com>
 :source-highlighter: coderay
 :icons: font
 :toc: left
-:toclevels: 3
+:toclevels: 4
 :xrefstyle: short
 
+:numbered!:
+== Note about the notes
+
+These notes have been compiled mainly from the (inherited and redefined) conferences taught by Jean-Marc Jézéquel, Yves Le Traon, Benoit Baudry and Benoit Combemale.
+They haven been enriched with materials from the https://cs.gmu.edu/~offutt/softwaretest/["Introduction to Software Testing"] book written by Paul Ammmann and Jeff Offutt, https://www.fuzzingbook.org/["The Fuzzing Book"] by Andreas Zeller, Rahul Gopinath, Marcel Böhme, Gordon Fraser, and Christian Holler and the https://www.youtube.com/playlist?list=PL3bOx_OjZk8EvOo3un0xeGpXlqGT2YQXa[online material on GUI testing] published by Tanja Vos.
+Many other bibliographical sources and materials have been also used. They all appear in the <<99-references.adoc#_references,References>> section.
+
+These notes are and will always be a work in progress. Any feedback is welcome.
+
+////
+TODO:
+Topics to include in the future:
+    - Variability
+    - Metamorphic testing
+    - AI 4 Testing and Testing 4 AI
+    - Design by contract
+////
+
+:numbered:
 include::01-introduction.adoc[]
 
 include::02-static-analysis.adoc[]
 
 include::03-testing.adoc[]
 
+:numbered!:
 include::99-references.adoc[]

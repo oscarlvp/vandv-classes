@@ -561,7 +561,7 @@ public void testNotFound() {
 
 Revealability::
 
-It is very hard, if not impossible, to create an oracle to observe the entire state of the program. That is why, for a test case to discover a fault, it must not only reach the location, infect the program state and propagate the infection to the rest of the execution, it also must also observe the right portion of the state and use a strong condition to verify the state. <<ripr-no-revealability>> reaches the fault, infects the program state, produces a wrong result that propagates to the code of the test case, but the oracle is not adequate. The condition of the result to be greater than zero is met by the incorrect result `2`, it is an example of a weak oracle and the test case fails to _reveal_ the fault. 
+It is impractical, if not impossible, to create an oracle that observes the entire state of the program. That is why, for a test case to discover a fault, it must not only reach the location, infect the program state and propagate the infection to the rest of the execution, it also must also observe the right portion of the state and use a strong condition to verify it. <<ripr-no-revealability>> reaches the fault, infects the program state, produces a wrong result that propagates to the code of the test case, but the oracle is not adequate. The condition of the result to be greater than zero is met by the incorrect result `2`, it is an example of a weak oracle and the test case fails to _reveal_ the fault. 
 +
 [[ripr-no-revealability, Listing {counter:listing}]]
 .Listing {listing}. A test case that fails to reveal the fault, due to a weak oracle. The method returns a worng value `2` when the correct value is `0`. Both values meet the assertion.
@@ -584,4 +584,20 @@ public void testFirst() {
     assertEquals(0, findLast(new int[]{0, 1, 2}, 0));
 }
 ----
+
+==== Coverage criteria
+
+===== Input space partitioning
+
+===== Structural coverage
+
+===== Logic coverage
+
+===== Mutation testing
+
+===== Examples of practice in industry
+
+==== Test doubles
+
+=== The role of testability
 
