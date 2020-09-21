@@ -24,6 +24,10 @@ Topics to include in the future:
     - Variability
     - Metamorphic testing
     - AI 4 Testing and Testing 4 AI
+        - Intelligent autocomplete and refactoring
+        - Learning mutation operators
+        - https://www.sciencedirect.com/science/article/abs/pii/S0925231219316698
+        - https://ieeexplore.ieee.org/abstract/document/8730151/references#references
     - Design by contract
 ////
 
