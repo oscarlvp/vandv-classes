@@ -1,6 +1,6 @@
 == Software Testing
 
-According to Ammann and Offutt <<amman2017introduction>> _Software Testing_ is the process of evaluating a software by observing its execution to reveal the presence of faults or as Meyer says in his principles <<meyer2008seven>> _"`to test a program is to try to make it fail`"_. Per this definition, testing is a form of dynamic analysis, as it requires the execution of the program or system under test. The testing process is achieved with the design and application of test cases. 
+According to Ammann and Offutt <<ammann2016introduction>> _Software Testing_ is the process of evaluating a software by observing its execution to reveal the presence of faults or as Meyer says in his principles <<meyer2008seven>> _"`to test a program is to try to make it fail`"_. Per this definition, testing is a form of dynamic analysis, as it requires the execution of the program or system under test. The testing process is achieved with the design and application of test cases. 
 
 In broad terms, a test case must provide the required _input_ and set the program in the desired state by _triggering specific behaviors_. It then, must _check the output_ of the program against expected results. Often, the output of the test execution is validated with an _oracle_, a predicate to tell whether the execution was successful or not. A test case may optionally include _prefix values_ which are inputs necessary to get the system ready for the input and _postfix values_ which are inputs needed to clean the environment after the execution of the test. Test cases may be _functional_, if it checks that a functionality is correct, or _non-functional_ if it is directed to evaluate properties like performance, security or even energy consumption. If a test case executes normally it is said to _pass_ otherwise, if the output is not correct we say that there is a _test failure_ and that the test _fails_.
 
@@ -586,6 +586,18 @@ public void testFirst() {
 ----
 
 ==== Coverage criteria
+
+Designing tests is hard. We need to choose good inputs to ensure potential faults are _reached_ and that their effects do propagate to an observable point in the program execution. We also need to design strong oracles so the faults can be discovered and we need to know how many test cases our test suite should have to assure certain level of quality in the testing process.Formal *Coverage criteria* help testers solve these problems.
+
+According to Ammann and Offutt <<ammann2016introduction>>, a  _coverage criterion_ can be seen as a collection of rules that impose _test requirements_ for a test suite. A _test requirement_ is a specific element of a software artifact that a test case must satisfy or cover.
+
+Perhaps the most widely used coverage criterion nowadays in industry is _statement coverage_. This coverage establishes each program statement as a test requirement, that is, it expects the test suite to execute all statements in the code of the program under test. 
+
+In practice it is quite hard, sometimes not even desirable, that all test requirements of a coverage criterion are satisfied or covered by the test suite. For example, making test cases just to execute statements from simple getter methods might be a waste of resources. In this sense, we associate a _coverage level_ to a coverage criterion, which nothing more than the ratio of test requirements that are covered by the test suite. For statement coverage this is the percentage of statements in the program that are executed by the tests.
+
+Coverage criteria help testers create more effective and efficient test suites, with fewer tests cases and better fault detection capabilities. They help better explore the input space, and ensure traceability from each test case to the test requirements they cover. These criteria also set a well defined stopping condition for the test creation process.
+
+The following sections introduce and explain some of the most relevant coverage criteria.
 
 ===== Input space partitioning
 
