@@ -601,6 +601,128 @@ The following sections introduce and explain some of the most relevant coverage 
 
 ===== Input space partitioning
 
+The _input domain_ of a system under test is the set of all possible values that the input parameters can take. If there are more than one parameter, then the input domain is the cartesian product of the domains of all parameters. The input domain also includes values that could be incorrect for the program. These are also very important for testing purposes. A test input is  a tuple of values from the domina, one for each parameter.
+
+For example, <<isp-findlast>> shows the signature of the `findLast` method introduced first in <<ripr-no-infection>>. This method takes as input an array of integers and an integer. Therefore its input domain is a tuple of all possible integer arrays, including `null` and empty arrays and all possible integers. Test inputs for this method could be `(null, 1)`, `({}, 2)`, `({1, 2, 3}, 4)`.
+
+[[isp-findlast, Listing {counter:listing}]]
+.Listing {listing}. Method from <<ripr-no-infection>>. The input domain is the tuple of all possible arrays _i.e._ including a `null` array, an empty array and so on, and all possible integers.
+[source, java]
+----
+public static int findLast(int[] array, int element) { ... }
+----
+
+<<isp-isvaliddate>> shows the signature of a method that takes three integers and says if they form a valid date according to the https://en.wikipedia.org/wiki/Gregorian_calendar[Gregorian Calendar]. The input domain is the set of all possible tuples of three integer elements, including negative integers and zero. Possible test inputs may include: `(1, 2, 200)`, `(19, 9, 1983)`, `(33, 12, 1990)`.
+
+[[isp-isvaliddate, Listing {counter:listing}]]
+.Listing {listing}. A method to check is three integers form a valid date. The input domain is the set of all possible tuples of integers, including negative integers and zero. 
+[source, java]
+----
+public static boolean isValidDate(int day, int month, int year) { ... }
+----
+
+<<isp-stack>> shows an extract of a `BoundedStack` implementation. In case we are testing methods `push` and `pop`, we should consider all possible values of `elements` and `count`. That is, when testing classes, instance fields, and even global static fields used by the method are also part of the input. Observe that in this case, `elements` will never be `null`.
+
+[[isp-stack, Listing {counter:listing}]]
+.Listing {listing}. Extract from a `BoundedStack` class, that is a _LIFO_ data structure with maximum capacity. Observe that all values of the fields `elements` and `count` form part of the input domain for the `push` and `pop` methods.
+[source, java]
+----
+
+class BoundedStack {
+    private int[] elements;
+    private int count;
+
+    public Stack(int capacity) {
+        elements = new int[capacity];
+        count = 0;
+    }
+
+    public void push(int item) {
+        if(count == elements.length) {
+            throw new IllegalOperationException();
+        }
+        elements[count++] = item;
+    }
+
+    public int pop(int item) {
+        if(elements == 0) {
+            throw new IllegalOperationException();
+        }
+        elements[count--] = item;
+    }
+
+    ...
+}
+
+----
+
+The _input space partitioning_ technique models the input domain of the system we are testing. From this model it is possible to derive several coverage criteria which result in a broad selection of potential test inputs. The technique uses only the interface of the program, the signature of the method or even the specification, but does not need to observe the internal structure of the artifact being tested. In this sense it is said to be a `blackbox` technique, as opposed to `whitebox` techniques, that heavily rely on the internal structure, for example, the code of the method.
+
+To model the input, this technique creates partitions of the domain. A partition is a subdivision of the domain into subsets or _blocks_ in such a way that the union of all blocks results in the entire input domain and all blocks are disjoint, that is, no element, or test input, can be included in more than one block for the same partition. Each partition is created by identifying characteristics which describe the structure of the input domain. Characteristics and blocks should be designed in such a way that all values in one block are equivalent according to the characteristic that defined the partition.
+
+Identifying the right characteristics is hard and requires expertise. There are two main approaches: _interface based modeling_ and  _functionality based modeling_.
+
+Interface based modeling considers each parameter separately and takes information only from their specific domain. It is a simple alternative that makes easier to identify the characteristics. However, it does not use all the information available, such as the specification and misses the interaction between parameters.
+
+Taking as example `findLast` from <<isp-findlast>> by using this approach we may identify the characteristics shown in <<isp-interface-findlast>>. Two characteristics are identified: _`array` is `null`_ and _`array` is empty_. Each characteristic defines a partition with two blocks, one to contain the arrays for which the condition of the characteristic is true and another for arrays for which the characteristic is false.
+
+[[isp-interface-findlast]]
+.Characteristics and blocks identified for `findLast` from <<isp-findlast>> considering only the `array` parameter.
+[options="header"]
+|===
+| Characteristics    2+| Blocks
+| `array` is `null`    | _True_ | _False_
+| `array` is empty     | _True_ | _False_
+|===
+
+The same could be done in the parameter `element`, but it will not yield characteristics interesting enough for the tests. The values of `element` are irrelevant in isolation. It makes sense to look at them only in relation to the content of `array`.
+
+Functionality based modeling uses semantic information and plays with the specification, the domain of each parameter and the interplay between the values of different parameters. Identifying good characteristics with this approach is harder but may yield better results.
+
+For the same `findLast` method in <<isp-findlast>>, using this approach we may identify the characteristics in <<isp-functionality-findlast>>. The table shows a characteristic that captures the number of times `element` appears in `array` which yields three blocks, one for arrays that do not contain `element`, one for arrays where only one occurrence of `element` appears in `array`, and another for arrays in which `element` more than once. The other two characteristics consider the position of `element` in the `array` and each of them yields a partition with two block.
+
+[[isp-functionality-findlast]]
+.Characteristics identified using functionality based modeling for `findLast` from <<isp-findlast>>.
+|===
+| Characteristics 3+| Blocks
+| Number of times `element` appears in `array` | 0      | 1       | > 1 
+| `element` appears in the first position      | _True_ | _False_ |
+| `element` appears in the last position       | _True_ | _False_ |
+|===
+
+All characteristics in <<isp-interface-findlast>> and <<isp-functionality-findlast>> could be used in conjunction to design test inputs.
+
+Considering `isValidDate` from <<isp-isvaliddate>> we could start identifying characteristics with the interface based approach. That may yield the following result:
+
+|===
+| Characteristics  2+| Blocks 
+| Value of `year`    | <= 0 | > 0
+| Value of `month`   | <= 0 | > 0
+| Value of `day`     | <= 0 | > 0
+|===
+
+There is one characteristic for each parameter and they consider their values separately with respect to their domain. All possible values, valid or invalid are included and all blocks for the same characteristic are disjoint.
+Values close to the boundaries between valid and invalid inputs tend to be problematic and often source of bugs. So it is a good idea to include blocks reflecting these values. This way we can expand our initial characteristics as follows:
+
+|===
+| Characteristics  3+| Blocks 
+| Value of `year`    | <= 0 | 0 | > 0
+| Value of `month`   | <= 0 | 0 | > 0
+| Value of `day`     | <= 0 | 0 | > 0
+|===
+
+These blocks may be too broad for testing purposes. Sometimes it is useful partition blocks into sub-partitions. This is specially useful for valid values. As the validity of `month` and `day` depend on each other and the value of `year` we turn to a functionality based approach.
+
+|===
+| Characteristics  3+| Blocks 
+| Value of `year`    | <= 0 | 0 | valid leap year               | valid non leap year
+| Value of `month`   | <= 0 | 0 | between 1 and 12              | > 12
+| Value of `day`     | <= 0 | 0 | between 1 and max per `month` | > max per `month` 
+|===
+
+
+The three 
+
 ===== Structural coverage
 
 ===== Logic coverage
