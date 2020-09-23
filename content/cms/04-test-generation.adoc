@@ -4,6 +4,7 @@
 TODO:
 Include:
     Fuzzing
+        Google OSS Fuzz, fuzzers and Sqlite
     Evosuite
     DSpot
     Pankti?
