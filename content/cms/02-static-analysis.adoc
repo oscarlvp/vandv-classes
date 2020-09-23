@@ -552,7 +552,7 @@ This means that _LCOM_ is equal to the number of pairs of methods using a disjoi
 <<variables-methods-point>> shows the set of all instance variables used by each method declared in the `Point` class shown in <<coupling-example>>. Constructors are not used to compute this metric, as their role is to initialize the variables and they virtually access all of them. In this particular example, all methods use the instance variables directly. However, a method could use an instance variable indirectly by invoking other methods.  In that case, the variables are also said to be used by the initial method. For example, any new method invoking `getX` in `Point` would also use variable `x`.
 
 [[variables-methods-point]]
-. Set of instance variables used by each method of the class `Point` shown in <<coupling-example>>.
+.Set of instance variables used by each method of the class `Point` shown in <<coupling-example>>.
 [options="header"]
 |=== 
 
@@ -571,7 +571,7 @@ This means that _LCOM_ is equal to the number of pairs of methods using a disjoi
 <<intersection-methods-point>> shows the instance variables used un common for all pairs of methods declared in `Point`. Only `getX` and `getY` do not use any variable in common.
 
 [[intersection-methods-point]]
-. Intersection of instance variables used by all pairs of methods in `Point`.
+.Intersection of instance variables used by all pairs of methods in `Point`.
 [options="header", cols="h,1,1,1"]
 |===
 |        | `getX`           | `getY`           | `dot`
