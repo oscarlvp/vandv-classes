@@ -585,7 +585,7 @@ public void testFirst() {
 }
 ----
 
-==== Coverage criteria
+==== Coverage criteria for test qualification
 
 Designing tests is hard. We need to choose good inputs to ensure potential faults are _reached_ and that their effects do propagate to an observable point in the program execution. We also need to design strong oracles so the faults can be discovered and we need to know how many test cases our test suite should have to assure certain level of quality in the testing process.Formal *Coverage criteria* help testers solve these problems.
 
@@ -595,15 +595,15 @@ Perhaps the most widely used coverage criterion nowadays in industry is _stateme
 
 In practice it is quite hard, sometimes not even desirable, that all test requirements of a coverage criterion are satisfied or covered by the test suite. For example, making test cases just to execute statements from simple getter methods might be a waste of resources. In this sense, we associate a _coverage level_ to a coverage criterion, which nothing more than the ratio of test requirements that are covered by the test suite. For statement coverage this is the percentage of statements in the program that are executed by the tests.
 
-Coverage criteria help testers create more effective and efficient test suites, with fewer tests cases and better fault detection capabilities. They help better explore the input space, and ensure traceability from each test case to the test requirements they cover. These criteria also set a well defined stopping condition for the test creation process.
+Coverage criteria help testers create more effective and efficient test suites, with fewer tests cases and better fault detection capabilities. They help better explore the input space, and ensure traceability from each test case to the test requirements they cover. These criteria also set a well defined stopping condition for the test creation process and provide an effective way to evaluate the quality of the test suite.
 
 The following sections introduce and explain some of the most relevant coverage criteria.
 
 ===== Input space partitioning
 
-The _input domain_ of a system under test is the set of all possible values that the input parameters can take. If there are more than one parameter, then the input domain is the cartesian product of the domains of all parameters. The input domain also includes values that could be incorrect for the program. These are also very important for testing purposes. A test input is  a tuple of values from the domina, one for each parameter.
+The _input domain_ of a system under test is the set of all possible values that the input parameters can take. If there are more than one parameter, then the input domain is the cartesian product of the domains of all parameters. The input domain also includes values that could be incorrect for the program. These are also very important for testing purposes. A test input is  a tuple of values from the domain, one for each parameter.
 
-For example, <<isp-findlast>> shows the signature of the `findLast` method introduced first in <<ripr-no-infection>>. This method takes as input an array of integers and an integer. Therefore its input domain is a tuple of all possible integer arrays, including `null` and empty arrays and all possible integers. Test inputs for this method could be `(null, 1)`, `({}, 2)`, `({1, 2, 3}, 4)`.
+For example, <<isp-findlast>> shows the signature of the `findLast` method introduced first in <<ripr-no-infection>>. This method takes as input an array of integers and an integer. Therefore its input domain is a tuple of all possible integer arrays, including `null` and empty arrays and all possible integers. Test inputs for this method could be `{ array: null, element: 1 }`, `{ array: {}, element: 2 }`, `{ array: {1, 2, 3}, element: 4 }`.
 
 [[isp-findlast, Listing {counter:listing}]]
 .Listing {listing}. Method from <<ripr-no-infection>>. The input domain is the tuple of all possible arrays _i.e._ including a `null` array, an empty array and so on, and all possible integers.
@@ -612,7 +612,7 @@ For example, <<isp-findlast>> shows the signature of the `findLast` method intro
 public static int findLast(int[] array, int element) { ... }
 ----
 
-<<isp-isvaliddate>> shows the signature of a method that takes three integers and says if they form a valid date according to the https://en.wikipedia.org/wiki/Gregorian_calendar[Gregorian Calendar]. The input domain is the set of all possible tuples of three integer elements, including negative integers and zero. Possible test inputs may include: `(1, 2, 200)`, `(19, 9, 1983)`, `(33, 12, 1990)`.
+<<isp-isvaliddate>> shows the signature of a method that takes three integers and says if they form a valid date according to the https://en.wikipedia.org/wiki/Gregorian_calendar[Gregorian Calendar]. The input domain is the set of all possible tuples of three integer elements, including negative integers and zero. Possible test inputs may include: `{ day:  1, month:  2, year:  200 }`, `{ day: 19, month:  9, year: 1983 }` or `{ day: 33, month: 12, year: 1990 }`.
 
 [[isp-isvaliddate, Listing {counter:listing}]]
 .Listing {listing}. A method to check is three integers form a valid date. The input domain is the set of all possible tuples of integers, including negative integers and zero. 
@@ -696,9 +696,9 @@ Considering `isValidDate` from <<isp-isvaliddate>> we could start identifying ch
 
 |===
 | Characteristics  2+| Blocks 
-| Value of `year`    | <= 0 | > 0
-| Value of `month`   | <= 0 | > 0
-| Value of `day`     | <= 0 | > 0
+| Value of `year`    | \<= 0 | > 0
+| Value of `month`   | \<= 0 | > 0
+| Value of `day`     | \<= 0 | > 0
 |===
 
 There is one characteristic for each parameter and they consider their values separately with respect to their domain. All possible values, valid or invalid are included and all blocks for the same characteristic are disjoint.
@@ -706,22 +706,43 @@ Values close to the boundaries between valid and invalid inputs tend to be probl
 
 |===
 | Characteristics  3+| Blocks 
-| Value of `year`    | <= 0 | 0 | > 0
-| Value of `month`   | <= 0 | 0 | > 0
-| Value of `day`     | <= 0 | 0 | > 0
+| Value of `year`    | < 0 | 0 | > 0
+| Value of `month`   | < 0 | 0 | > 0
+| Value of `day`     | < 0 | 0 | > 0
 |===
 
-These blocks may be too broad for testing purposes. Sometimes it is useful partition blocks into sub-partitions. This is specially useful for valid values. As the validity of `month` and `day` depend on each other and the value of `year` we turn to a functionality based approach.
+These blocks may be too broad for testing purposes. Sometimes it is useful to partition blocks into sub-partitions specially in the case of valid inputs. 
+
+In our example, the meaningful values of `month` and `day` depend on each other and the value of `year`. Actually, the number of valid days depend on the month, and even the year in the case of February, so we turn to a functionality based approach for new characteristics. 
+
+We first include the notion of leap year and subdivide years greater than 0 into leap and non-leap. Another almost equivalent solution for this could be to add a new characteristic reflecting this condition. We then include a block for valid month numbers and another for valid days which depend on the maximum valid number according to the month, represented as `max(month)`.
 
 |===
-| Characteristics  3+| Blocks 
-| Value of `year`    | <= 0 | 0 | valid leap year               | valid non leap year
-| Value of `month`   | <= 0 | 0 | between 1 and 12              | > 12
-| Value of `day`     | <= 0 | 0 | between 1 and max per `month` | > max per `month` 
+| Characteristics  4+| Blocks 
+| Value of `year`    | < 0 | 0 | valid leap year           | valid non leap year
+| Value of `month`   | < 0 | 0 | >= 1 and \<= 12]          | > 12
+| Value of `day`     | < 0 | 0 | >= 1 and \<= max(`month`) | > `max(month)` 
 |===
 
+We can go further and sub-partition valid month numbers into groups matching the maximum number of days on each. The result would be as follows:
 
-The three 
+[[final-partitions]]
+.Final partitions and blocks for `isValidDate`. Each partition and block have been named for future reference.
+|===
+2.2+| Characteristics     6+| Blocks 
+                            h| b1  h| b2 h| b3                        h| b4                  h| b5 h| b6
+h| q1 | Value of `year`      | < 0 | 0  | valid leap year           | valid non leap year |    |
+h| q1 | Value of `month`     | < 0 | 0  | { 1, 3, 5, 7, 8, 10, 12}  | { 4, 6, 9, 11 }     | 2  | > 12
+h| q1 | Value of `day`       | < 0 | 0  | >= 1 and \<= max(`month`) | > `max(month)`      |    |
+|===
+
+Now we have a block for months with 31 days, another for months with 30 days and one for February which is a very special case.
+
+If the input contains a parameter with a enumerative domain of a few values, it could make sense to create a partition with one block per value. In our example we could have one block for each month, but there is no substantial different among months with the same amount of days for this particular method we are testing.
+
+Once the features and blocks have been identified, the concrete test inputs are built by picking values matching a selection of blocks from different partitions. For example: `{day: 1, month: 2, year:2000}` is an input matching the third block for each of the partitions identified in <<final-partitions>>, that is blocks `q1b3`, `q2b3`, `q3b3`. The challenge now is to create effective combinations of the blocks.
+
+
 
 ===== Structural coverage
 
