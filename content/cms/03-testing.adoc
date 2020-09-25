@@ -779,9 +779,7 @@ While is coverage criterion is easy to achieve, it may not yield good results, a
 
 All combinations coverage (ACoC):: AS a counter part to ECC, to meet this criterion we must combine all blocks from all characteristics. This could lead to a very high number of combinations making it impractical. So fewer combinations are desirable. For partitions in <<final-partitions>> this criterion yields 82 test requirements or combinations after dropping unfeasible block selections.
 
-Pair-wise coverage (PWC):: Instead of all combinations, a value from each block, for each partition must be combined with a value from every block for each other partition. That is, all pair combinations of blocks from different partitions are test requirements. For partitions in <<final-partitions>> this criterion produces 62 test requirements, which can be covered by . The number of inputs could still be high for some partitions.
-
-//TODO: the actual number
+Pair-wise coverage (PWC):: Instead of all combinations, a value from each block, for each partition must be combined with a value from every block for each other partition. That is, all pair combinations of blocks from different partitions are test requirements. For partitions in <<final-partitions>> this criterion produces 62 test requirements, which can be covered by only 25 inputs. The number of inputs could still be high for some partitions.
 
 An extension of PWC is to combine `T` characteristics or partitions at the same time, but it has been shown that this does not produce any improvement in practice.
 
@@ -793,7 +791,15 @@ Multiple base choice coverage (MBCC):: It is an extension of the previous criter
 
 For partitions in <<final-partitions>>, we can pick `q1b3` and `q1b4` as base choices for the first characteristic, `q2b3`, `q2b4`, `q2b5` for the second and `q3b3` for the third one. With this setup we could pick the following inputs covering base choices: `{ day:  1, month: 3, year: 2019 }`, `{ day: 30, month: 9, year: 2018 }`, `{ day: 29, month: 2, year: 2020 }`. Then, more inputs could be added by exchanging one basic block by another non-basic choice. For example, if we take `{ day: 29, month: 2, year: 2020 }`, it matches blocks `q1b4`, `q2b5` and `q3b3`. Changing `q3b3` by `q3b4` implies to change the value of `day` to a value larger than the maximum according to the month. With this we could  change 29 by 30 and obtain a new input `{ day: 30, month: 2, year: 2020 }`. The process continues until no new inputs can be added.
 
+All these criteria help designing an initial set of test inputs, but keep in mind that none of these inputs ensure any of 
+
 ===== Structural coverage
+
+As their name implies, _structural coverage criteria_ rely on the internal structure of the artifact under test, that is the code of the method or class we are testing.
+
+The simplest structural criterion for a method is *statement coverage*. This criterion establishes each statement in a program as a test requirement, that is, the test suite should be designed in such a way that all statements in the program are executed by at least one test case. In this way it ensures the _reachability_ of the RIPR model. 
+
+It is a simple criterion, easy to interpret and also very easy and fast to compute. Nowadays, most practitioners use the _statement coverage level_, that is, the ratio of statements executed by the test suite as a proxy for the quality of their tests. The practice is so common that the statement coverage level is known as _code coverage_ or simply _coverage_.
 
 
 ===== Logic coverage
