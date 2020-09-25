@@ -731,20 +731,70 @@ We can go further and sub-partition valid month numbers into groups matching the
 |===
 2.2+| Characteristics     6+| Blocks 
                             h| b1  h| b2 h| b3                        h| b4                  h| b5 h| b6
-h| q1 | Value of `year`      | < 0 | 0  | valid leap year           | valid non leap year |    |
-h| q1 | Value of `month`     | < 0 | 0  | { 1, 3, 5, 7, 8, 10, 12}  | { 4, 6, 9, 11 }     | 2  | > 12
-h| q1 | Value of `day`       | < 0 | 0  | >= 1 and \<= max(`month`) | > `max(month)`      |    |
+h| q1 | Value of `year`      | < 0  | 0   | valid leap year            | valid common year    |     |
+h| q2 | Value of `month`     | < 0  | 0   | { 1, 3, 5, 7, 8, 10, 12}   | { 4, 6, 9, 11 }      | 2   | > 12
+h| q3 | Value of `day`       | < 0  | 0   | >= 1 and \<= max(`month`)  | > `max(month)`       |     |
 |===
 
 Now we have a block for months with 31 days, another for months with 30 days and one for February which is a very special case.
 
+NOTE: Notice that this is not the only input model that we can design, and it might not even be the optimal. For example, it could be argued that, for this particular method, the blocks where each parameter is zero is equivalent to the blocks where each parameter is negative. _There is no silver bullet_ when it comes to modeling the input. That is why experience and knowledge about the application domain are so important here.
+
 If the input contains a parameter with a enumerative domain of a few values, it could make sense to create a partition with one block per value. In our example we could have one block for each month, but there is no substantial different among months with the same amount of days for this particular method we are testing.
 
-Once the features and blocks have been identified, the concrete test inputs are built by picking values matching a selection of blocks from different partitions. For example: `{day: 1, month: 2, year:2000}` is an input matching the third block for each of the partitions identified in <<final-partitions>>, that is blocks `q1b3`, `q2b3`, `q3b3`. The challenge now is to create effective combinations of the blocks.
+Once the features and blocks have been identified, the concrete test inputs are built by picking values matching a selection of blocks from different partitions. For example: `{day: 1, month: 2, year:2000}` is an input matching the third block for each of the partitions identified in <<final-partitions>>, that is, blocks `q1b3`, `q2b3`and `q3b3`. 
+
+Test inputs can be immediately translated to concrete test cases. For example, if we select blocks `q1b4`, `q2b5` and `q3b4` we can pick `{ day: 29, month: 2, year: 2019}`. The test case could be written as follows:
+
+[source, java]
+----
+@Test
+public void test29DaysFebruaryCommonYear () {
+    assertFalse(isValidYear(29, 2, 2019), "February in common years should not have more than 28 days.");
+}
+----
+
+Notice how designing test cases from block selections makes the test case clear and helps trace it back to the requirements. 
+
+The challenge now is to create effective combinations of identified the blocks. For that we can use the following coverage criteria:
 
 
+Each choice coverage (ECC):: This criterion sets each block from each partition as a test requirement. That is, we must select a set of inputs in such a way that all blocks are represented at least once.
+
+The following set of inputs achieve ECC coverage. All blocks from <<final-partitions>> are covered by at least one input:
+
+|===
+| Input                               | Blocks
+| `{ day:  1, month:  1, year:   -1}` | `q1b1`, `q2b3`, `q3b3` 
+| `{ day: -1, month: -1, year:    0}` | `q1b2`, `q2b1`, `q3b1`
+| `{ day:  0, month:  4, year: 2020}` | `q1b3`, `q2b4`, `q3b2`
+| `{ day: -2, month:  0, year: 2019}` | `q1b4`, `q2b2`, `q3b1`
+| `{ day: 29, month:  2, year: 2020}` | `q1b3`, `q2b5`, `q3b4`
+| `{ day:  0, month: 13, year: 2018}` | `q1b4`, `q2b6`, `q3b2`
+|===
+
+Sometimes it is not feasible to select certain blocks at the same time. For example, we should not pick `q3b3`: `day` larger than the maximum according to `month`, if `month` does not have a valid value, for example if we pick `q2b1`. Such combinations can be dropped when creating test inputs. However, if an input model contains too many of these restrictions it might be a good idea to redesign the partitions.
+
+While is coverage criterion is easy to achieve, it may not yield good results, as it does not force for combinations between blocks.
+
+All combinations coverage (ACoC):: AS a counter part to ECC, to meet this criterion we must combine all blocks from all characteristics. This could lead to a very high number of combinations making it impractical. So fewer combinations are desirable. For partitions in <<final-partitions>> this criterion yields 82 test requirements or combinations after dropping unfeasible block selections.
+
+Pair-wise coverage (PWC):: Instead of all combinations, a value from each block, for each partition must be combined with a value from every block for each other partition. That is, all pair combinations of blocks from different partitions are test requirements. For partitions in <<final-partitions>> this criterion produces 62 test requirements, which can be covered by . The number of inputs could still be high for some partitions.
+
+//TODO: the actual number
+
+An extension of PWC is to combine `T` characteristics or partitions at the same time, but it has been shown that this does not produce any improvement in practice.
+
+Combining more than one invalid value is not useful in general. Most of the times, the program recognizes only of them and the effects of the others are masked. The following two criteria provide a good alternative to avoid that and produce a smaller number of inputs.
+
+Base choice coverage (BCC):: A _base choice_ block is chosen for each partition or characteristic. A _base test_ is formed with the base choice for each partition. Subsequent test inputs are formed by changing only one base choice from this base test and replacing it with another non-base block for the same partition and keeping the others. Base choices should always be the simplest, smallest, most common choices or they should represent the happy path.
+
+Multiple base choice coverage (MBCC):: It is an extension of the previous criterion. This one selects at least one base choice for each partition, probably more than one. An initial test set is built using an ECC coverage on the base choices, then subsequent inputs are formed in the same way as in BCC: by replacing one base choice for another non-base block in the same partition and keeping the others.
+
+For partitions in <<final-partitions>>, we can pick `q1b3` and `q1b4` as base choices for the first characteristic, `q2b3`, `q2b4`, `q2b5` for the second and `q3b3` for the third one. With this setup we could pick the following inputs covering base choices: `{ day:  1, month: 3, year: 2019 }`, `{ day: 30, month: 9, year: 2018 }`, `{ day: 29, month: 2, year: 2020 }`. Then, more inputs could be added by exchanging one basic block by another non-basic choice. For example, if we take `{ day: 29, month: 2, year: 2020 }`, it matches blocks `q1b4`, `q2b5` and `q3b3`. Changing `q3b3` by `q3b4` implies to change the value of `day` to a value larger than the maximum according to the month. With this we could  change 29 by 30 and obtain a new input `{ day: 30, month: 2, year: 2020 }`. The process continues until no new inputs can be added.
 
 ===== Structural coverage
+
 
 ===== Logic coverage
 
