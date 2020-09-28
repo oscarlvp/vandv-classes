@@ -292,6 +292,7 @@ LoCs can be used to compare the length of the methods in a project. It helps to 
 
 Including blank lines or lines with comments in the metric may be misleading for its purposes. Therefore, LoC is often referred as _Physical Lines of Code_ while developers also measure _Logical Lines of Code_ (LLoC) which counts the number of programming language statements in the method. 
 
+[[cyclomatic]]
 ===== Cyclomatic Comprexity
 
 A method with many branches and logical decisions is, in general, hard to understand. This affects the maintainability of the code. Back in 1976, Thomas J. McCabe  proposed a metric to assess the complexity of a program <<mccabe1976complexity>>. McCabe's original idea was to approximate the complexity of a program by computing the _cyclomatic number_ of its control flow graph. This is why the metric is also known as _McCabe's Cyclomatic Complexity_. The goal of the metric was to provide a quantitative basis to determine whether a software module was hard to understand, maintain and test.
