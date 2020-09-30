@@ -292,7 +292,7 @@ LoCs can be used to compare the length of the methods in a project. It helps to 
 
 Including blank lines or lines with comments in the metric may be misleading for its purposes. Therefore, LoC is often referred as _Physical Lines of Code_ while developers also measure _Logical Lines of Code_ (LLoC) which counts the number of programming language statements in the method. 
 
-[[cyclomatic]]
+[[cyclomatic-section]]
 ===== Cyclomatic Comprexity
 
 A method with many branches and logical decisions is, in general, hard to understand. This affects the maintainability of the code. Back in 1976, Thomas J. McCabe  proposed a metric to assess the complexity of a program <<mccabe1976complexity>>. McCabe's original idea was to approximate the complexity of a program by computing the _cyclomatic number_ of its control flow graph. This is why the metric is also known as _McCabe's Cyclomatic Complexity_. The goal of the metric was to provide a quantitative basis to determine whether a software module was hard to understand, maintain and test.
@@ -360,18 +360,13 @@ digraph {
 }
 ....
 
-The cyclomatic number, or circuit rank of an undirected graph, is the minimum number of edges that has to be removed in order to break all cycles and obtain its spanning tree. The cyclomatic number stem:[v(G)] of a graph stem:[G] is computed as stem:[v(G) = E - V + 2P], where stem:[N] is the number of nodes, stem:[E] the number of edges and stem:[P] the number of connected components. If the graph is strongly connected, that is, there is a path from any node to any other node, then the cyclomatic number is equal to the maximum number of linearly independent circuits. The linearly independent circuits form a basis of all circuits in the graph. Therefore, all circuits in the graph are formed by a combinations of these linearly independent circuits. 
-
-The cyclomatic complexity of a method is defined as the cyclomatic number of the underlying undirected graph of the control flow graph. 
+The cyclomatic number, or circuit rank of an undirected graph, is the minimum number of edges that has to be removed in order to break all cycles and obtain its spanning tree. The cyclomatic number stem:[v(G)] of a graph stem:[G] is computed as stem:[v(G) = E - V + 2P], where stem:[N] is the number of nodes, stem:[E] the number of edges and stem:[P] the number of connected components. The cyclomatic complexity of a method is defined as the cyclomatic number of the underlying undirected graph of the control flow graph. 
 
 McCabe showed that the computation of the  cyclomatic complexity could be simplified as the number of predicate nodes (conditionals) plus one. The method in <<max-method>> has a cyclomatic complexity of stem:[v(G) = 4 = 3 + 1], as it has three conditionals: `a > b`, `a > c` and `b > c`. It can be also computed as stem:[v(G) = 4 = 11 - 9 + 2], as it has eleven edges, nine nodes and only one connected component.
 
-The cyclomatic complexity has implications for testing. It sets a lower bound for the number of inputs that should be used to test the method. Any execution path in the control flow graph of the method is a combination of the linearly independent circuits. Therefore, to ensure that the tests execute all conditions in the code, all linearly independent circuits should be used once in the executions paths of all inputs. The number of different test inputs must be greater or equal to the cyclomatic complexity of the method.
+McCabe's cyclomatic complexity is well known and widely used. It is frequently accompanied by a scale. Values below 10 are usually considered as good. However, some caveats of the metrics must be taken into account. First, it was conceived for unstructured programs and some aspects of its original definition are vague. Modern tools implementing the metric work under different assumptions, therefore two different tools may not produce the same result for the same method. Logical conjunctions and disjunctions (`&&`, `||`) also produce branches but not all tools include them in their result.
 
-McCabe's cyclomatic complexity is well known and widely used. It is frequently accompanied by a scale. Usually values below 10 are considered as good. However, some caveats of the metrics must be considered. First, it was conceived for unstructured programs and some aspects of its original definition are vague. Modern tools implementing the metric work under different assumptions, therefore two different tools may not produce the same result for the same method. Logical conjunctions and disjunctions (`&&`, `||`) also produce branches. This must be taken into account to compute the value of the metric from the source code or, even better, compute the metric from compiled code.
-
-Not always the cyclomatic complexity matches the developer's idea of what a complex and hard to understand method is. For example, the metric does not consider nested structures. It produces the same value for the two code fragments in <<ifs-mccabe>>.
-
+Not always the cyclomatic complexity matches the developer's idea of what is a complex method. For example, the metric does not consider nested structures. It produces the same value for the two code fragments in <<ifs-mccabe>>.
 
 [[ifs-mccabe, Listing {counter:listing}]]
 .Listing {listing}. These two pieces of code have the same cyclomatic complexity
