@@ -742,6 +742,8 @@ NOTE: Notice that this is not the only input model that we can design, and it mi
 
 If the input contains a parameter with a enumerative domain of a few values, it could make sense to create a partition with one block per value. In our example we could have one block for each month, but there is no substantial different among months with the same amount of days for this particular method we are testing.
 
+It should be taken into account that, when testing classes, different methods of the same class could share the same characteristics to define partitions. For example, both the `push` and `pop` methods in the stack implementation shown in <<isp-stack>> could partition the input considering when the stack is empty or not. Therefore it is a good idea, when testing a class, to first find the characteristics for all methods and reuse them.
+
 Once the features and blocks have been identified, the concrete test inputs are built by picking values matching a selection of blocks from different partitions. For example: `{day: 1, month: 2, year:2000}` is an input matching the third block for each of the partitions identified in <<final-partitions>>, that is, blocks `q1b3`, `q2b3`and `q3b3`. 
 
 Test inputs can be immediately translated to concrete test cases. For example, if we select blocks `q1b4`, `q2b5` and `q3b4` we can pick `{ day: 29, month: 2, year: 2019}`. The test case could be written as follows:
@@ -791,7 +793,8 @@ Multiple base choice coverage (MBCC):: It is an extension of the previous criter
 
 For partitions in <<final-partitions>>, we can pick `q1b3` and `q1b4` as base choices for the first characteristic, `q2b3`, `q2b4`, `q2b5` for the second and `q3b3` for the third one. With this setup we could pick the following inputs covering base choices: `{ day:  1, month: 3, year: 2019 }`, `{ day: 30, month: 9, year: 2018 }`, `{ day: 29, month: 2, year: 2020 }`. Then, more inputs could be added by exchanging one basic block by another non-basic choice. For example, if we take `{ day: 29, month: 2, year: 2020 }`, it matches blocks `q1b4`, `q2b5` and `q3b3`. Changing `q3b3` by `q3b4` implies to change the value of `day` to a value larger than the maximum according to the month. With this we could  change 29 by 30 and obtain a new input `{ day: 30, month: 2, year: 2020 }`. The process continues until no new inputs can be added.
 
-All these criteria help designing an initial set of test inputs, but keep in mind that none of these inputs ensure any of 
+
+Input space partitioning helps defining an initial set of tests inputs but the criteria explained in this section do not ensure any of the conditions to discover a fault as stated by the RIPR model.
 
 ===== Structural coverage
 
@@ -799,12 +802,14 @@ As their name implies, _structural coverage criteria_ rely on the internal struc
 
 Statement coverage::
 The simplest structural criterion is *statement coverage*. This criterion establishes each statement in a program as a test requirement, that is, the test suite should be designed in such a way that all statements in the program are executed by at least one test case. In this way it ensures the _reachability_ of the RIPR model. 
-
++
 It is a simple criterion, easy to interpret and also very easy and fast to compute. Nowadays, most practitioners use the _statement coverage level_, that is, the ratio of statements executed by the test suite as a proxy for the quality of their tests. The practice is so common that the statement coverage level is known as _code coverage_ or simply _coverage_. There are many available tools to compute code coverage and they are supported by most mainstream IDEs and CI/CD servers.
-
-//TODO: Examples of coverage following the previous test cases and the findLast method
-
-[source,java,linenums,highlight="3"]
++
+<<findlast-coverage-found>> highlights the statements covered/executed by the test case shown in <<ripr-no-infection>> on the code of the method included in <<ripr-faulty-program>>. With coverage information it is easy to see that, in absence of more test cases we miss a test where the element could not be found in the array, as the last statement is not executed.
++
+[[findlast-coverage-found, Listing {counter:listing}]]
+.Listing {listing}. Statements covered by the test case in <<ripr-no-infection>> on the code of the method from <<ripr-faulty-program>>.
+[source,java,linenums,highlight=2..4]
 ----
 public static int findLast(int[] array, int element) {
     for (int i = array.length - 1; i > 0 ; i--) {
@@ -815,53 +820,34 @@ public static int findLast(int[] array, int element) {
     return -1;
 }
 ----
-
-<<ripr-no-infection>>
-[source, java]
++
+The last statement can be covered by a test case such as the one shown in <<ripr-no-propagation>>. <<findlast-coverage-not-found>> highlights the statements covered by this test case on the code from <<ripr-faulty-program>>.
++
+[[findlast-coverage-not-found, Listing {counter:listing}]]
+.Listing {listing}.
+[source,java,linenums,highlight="2,3,7"]
 ----
-@Test
-public void testLastElement() {
-    int[] array = {0, 1, 2};
-    assertEquals(array.length - 1, findLast(array, 2));
+public static int findLast(int[] array, int element) {
+    for (int i = array.length - 1; i > 0 ; i--) {
+        if(array[i] == element)
+            return i;
+
+    }
+    return -1;
 }
 ----
-
-
-<<ripr-no-propagation>>
-[source, java]
-----
-@Test
-public void testNotFound() {
-    assertEquals(-1, findLast(new int[]{0, 1, 2}, 4));
-}
-----
-
-<<ripr-no-revealability>>
-[source, java]
-----
-@Test
-public void testRepeated() {
-    assertTrue(findLast( new int[]{0, 1, 0}, 0) >= 0);
-}
-----
-
-<<ripr-test>>
-[source, java]
-----
-@Test
-public void testFirst() {
-    assertEquals(0, findLast(new int[]{0, 1, 2}, 0));
-}
-----
++
+Notice that both test cases together cover all the instructions of the method. However they are not able to discover the fault. This criterion ensures reachability but does not ensure any of the other conditions for the fault to be found. It is extremely useful to rapidly known which pieces of code haven't been tested by it is not a good quality metric for a test suite.
 
 Other structural criteria can be defined over the control flow graph of a method or a sequence of instructions. Recalling the procedure explained in <<cyclomatic>>, the control flow graph of a method is built as follows:
- - Initially, the graph has two special nodes: the _start_ node and the _end_ node.
- - A sequence of instructions with no branches is called a _basic block_. Each basic block becomes a node of the graph.
- - Each branch in the code becomes an edge. The direction of edge coincides with the direction of the branch.
- - There is an edge from the start node to the node with the first instruction.
- - There is an edge from all nodes that could terminate the execution of the code, to the end node.
 
-<<control-flow-findlast>> shows the control flow of the `findLast` method presented in <<ripr-faulty-method>>.
+* Initially, the graph has two special nodes: the _start_ node and the _end_ node.
+* A sequence of instructions with no branches is called a _basic block_. Each basic block becomes a node of the graph.
+* Each branch in the code becomes an edge. The direction of edge coincides with the direction of the branch.
+* There is an edge from the start node to the node with the first instruction.
+* There is an edge from all nodes that could terminate the execution of the code, to the end node.
+
+<<control-flow-findlast>> shows the control flow of the `findLast` method presented in <<ripr-faulty-program>>.
 
 [[control-flow-findlast]]
 [graphviz, control-flow-findlast, png]
@@ -869,20 +855,21 @@ Other structural criteria can be defined over the control flow graph of a method
 ....
 digraph {
 
-    start[shape=rectangle, group=main];
-    init_i[label="int i = array.length - 1", group=main];
-    is_element[label="array[i] == element", group=main, shape="diamond"];
+    node[shape=rectangle];
+    start[shape=ellipse, group=main];
+    init_i[label="(1): int i = array.length - 1", group=main];
+    is_element[label="(3): array[i] == element", group=main, shape="diamond"];
     {
         rank = same;
-        greater_than_zero[label="i > 0", group=main, shape="diamond"];
-        decrement_i[label="i--"];
+        greater_than_zero[label="(2): i > 0", group=main, shape="diamond"];
+        decrement_i[label="(4): i--"];
     }
     {
         rank = same;
-        return_i[label="return i", group=main];
-        return_minus_one[label="return -1"];
+        return_i[label="(5): return i", group=main];
+        return_minus_one[label="(6): return -1"];
     }
-    end[shape=rectangle, group=main];
+    end[shape=ellipse, group=main];
     
     start -> init_i;
     init_i -> greater_than_zero;
@@ -896,61 +883,98 @@ digraph {
 }
 ....
 
-The execution of a test case describes an _excution path_ in the control flow graph. This path goes from the start node to the end node and includes all nodes containing instructions executed by the test case. The control flow graph helps to define other structural criteria.
+The execution of a test case produces an _execution path_ or _execution test_ over the control flow graph. This path goes from the `start` node to the `end` node and includes all nodes containing instructions executed by the test case and all edges connecting those nodes. 
 
-//TODO: Example
+For example, the test case in <<ripr-no-infection>> produces the following path `start => (1) => (2) => (3) => (5) => end`. With this path, the test case covers the nodes/blocks `(1)`, `(2)`, `(3)` and `(5)`. Nodes `start` and `end` are covered by all execution paths. The same path covers edges `start => (1)`, `(1) => (2)`, `(2) => (3)`, `(3) => (5)`, `(5) => end`. The test does not cover nodes `(4)` and `(6)` and edges `(3) => (4)`, `(4) => (2)`, `(2) => (6)` and `(6) => end`. <<coverage-over-cfg>> shows in blue the elements covered by this test case in the graph.
+
+[[coverage-over-cfg]]
+[graphviz, coverage-over-cfg, png]
+.In blue we show the elements of the control flow graph from <<ripr-faulty-program>> covered by the execution of the tests case shown in <<ripr-no-infection>>. 
+....
+digraph {
+
+    node[shape=rectangle, color=darkslateblue, fontcolor=white style=filled];
+
+    start[shape=ellipse, group=main]; 
+    init_i[label="(1): int i = array.length - 1", group=main];
+    is_element[label="(3): array[i] == element", group=main, shape="diamond"];
+    {
+        rank = same;
+        greater_than_zero[label="(2): i > 0", group=main, shape="diamond"];
+        decrement_i[label="(4): i--", color=black, fillcolor=white, fontcolor=black];
+    }
+    {
+        rank = same;
+        return_i[label="(5): return i", group=main];
+        return_minus_one[label="(6): return -1", color=black, fillcolor=white, fontcolor=black];
+    }
+    end[shape=ellipse, group=main];
+    
+    start -> init_i[color=darkslateblue,];
+    init_i -> greater_than_zero[color=darkslateblue];
+    greater_than_zero -> is_element[label = true, fontcolor=darkslateblue, color=darkslateblue];
+    greater_than_zero -> return_minus_one[label = false];
+    return_minus_one -> end;
+    is_element -> decrement_i[label = false];
+    decrement_i -> greater_than_zero;
+    is_element -> return_i[label = true, fontcolor=darkslateblue, color=darkslateblue];
+    return_i -> end[color=darkslateblue];
+}
+....
+
+The following coverage criteria are precisely defined over the nodes, edges and paths of a control flow graph.
 
 Block coverage::
-With *block coverage* we consider each basic block or control flow graph node as a test requirement. This is very related to statement coverage, as basic blocks guarantee that if one instruction from the block is executed, all the other instructions in the same block will be executed as well. In fact, some tools actually compute block coverage to report statement coverage.
-
-//TODO: Discuss the example
+With *block coverage* we consider each basic block or control flow graph node as a test requirement. This is very related to statement coverage, as basic blocks guarantee that if one instruction from the block is executed, all the other instructions in the same block will be executed as well. In fact, some tools actually compute block coverage to report statement coverage. In the example discussed before, the test from <<ripr-no-propagation>> was able to cover all blocks but nodes `(4)` and `(6)`.
 
 Branch coverage::
-This criterion sets branches in the program, that is, edges in the control flow graph as test requirements. Instead of the nodes, here we consider the edges in the execution paths. It helps determine whether all outcomes from decision branches have been explored by the test cases.
-
-//TODO: Dicuss the example
+This criterion sets branches in the program, that is, edges in the control flow graph as test requirements. Instead of the nodes, here we consider the edges in the execution paths. It helps determine whether all outcomes from decision branches have been explored by the test cases. In the example discussed before, the test from  <<ripr-no-propagation>> was able to cover all edges but `(3) => (4)`, `(4) => (2)`, `(2) => (6)` and `(6) => end`. 
 
 Path coverage::
-This criterion sets all possible execution paths as test requirements. That is, we aim to design a test suite that traces all execution paths in the control flow graph. Executing all possible paths leads to exhaustive testing, and this is, however ideal, not possible in practice. For example, if the control flow graph contains a loop as in <<control-flow-findlast>> the number of possible execution paths is infinite. Therefore we need an approximation that can be used in practice.
-
+This criterion sets all possible execution paths as test requirements. That is, we aim to design a test suite that traces all execution paths in the control flow graph. Executing all possible paths leads to exhaustive testing, and this is, however ideal, not possible in practice. For example, if the control flow graph contains a loop as in <<control-flow-findlast>> the number of possible execution paths is infinite. Therefore, we need to select which paths to cover in practice. The two following criteria are examples of how to select which paths to execute. 
 
 Path basis testing::
-A directed graph is said to be _strongly connected_ if one can reach any node from any other different node. A control flow graph can be made strongly connected if we add a bogus edge from the end node to the star node. A circuit in a graph is which ends at the same node it begins.
-
-// TODO: Examples
-
+A directed graph is said to be _strongly connected_ if for every pair of nodes we can find a path that starts in the first node and ends in the second node. A control flow graph can be made strongly connected if we add a bogus edge from the end node to the star node. A circuit in a graph is which ends at the same node it begins.
++
+If we add the bogus edge, the execution of the test case in <<ripr-no-infection>> produces the circuit `start => (1) => (2) => (3) => (5) => end => start`.
++
 A set of circuits from a graph are said to be linearly independent if all of them differ in at least one edge. This set of circuits is said to be a basis for all circuits in the graph if all edges are included in at least one circuit from the set. All circuits in the graph can be formed by combining circuits in the base.
-
-//TODO: Examples
-
-If a directed graph is strongly connected, then, the cyclomatic number, as discussed in <<cyclomatic-section>>, is equal to the maximum number of linearly independent circuits, that is, the number of circuits in the base. So, any execution or test path in the graph can be formed by combining circuits from the base.
-
-If we set all linearly independent circuits as test requirements, then we create a test for each circuit in the base and we ensure that we are testing, at least once, each outcome from a decision or conditional node.
-
-// TODO: Example
-
-But testing the basis paths alone is not enough.
-
-// TODO: Explain with respect to the example
-
-So, the cyclomatic number actually sets a lower bound for the number of different tests checking paths involving all branches. New paths can be generated by combining circuits from the basis. This technique, however, does not enforce a a strategy for loops.
-
++
+If a directed graph is strongly connected, then, the cyclomatic number, as discussed in <<cyclomatic-section>>, is equal to the maximum number of linearly independent circuits, that is, the number of circuits in the base. The basis is not unique. In general we can find more than one basis for the same graph. 
++
+For the graph in <<control-flow-findlast>> the number of circuits in the basis is 3 which is the number of conditionals: 2 plus 1. The following could be a basis of circuits:
++
+. `start => (1) => (2) => (3) => (5) => end => start`
+. `start => (1) => (2) => (6) => end => start`
+. `(2) => (3) => (4) => (2)`
+ 
++
+If we set all linearly independent circuits as test requirements, then we create a test for each circuit in the base and we ensure that we are testing, at least once, each outcome from a decision or conditional node. For example, the test case in <<ripr-test>> covers the first circuit in the basis, in which the element appears in the first position. Testing with an empty array would cover, the second circuit in the basis. Any test case that loops over the array covers the third and last circuit in the basis, such as the test case in <<ripr-no-infection>> which covers the first and third circuits in the basis. The cyclomatic number sets a lower bound for the number of different tests executing all branches. New paths can be generated by combining circuits from the basis. 
 
 Prime path coverage::
-A _simple path_ in a graph is a path where no node appears more than once, except perhaps the first node, that could also be the last node. A _prime path_ in a graph is a simple path that is no proper sub-path of any other simple path. This means that a prime path is a simple maximal path.
+A _simple path_ in a graph is a path where no node appears more than once, except perhaps the first node, that could also be the last one. A _prime path_ in a graph is a simple path that is no proper sub-path of any other simple path. This means that a prime path is a simple maximal path.
++
+In <<control-flow-findlast>> `(2) => (3) => (4) => (2)` is a prime path that starts and ends in `(2)`. Computing all prime paths from a graph is simple. We start with all edges, which are simple paths of length one. From there we form more simple paths by adding edges until we reach the initial node, there are no more edges to add or the next node already appears in somewhere in the path. Finally we keep the paths that are no proper sub-paths of any other. For the graph of the example the prime paths are:
 
-// TODO: Explain in the example
+. `start => (1) => (2) => (3) => (5) => end`
+. `start => (1) => (2) => (6) => end`
+. `start => (1) => (2) => (3) => (4)`
+. `(4) => (2) => (3) => (5) => end`
+. `(3) => (4) => (2) => (6) => end`
+. `(2) => (3) => (4) => (2)`
+. `(4) => (2) => (3) => (4)`
+. `(3) => (4) => (2) => (3)`
+ 
++
+Prime path coverage sets each prime path as a test requirement. That is, at least one test case should cover each prime path. For example, <<ripr-no-infection>> covers the first prime path of the list. The test case in <<ripr-no-propagation>> produces the following path: `start => (1) => (2) => (3) => (4) => (2) => (3) => (4) => (2) => (3) => (4) => (2) => (6) => end`. This test traces the entire array and does not fin the element. It is able to cover prime paths 2, 5, 6, 7 and 8 from the list above. This criterion is useful when testing loops in a program. It ensures tthe cretion of tests cases that skip the loops and test cases that execute several iterations. In our example, prime path 2 corresponds to a scenario where the `for` loop is never entered, _i.e._ `array` is empty. The execution of prime paths 6, 7, 8 produces tests performing more than one iteration.
 
-// TODO: Observe what happens with loops, 
+Many software artifacts can be represented as graphs. As an example, _Finite State Machines_ are a special type of graph that have been widely used to represent the behavior of software elements. Actually, most embedded software is modeled as a state machine. Finite state machines can also be used to describe specifications for software and even how a user interface should behave.
 
-Therefore using prime paths as test requirements, we create tests cases that both skip loops and cover loops in different ways.
-
-//TODO: Example
-
-
-Many software artifacts can be represented as graphs. As an example, _Finite State Machines_ are a special type of graph that have been widely used to represent the behavior of software elements. In a finite state machine, a node represent a state of the artifact and edges represent changes in those states. As an example, recall <<microwave>> where a state machine was used to model the behavior of a microwave oven. Finite state machines can also be used to describe specifications for software and even how a user interface should behave.
+In a finite state machine, a node represent a state of the artifact and edges represent changes in those states. As an example, recall <<microwave>> where a state machine was used to model the behavior of a microwave oven. 
 
 The structural criteria defined over the control flow graph of a method can be extended to any type of graph. Branch coverage can be generalized as _edge coverage_ and block coverage is just a special case of _node coverage_. In the particular case of finite state machines, designing test cases to achieve  edge coverage ensures that all state transitions are explored and targeting node coverage ensures that all possible states of the artifact have been observed in at least one test case.
+
+But, as explained before, the structural criteria discussed in this section only ensure that most parts of the software under test are executed. Therefore they guarantee that, if there is a fault, it will be executed by at least one test case. However, these criteria do not ensure that the input will infect the program state, or that the effects will be propagated to an observable point or that there will be an oracle strong enough to observe right portion of the state.
 
 ===== Logic coverage
 
@@ -961,4 +985,6 @@ The structural criteria defined over the control flow graph of a method can be e
 ==== Test doubles
 
 === The role of testability
+
+=== Test Driven Development
 
