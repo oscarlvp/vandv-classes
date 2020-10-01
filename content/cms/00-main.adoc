@@ -3,9 +3,8 @@ Oscar Luis Vera-Pérez <oscarlvp@gmail.com>
 :sectnums:
 :stem:
 :imagesdir: images/
-:source-highlighter: rouge
-// :rouge-style: colorful
-// :rouge-css: style
+:source-highlighter: pygments
+:pygments-style: monokai
 :icons: font
 :toc: left
 :toclevels: 4
