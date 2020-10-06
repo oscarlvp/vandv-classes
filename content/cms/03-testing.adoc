@@ -978,6 +978,144 @@ But, as explained before, the structural criteria discussed in this section only
 
 ===== Logic coverage
 
+A predicate is a boolean expression. They are used in all kinds of software. Predicates define branches in source code and also define the state of finite state machines like the microwave in <<microwave>>.
+
+The coverage criteria presented in this section are designed specifically for predicates. They are also designed in such a way that, if there is a fault, test cases created with the help of these criteria guarantee that the state of the program will be, at least, infected by the fault.
+
+Formally a predicate is defined as follows:
+
+* A clause is a predicate. Clauses are the shortest predicates. They are the simplest boolean expressions that do not contain logical operators. They can be:
+ 
+    ** a variable reference _i.e._ stem:[a]
+    ** a comparison or any other relational expression _i.e_ stem:[a < 3], stem:[a = b]
+    ** a function call _i.e._ stem:[f(a, b+3)]
+
+* If stem:[p] and stem:[q] are predicates, then the following are also predicates:
+    ** stem:[\neg p] (negation)
+    ** stem:[p \wedge q] (conjunction)
+    ** stem:[p \vee q] (disjunction)
+    ** stem:[p \implies q] (implication)
+    ** stem:[p \iff q] (equivalence)
+    ** stem:[p \oplus q] (exclusive disjunction)
+
+stem:[ a < 3 \vee c \implies fn(b)] is a predicate with three clauses: stem:[a < 3], stem:[c] and stem:[fn(b)].
+
+<<isleapyear-predicate>> shows the `isLeapYear` method which implements a predicate to determine if a given integer represents a leap year or not. The predicate has three clauses, stem:[c_400]: `year % 400 == 0`, stem:[c_4] `year % 4 == 0` and stem:[c_!100] `year % 100 != 0`, that, for convenience could be seen as the negated form of stem:[c_100]: `year % 100 == 0`. In this example the clauses are not independent from each other. Also, given the short-circuit behavior of logical operators in most programming languages, the order in which the clauses are evaluated may play a role in the value of the predicate.
+
+[[isleapyear-predicate, Listing {counter:listing}]]
+.Listing {listing}. A method that says if a given integer value corresponds to a leap year or not.
+[source, java]
+----
+public static boolean isLeapYear(int year) {
+    return year % 400 == 0 || ( year % 4 == 0 & year % 100 != 0 );
+}
+----
+
+The simplest logic coverage criteria sets test requirements according to the value that takes the predicate as a whole and the value of each clause.
+
+Predicate Coverage (PC):: This coverage criterion sets two test requirements: one on which the predicate evaluates to `true` and another where the predicate evaluates to `false`.
++
+To fulfill this criterion we require only two inputs. It is a simple criterion but the clauses are not considered individually. Taking the predicate, stem:[((a > b) \wedge C) \vee p(x)] we can cover both requirements with stem:[(a = 5, b = 4, C = true, p(x) = true)] and stem:[(a = 5, b = 4, C = true, p(x) = false)], however, in both interpretations, the first two clauses of the predicate have always the same value.
+
+Clause Coverage (CC):: This criterion sets two test requirements for each clause in a predicate. For one requirement, the selected clause should be `true` and for the other the same clause should be false `false`.
++
+For the predicate stem:[((a > b) \wedge C) \vee p(x)] we have six requirements, two for each clause. The criterion can be covered using the following two sets of values: stem:[(a = 5, b = 4, C = true, p(x) = true)] and stem:[(a = 5, b = 6, C = false, p(x) = false)]. The first set of values covers all requirements where clauses are `true` and the second covers the scenarios where the clauses evaluate to `false`. So, with only two inputs it is possible to cover all six requirements.
++
+This criterion does enforce combinations between the clauses. Also, it is possible to fulfill clause coverage and not predicate coverage at the same time. Take as example the predicate stem:[a \vee b]. Using stem:[a = true, b = false)] and stem:[(a = false, b = true)] we can cover all clauses but the predicate always evaluates to `true`.
+
+Combinatorial Coverage (CoC):: This criterion sets a test requirement for each combination or truth value of all clauses.
++
+For example, for the predicate stem:[[((a > b) \wedge C) \vee p(x)]] we create the following test requirements:
++
+[header]
+|===
+| stem:[a > b] | stem:[C] | stem:[p(x)] | stem:[((a > b) \wedge C) \vee p(x)]
+| `true`       | `true`   | `true`      | `true` 
+| `true`       | `true`   | `false`     | `true`
+| `true`       | `false`  | `true`      | `true`
+| `true`       | `false`  | `false`     | `false`
+| `false`      | `true`   | `true`      | `true`
+| `false`      | `true`   | `false`     | `false`
+| `false`      | `false`  | `true`      | `true`
+| `false`      | `false`  | `false`     | `false`
+|===
++
+This criterion accounts for any truth value combination of all clauses and ensures all possible values for the predicate. However, it is not feasible in practice for large predicates. The number of requirements is exponential with respect to the number of clauses in the predicate, that is  we have stem:[2^N] requirements for stem:[N] clauses.
+
+So, we need a set of criteria able to evaluate the effects of each clause over the result of the predicate while keeping the number of test requirements reasonable low.
+
+Active Clause Coverage:: This criterion verifies each clause under conditions where they affect the value of the entire predicate. When we select a clause, we call it a _major clause_ and rest are called _minor clauses_. So when defining the requirements for this criterion each clause become _major_ at some point.
++
+A major clause _determines_ the predicate if the minor clauses have values such that changing the truth value of the major clause also changes the value of the predicate.
++
+For the predicate  stem:[((a > b) \wedge C) \vee p(x)] if we select stem:[a > b] as the major clause, stem:[C] and stem:[p(x)] are the minor clauses. If we assign values stem:[(C = true, p(x) = false)] to the minor clauses, stem:[a > b] determines the predicate because, when the major clause is `true` the entire predicate is `true` and when the major clause is `false` the predicate evaluates to `false`.
++
+This criterion selects each clause in the predicate as major clause. Then, for each major clause stem:[c], we select values for the minor clauses in a way that stem:[c] determines the predicate. Then the criterion sets one test requirement for stem:[c = true] and another for stem:[c = false].
++
+For example, for the predicate stem:[p = a \vee b] is easy to see that each clause determines the predicate when the other is `false`. So, selecting stem:[a] as the major clause we obtain requirements stem:[(a = true, b = false)] and stem:[(a = false, b = false)]. We proceed in a similar way with clause stem:[b] and obtain stem:[(a = false, b = true)] and stem:[(a = false, b = false)]. One of the requirements is common for both clauses, so in the end we have three test requirements stem:[(a = true, b = false)], stem:[(a = false, b = true)] and stem:[(a = false, b = false)].
++
+A major challenge for the active clause criterion is the handling of the minor clauses. We need first to obtain the possible values for the minor clauses to make the major clause determine the predicate.
++
+Given a predicate stem:[p] and a major clause stem:[c \in p], the predicate stem:[p_c = p_{c=true} \oplus p_{c=false}] represents the condition for stem:[c] to determine stem:[p]. That is, the values of the minor clauses that make stem:[p_c] be `true` also make stem:[c] determine stem:[p].
++
+The following examples illustrate how to use this result to find the values for the minor clauses.
++
+WARNING: The following examples make heavy use of  https://en.wikipedia.org/wiki/Boolean_algebra[_Boolean Algebra_]. It would be better to refresh the main rules before going any further.
++
+Take the predicate stem:[p = a \wedge b], selecting stem:[a] as the major clause we need to find a condition for stem:[b] so stem:[a] dominates the predicate. We proceed as follows:
++
+[latexmath]
+++++
+\begin{eqnarray*}
+    p_a & = & p_{a=true} \oplus p_{a=false} \\
+        & = & (true \wedge b) \oplus (false \wedge b) \\
+        & = & true \oplus b \\
+        & = & \neg b
+\end{eqnarray*}
+++++
++
+Which means that stem:[a] determines the predicate, only when stem:[b] is `false`.
++
+Let's take now the predicate stem:[p = a \wedge (b \vee c)] and again stem:[a] as the major clause. We obtain: 
++
+[latexmath]
+++++
+\begin{eqnarray*}
+    p_a & = & p_{a=true} \oplus p_{a=false} \\
+        & = & (true \wedge (b \vee c)) \oplus (false \wedge (b \vee c)) \\
+        & = & (b \vee c) \oplus false \\
+        & = & (b \vee c)
+\end{eqnarray*}
+++++
++
+This means that any values for stem:[b] or stem:[c] making stem:[b \vee c] `true` will also make stem:[a] determine stem:[p]. In this case we could use stem:[(b = true, c = true)], stem:[(b = false, c = true)] or stem:[(b = true, c = false)].
++
+On another example, if we take stem:[p = a \iff b], we obtain:
++
+[latexmath]
+++++
+\begin{eqnarray*}
+    p_a & = & p_{a=true} \oplus p_{a=false} \\
+        & = & (true \iff b) \oplus (false \iff b) \\
+        & = & b \oplus \neg b \\
+        & = & true
+\end{eqnarray*}
+++++
++
+We observe that stem:[p_a] is always `true`. Therefore, stem:[a] determines stem:[p] no matter the value of stem:[b]. On the other hand, if could be that stem:[p_a] would result in `false`. In that case it would be impossible for the clause stem:[a] to determine stem:[p].
++
+As seen in the examples above, we can obtain four possible outcome when finding the condition for a major clause to determine the predicate: *(1)* the clause can not determine the predicate, 
+*(2)* there is only one possible assignment (also known as interpretation) for the values of the minor clauses, *(3)* there is more than one possible interpretation and *(4)* the clause always determines the predicate. 
+
++
+In those cases we can follow different strategies, in particular the two following:
+
+- *Correlated Active Clause Coverage*: The values chosen for the minor clauses must cause the predicate to be `true` for one value of the major clause and `false` for the other.
+- *Restricted Active Clause Coverage*: The values chosen for the minor clauses must be the same for when the major clause is `true` and when the major clause is `false`.
+
++
+Now, we use ACC, to derive test requirements for the method in <<isleapyear-predicate>>. We rewrite the predicate encoded in the method as stem:[p = c_400 \vee ( c_4 \wedge \neg c_100 )], where stem:[c_x] is equivalent to `year % x == 0`.
+
 ===== Mutation testing
 
 ===== Examples of practice in industry
