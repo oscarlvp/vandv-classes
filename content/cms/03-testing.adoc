@@ -1027,7 +1027,7 @@ Combinatorial Coverage (CoC):: This criterion sets a test requirement for each c
 +
 For example, for the predicate stem:[[((a > b) \wedge C) \vee p(x)]] we create the following test requirements:
 +
-[header]
+[options="header"]
 |===
 | stem:[a > b] | stem:[C] | stem:[p(x)] | stem:[((a > b) \wedge C) \vee p(x)]
 | `true`       | `true`   | `true`      | `true` 
@@ -1108,13 +1108,111 @@ As seen in the examples above, we can obtain four possible outcome when finding 
 *(2)* there is only one possible assignment (also known as interpretation) for the values of the minor clauses, *(3)* there is more than one possible interpretation and *(4)* the clause always determines the predicate. 
 
 +
-In those cases we can follow different strategies, in particular the two following:
+In those cases we can follow different strategies: either we keep the same values , in particular the two following:
 
-- *Correlated Active Clause Coverage*: The values chosen for the minor clauses must cause the predicate to be `true` for one value of the major clause and `false` for the other.
-- *Restricted Active Clause Coverage*: The values chosen for the minor clauses must be the same for when the major clause is `true` and when the major clause is `false`.
+- *Correlated Active Clause Coverage* (CACC): The values chosen for the minor clauses must cause the predicate to be `true` for one value of the major clause and `false` for the other.
+- *Restricted Active Clause Coverage* (RACC): The values chosen for the minor clauses must be the same for when the major clause is `true` and when the major clause is `false`. This is a stronger criterion that not always can be satisfied as the clauses may not be independent from each other.
 
-+
-Now, we use ACC, to derive test requirements for the method in <<isleapyear-predicate>>. We rewrite the predicate encoded in the method as stem:[p = c_400 \vee ( c_4 \wedge \neg c_100 )], where stem:[c_x] is equivalent to `year % x == 0`.
+In any of the coverage criteria explained above, it could be possible that a test requirement becomes infeasible due to dependencies between the clauses. Given the case, we simply discard those inputs.
+
+Now, we use ACC, to derive test requirements for the method in <<isleapyear-predicate>>. We rewrite the predicate encoded in the method as stem:[p = c_400 \vee (c_4 \wedge \neg c_100)], where stem:[c_x] is equivalent to `year % x == 0`.
+
+Selecting stem:[c_400] as the major clause we obtain stem:[p_{c_400} = \neg c_4 \vee c_100]. The following table shows the values, or interpretations of the clauses that make stem:[p_{c_400}] `true`.
+
+[options="header"]
+|===
+| stem:[c_4] | stem:[c_100] | stem:[p_{c_400}]
+| `false`    | `true`       | `true`
+| `true`     | `true`       | `true`
+| `false`    | `false`      | `true`
+|===
+
+But, these clauses are not independent. In fact the first row of the table is impossible. The same number can not be divisible by 100 (stem:[c_100 = true]) and not by 4 (stem:[c_4 = false]). Therefore we throw it away and keep only the two last rows, which leads us to the following truth values for stem:[p]:
+
+[options="header"]
+|===
+| stem:[c_400] | stem:[c_4] | stem:[c_100] | stem:[p]
+| `true`       | `false`    | `true`       | `true`
+| `false`      | `false`    | `true`       | `false`
+| `true`       | `true`     | `true`       | `true`
+| `false`      | `true`     | `true`       | `false`
+| `true`       | `false`    | `false`      | `true`
+| `false`      | `false`    | `false`      | `false`
+|===
+
+Again, the clauses are not independent in this example. The first, second and fifth rows lead to impossible situations so we keep only the rest.
+
+[options="header"]
+|===
+| stem:[c_400] | stem:[c_4] | stem:[c_100] | stem:[p]
+| `true`       | `true`     | `true`       | `true`
+| `false`      | `true`     | `true`       | `false`
+| `false`      | `false`    | `false`      | `false`
+|===
+
+For this clause we can pick the first and the third rows to apply CACC and the first and second rows to apply RACC.
+
+Now we select stem:[c_4] as the major clause and obtain stem:[p_{c_4} = \neg c_100 \wedge \neg c_400] which is `true` only for the following interpretation:
+
+[options="header"]
+|===
+| stem:[c_100] | stem:[c_400] | stem:[p_{c_4}]
+| `false`      | `false`      | `true`
+|===
+
+Therefore, we obtain the following two additional test cases:
+
+[options="header"]
+|===
+| stem:[c_400] | stem:[c_4] | stem:[c_100] | stem:[p]
+| `false`      | `true`     | `false`      | `true`
+| `false`      | `false`    | `false`      | `false`
+|===
+
+For this clause, both CACC and RACC are still applicable.
+
+Finally we pick stem:[c_100] as the major clause obtaining stem:[p_{c_100} = \neg C_400 \wedge c_4]. The only possible interpretation to make stem:[c_100] dominate the predicate is:
+
+[options="header"]
+|===
+| stem:[c_400] | stem:[c_4] | stem:[p_{c_100}]
+| `false`      | `true`     | `true`
+|===
+
+Which leads to the following test cases:
+
+[options="header"]
+|===
+| stem:[c_400] | stem:[c_4] | stem:[c_100] | stem:[p]
+| `false`      | `true`     | `true`       | `false`
+| `false`      | `true`     | `false`      | `true`
+|===
+
+Some of the test cases for different clauses are the same, so combine them and obtain as final requirement, the following inputs:
+
+[options="header"]
+|===
+| stem:[c_400] | stem:[c_4] | stem:[c_100] | stem:[p]
+| `true`       | `true`     | `true`       | `true`
+| `false`      | `true`     | `true`       | `false`
+| `false`      | `false`    | `false`      | `false`
+| `false`      | `true`     | `false`      | `true`
+|===
+
+In the end we have created four different test cases. Ensuring ACC, also ensures PC and CC and produces fewer tests than CoC while observing the effect of each clause.
+
+The inputs created above have to interpreted with respect to `year` which is the actual parameter of the method and defines the value of all clauses and their relationship. To satisfy the first requirement in the table above we need a value that is divisible by 4, 100 and 400 at the same time, which actually means that we need a value divisible by 400 as it implies the other two conditions. For the second requirement we need a value divisible by 100 but not by 400. The third row requires a value not divisible by 4 and the last needs one divisible by 4 but not by 100. The following table summarizes the result:
+
+[options="header"]
+|===
+| stem:[c_400] | stem:[c_4] | stem:[c_100] | stem:[p] | `year`
+| `true`       | `true`     | `true`       | `true`   | 2000
+| `false`      | `true`     | `true`       | `false`  | 1900
+| `false`      | `false`    | `false`      | `false`  | 2017
+| `false`      | `true`     | `false`      | `true`   | 2020
+|===
+
+Here we picked values that resemble recent years to be closer to the intention of the method. We could have picked, 400, 100, 3 and 4 as well but these values are not so intention revealing as the others.
 
 ===== Mutation testing
 
