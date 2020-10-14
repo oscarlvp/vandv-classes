@@ -20,7 +20,7 @@
 . [[trikha2020inevitable, ({counter:references})]] Trikha R. (2020, Jul 2^nd^). The Inevitable Return of COBOL Published by Ritika Trikha https://blog.hackerrank.com/the-inevitable-return-of-cobol/. Last accessed: 06/07/2020.
 . [[cnbc2017banks, ({counter:references})]] CNBC, Reuters (2017, Apr 11^th^) Banks scramble to fix old systems as IT ‘cowboys’ ride into sunset https://www.cnbc.com/2017/04/11/banks-scramble-to-fix-old-systems-as-it-cowboys-ride-into-sunset.html. Last accessed: 06/07/2020.
 . [[leswing2020bnew, ({counter:references})]] Leswing K., CNBC (2020 Apr 6^th^) New Jersey needs volunteers who know COBOL, a 60-year-old programming language https://www.cnbc.com/2020/04/06/new-jersey-seeks-cobol-programmers-to-fix-unemployment-system.html. Last accessed: 06/07/2020.
-. [[meyer2008seven,({counter:references})]] Meyer, B. (2008). Seven principles of software testing. Computer, 41(8), 99-101. http://www2.computer.org/portal/web/csdl/doi/10.1109/MC.2008.306
+. [[meyer2008seven,({counter:references})]] Meyer, B. (2008). Seven principles of software testing. Computer, 41(8), 99-101. https://doi.org/10.1109/MC.2008.306 Also available here: http://se.inf.ethz.ch/old/people/meyer/publications/testing/principles.pdf
 . [[netflix2011,({counter:references})]] The Netflix Simian Army. (2011). https://netflixtechblog.com/the-netflix-simian-army-16e57fbab116 Last accessed: 01/05/2020
 . [[fowler2006continuous,({counter:references})]] Continuous Integration. (2006). https://martinfowler.com/articles/continuousIntegration.html Last accessed: 01/05/2020
 . [[thoughtworksintegration,({counter:references})]] Continuous Integration. https://www.thoughtworks.com/continuous-integration Last accessed: 01/05/2020
