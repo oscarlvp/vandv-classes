@@ -5,14 +5,14 @@ The goal of any software project is to deliver a product of the highest possible
 Quality in use:: This view is centered in the user experience, that is, how users perceive the software. It is the extent to which users can achieve their goals in a particular environment. It does not care about how the product is built. If a word processor makes it hard to edit a document, then it does not serve it purposes.
 External quality attributes:: These attributes manifest themselves in the execution of the program. They characterize how well the product conforms to the specification. Observed failures signal the presence of bugs. Crashes, efficiency problems and alike degrade the external quality of the software. External quality attributes directly affect the quality in use.
 Internal quality attributes:: They characterize the internal structure of the product. According to Martin Fowler, <<fowler2019is>>, internal software quality is impacted by how easy it is to understand the code. This, in turn, impacts how easy it is to maintain the product, add new features, improve and detect errors. Internal quality has a great impact in the external quality of the software.
-Process quality:: It is a direct expression of how the software product was built. It is affected by the methodologies, practices. tools, frameworks used to develop the software. A good development process favors actions that improve the internal quality of the product.
+Process quality:: It is a direct expression of how the software product was built. It is affected by the methodologies, practices, tools and frameworks used to develop the software. A good development process favors actions that improve the internal quality of the product.
 
 In the end, all views of quality are deeply interconnected. The process quality impacts the internal quality. The internal quality affects in turn the external quality which directly affects the user experience.
 
 Several models of software quality attributes have been proposed and standardized throughout the years <<boehm1976quantitative>>, <<iso2011square>>. However they all insist, as the Consortium for IT Software Quality (CISQ) summarizes, that high quality software products must be: 
 *reliable* (low risk level in use and low likelihood of potential failures), *efficient*, *secure*, and *maintainable*.
 
-Martin Fowler <<fowler2019is>> explains that, as time goes by and a project becomes more complex, it is harder to add new features. At this point, even small changes require programmers to understand large areas of code. Paying attention to internal quality is crucial to further develop the product. Fowler calls _cruft_ those deficiencies in internal quality that make it harder to modify and extend the system. _Crufts_ are redundant, useless and dysfunctional pieces of code that become obstacles and increase increase maintenance costs. This is also known as _Technical Debt_.
+Martin Fowler <<fowler2019is>> explains that, as time goes by and a project becomes more complex, it is harder to add new features. At this point, even small changes require programmers to understand large areas of code. Paying attention to internal quality is crucial to further develop the product. Fowler calls _cruft_ those deficiencies in internal quality that make it harder to modify and extend the system. _Crufts_ are redundant, useless and dysfunctional pieces of code that become obstacles and increase maintenance costs. This is also known as _Technical Debt_.
 
 External quality attributes can be observed and improved with the help of testing. Meanwhile internal quality attributes are observed by analyzing the code without executing it, that is, with the help of static code analysis. Some authors consider static analysis as a form of _static testing_. However, Meyer in its principles <<meyer2008seven>> excludes these techniques from the testing umbrella. Either way, static analysis helps to spot potential problems earlier and therefore impacts the testing process.
 
@@ -33,7 +33,7 @@ ____
 There are only two hard things in Computer Science: cache invalidation and naming things.
 ____ 
 
-Part of the coding guidelines is devoted to help developers know how to name program elements such as classes or methods. These guidelines are different from one language to the other, although they share common ideas. This section contains three examples from Java, C# and Python.
+Part of the coding guidelines is devoted to help developers knowing how to name program elements such as classes or methods. These guidelines are different from one language to the other, although they share common ideas. This section contains three examples from Java, C# and Python.
 
 The following <<java-naming-conventions>> is an extract from the Java coding conventions <<oracle1997java>>. This fragment specifies how developers should name classes, interfaces and methods.
 
@@ -104,9 +104,11 @@ Function names should be lowercase, with words separated by underscores as neces
 
 With this, one can easily infer that `Node` names a class, `str` is a built-in type and `remove_node` is a function.
 
+Naming conventions are derived in most of the cases from the taste  and practice of the community around a language or framework.  In the end, these conventions help improving the readability of the code as developers can quickly understand the role of each element in a program. 
+
 ===== Indentation
 
-In most language extra white spaces do not change the semantics of a program but sure they play an important role in readability. Each language tries to enforce an indentation style, but even for the same language different developers have follow different styles. Keeping a consistent style helps fast delimiting blocks in a program and improves understanding.
+In most languages extra white spaces do not change the semantics of a program but they may play an important role in readability. For example, the indentation is useful to know the limit of methods, classes, nested instructions and any block in general. Each programming language tries to enforce an indentation style, but even for the same language different developers may follow different styles. Keeping a consistent style improves the understanding of a program.
 
 <<indentation-examples>> shows three examples of different indentation styles applied to the same fragment of code. Notice how different the program looks in each case.
 
@@ -181,11 +183,11 @@ somethingThatYieldsAFoo().aStaticMethod(); // very bad
 
 ===== Should conventions be always enforced?
 
-Conventions are created to set a common ground for understanding. This is specially useful when learning a new language, for a newcomer and to ease the collaboration between different developers in a project. However, there are cases in which strictly following these conventions actually has the opposite effect. For example, when dealing with legacy code that followed different guidelines, it is better to stick to the practices in place rather than introducing new conventions. 
+Conventions are created to set a common ground for understanding. This is specially useful when we are learning a new language and to ease the collaboration between different developers in a project. However, there are cases in which strictly following these conventions actually has the opposite effect. For example, when dealing with legacy code that followed different guidelines, it is better to stick to the practices in place rather than introducing new conventions. 
 
-In any case, the ultimate goal must be to write consistent code that can be understood for all team/project members. Common sense is always the best guideline.
+In any case, the ultimate goal must be to write consistent code that can be understood by all team/project members. Common sense is always the best guideline.
 
-<<microsoft-base-name>> explains how to name extending classes with respect to the base class, but it also wars against over-use <<microsoft2008naming>>.
+<<microsoft-base-name>> explains how to name extending classes with respect to the base class, but it also warns against over-use <<microsoft2008naming>>.
 
 [[microsoft-base-name]]
 .Microsoft's guideline to name extending classes with a warning on when not to use it 
@@ -213,11 +215,11 @@ Thorough the years, developers have identified patterns of code that usually bec
 
 Code smells do not always lead to a problem or a bug. But, in most, cases, their presence makes the code harder to understand and maintain, and in Fowler's words "`they are often an indicator of a problem rather than the problem themselves`". Code smells can be eliminated by refactoring, that is, restructuring the program to make it simpler.
 
-The https://sourcemaking.com/[Source Making Blog] presents a list of well known code smells and how they could be solved <<source2020smells>>. Internet is full with such lists they might differ on the (generally catchy) name they use to categorize a smell and some might miss one or two patters.
+The https://sourcemaking.com/[Source Making Blog] presents a list of well known code smells and how they could be solved <<source2020smells>>. Internet is full with such lists which might differ on the (generally catchy) name they use to categorize a smell and some might miss one or two patters.
 
-The following is a small sample of that list.
+The following is a small sample from that list.
 
-Long method:: A method that contains too many lines of code or too many statements. Long methods tend to hide unwanted duplicated code and are harder to maintain. It can be solved by splitting the code in shorter methods easier to reuse, maintain and understand. <<long-method-example>> shows a fragment taken from <<glover2006monitoring>> of nearly 20 lines of code. It is already a big chunk code, but it comes for a very large method of more than 350 lines. This is a clear, and rather extreme example of this code smell.
+Long method:: A method that contains too many lines of code or too many statements. Long methods tend to hide unwanted duplicated code and are harder to maintain. It can be solved by splitting the code in shorter methods easier to reuse, maintain and understand. <<long-method-example>> shows a fragment taken from <<glover2006monitoring>> of nearly 20 lines of code. It is already a big chunk of code, but it comes for a very large method of more than 350 lines. This is a clear, and rather extreme example of this code smell.
 +
 [[long-method-example, Listing {counter:listing}]]
 .Listing {listing}. An already large fragment of code from a method of more than 350 lines. Taken from <<glover2006monitoring>>
@@ -264,9 +266,9 @@ Primitive obsession:: Abuse of primitive types instead of creating one's own abs
 
 Temporary fields:: Fields in classes that are used only under certain circumstances in one or very few methods, otherwise they are not used. These fields could be promoted most of the times to local variables.
 
-Feature envy:: A method that accesses the data of another object more than its own data. This method's behavior will probably better placed in the class of the external object.
+Feature envy:: A method that accesses the data of another object more than its own data. This method's behavior will probably be better placed in the class of the external object.
 
-Code smells are very well localized program fragments. However, there are more global patterns that are often used as solutions to a problem but they may bring more harm than benefits and are better to avoid. These bad solutions are described as _AntiPatterns_. The same https://sourcemaking.com/[Source Making Blog] provides an interesting list of them AntiPatterns can be related to coding practices, software architecture designs and even related to the management of a project. Identifying these bad solutions helps also in finding a better alternative <<source2020anti>>.
+Code smells are very well localized program fragments. However, there are more global patterns that are often used as solutions to a problem but they may bring more harm than benefits and are better to avoid. These bad solutions are described as _AntiPatterns_. The same https://sourcemaking.com/[Source Making Blog] provides an interesting list of AntiPatterns related to coding practices, software architecture designs and even related to the management of a project. Identifying these bad solutions helps also in finding a better alternative <<source2020anti>>.
 
 Here are some examples:
 
@@ -274,23 +276,25 @@ Golden Hammer:: Using a single tool to solve most problems even when it is not t
 
 Cut-And-Paste Programming:: This one is self-descriptive: code is reused by copying and pasting fragments in different places. In the case that the originally copied code has a bug, then the issue will reoccur in all places where the code was pasted and it will be harder to solve.
 
-Swiss Army Knife:: An excessively complex class interface attempting to provide for all possible uses of the class. These classes include too many method signatures for a single class. It denotes an unclear abstraction or purpose.
+Swiss Army Knife:: An excessively complex class interface attempting to provide a solution for all possible uses of the class. These classes include too many method signatures for a single class. It denotes an unclear abstraction or purpose.
 
-Design By Committee:: A software design, usually from a committee, is so complex and so full of different features and variants that it becomes impossible to complete in a reasonable lapse of time.
+Design By Committee:: A software design, usually from a committee, that is so complex and so full of different features and variants that it becomes impossible to complete in a reasonable lapse of time.
 
 ==== Code Metrics
 
-Many code smells are vague in their formulation. For example: How can we tell that a method or a class is too long that should be split? Or, how can we tell that two classes are too coupled together so their functionalities should be merged or rearranged? The identification of such potential issues requires concrete measurements for the method length or the coupling between classes. These are known as _code metrics_.
+Many code smells are vague in their formulation. For example: How can we tell that a method or a class is too long? Or, how can we tell that two classes are too coupled together so their functionalities should be merged or rearranged? The identification of such potential issues requires concrete measurements for the method length or the coupling between classes. These are known as _code metrics_.
 
-Code metrics are quantitative characterizations or features of the code. They help to assess the structural quality of the software and provide an effective and customizable way to automate the detection of potential code issues. Metrics help to improve the development process.
+Code metrics are quantitative characterizations of code features. They are used to assess the structural quality of the software and provide an effective and customizable way to automate the detection of potential code issues. This section presents some examples of commonly used metrics.
 
 ===== Lines of Code
 
-The simplest code metric is, maybe, the number of _Lines of Code_ (LoC) of a method.footnote:[Sometimes code metrics are presented for _operations_ instead of methods. _Operations_ are indeed methods but the term is broader to escape from the Object-Oriented terminology and reach other programming paradigms.] 
+The simplest code metric is, maybe, the number of _Lines of Code_ (LoC) of a method.
+
+NOTE: Sometimes code metrics are presented for _operations_ instead of methods. _Operations_ are indeed methods but the term is broader to escape from the Object-Oriented terminology and reach other programming paradigms.
 
 LoCs can be used to compare the length of the methods in a project. It helps to detect those methods that are too long when compared to a given threshold. However, this threshold depends on the development practices used for the project. The programming language as well as the frameworks and libraries supporting the code do have an impact on the length of the methods. For example, a small study made by Jon McLoone from Wolfram <<mcloone2012code>>, observed in http://rosettacode.org/wiki/Rosetta_Code[Rosetta Code] programs that _Mathematica_ requires _less than a third of the length of the same tasks written in other languages_.
 
-Including blank lines or lines with comments in the metric may be misleading for its purposes. Therefore, LoC is often referred as _Physical Lines of Code_ while developers also measure _Logical Lines of Code_ (LLoC) which counts the number of programming language statements in the method. 
+Including blank lines or lines with comments in the metric may be misleading. Therefore, LoC is often referred as _Physical Lines of Code_ while developers also measure _Logical Lines of Code_ (LLoC) which counts the number of programming language statements in the method. 
 
 [[cyclomatic-section]]
 ===== Cyclomatic Comprexity
@@ -298,8 +302,9 @@ Including blank lines or lines with comments in the metric may be misleading for
 A method with many branches and logical decisions is, in general, hard to understand. This affects the maintainability of the code. Back in 1976, Thomas J. McCabe  proposed a metric to assess the complexity of a program <<mccabe1976complexity>>. McCabe's original idea was to approximate the complexity of a program by computing the _cyclomatic number_ of its control flow graph. This is why the metric is also known as _McCabe's Cyclomatic Complexity_. The goal of the metric was to provide a quantitative basis to determine whether a software module was hard to understand, maintain and test.
  
 A sequence of code instructions, and by extension the body of a method, could be represented by a directed graph named _control flow graph_. The procedure is as follows:
+
  - Initially, the graph has two special nodes: the _start_ node and the _end_ node.
- - A sequence of instructions with no branches is called a _basic block_. Each basic block becomes a node of the graph.
+ - A sequence of instructions with no branches is called a _basic block_. Each basic block becomes a node in the graph.
  - Each branch in the code becomes an edge. The direction of edge coincides with the direction of the branch.
  - There is an edge from the start node to the node with the first instruction.
  - There is an edge from all nodes that could terminate the execution of the code, to the end node.
@@ -335,32 +340,39 @@ public static int max(int a, int b, int c) {
 .Control flow graph from the method in <<max-method>> 
 ....
 digraph {
-    start[shape=rectangle];
-    end[shape=rectangle];
-    start
-    
-    p1[label="a > b"];
-    p2[label="a > c"];
-    p3[label="b > c"];
-    
-    ra[label="result = a;"];
-    rb[label="result = b;"];
-    rc1[label="result = c;"];
-    rc2[label="result = c;"];
 
-    start -> p1 -> p2 -> ra;
-    p2 -> rc1;
-    p1 -> p3 -> rb;
-    p3 -> rc2;
+    node[shape=rectangle];
 
-    ra -> end;
-    rb -> end;
-    rc1 -> end;
-    rc2 -> end;
+    start[shape=ellipse, group=main];
+    a_gt_b[label="a > b", shape="diamond"];
+    a_gt_c[label="a > c", shape="diamond"];
+    b_gt_c[label="b > c", shape="diamond"];
+    ret_a[label="return a;"];
+    ret_b[label="return b;"];
+    ret_c1[label="return c;"];
+    ret_c2[label="return c;"];
+    end[shape=ellipse, group=main];
+
+
+    start -> a_gt_b;
+    
+    a_gt_b -> a_gt_c[label="true"];
+    a_gt_b -> b_gt_c[label="false"];
+
+    a_gt_c -> ret_a[label="true"];
+    a_gt_c -> ret_c1[label="false"];
+
+    b_gt_c -> ret_b[label="true"];
+    b_gt_c -> ret_c2[label="false"];
+
+    ret_a -> end;
+    ret_b -> end;
+    ret_c1 -> end;
+    ret_c2 -> end;
 }
 ....
 
-The cyclomatic number, or circuit rank of an undirected graph, is the minimum number of edges that has to be removed in order to break all cycles and obtain its spanning tree. The cyclomatic number stem:[v(G)] of a graph stem:[G] is computed as stem:[v(G) = E - V + 2P], where stem:[N] is the number of nodes, stem:[E] the number of edges and stem:[P] the number of connected components. The cyclomatic complexity of a method is defined as the cyclomatic number of the underlying undirected graph of the control flow graph. 
+The cyclomatic number, or circuit rank of an undirected graph, is the minimum number of edges that has to be removed in order to break all cycles and obtain ithe spanning tree of the graph. The cyclomatic number stem:[v(G)] of a graph stem:[G] is computed as stem:[v(G) = E - V + 2P], where stem:[N] is the number of nodes, stem:[E] the number of edges and stem:[P] the number of connected components. The cyclomatic complexity of a method is defined as the cyclomatic number of the underlying undirected graph of the control flow graph. 
 
 McCabe showed that the computation of the  cyclomatic complexity could be simplified as the number of predicate nodes (conditionals) plus one. The method in <<max-method>> has a cyclomatic complexity of stem:[v(G) = 4 = 3 + 1], as it has three conditionals: `a > b`, `a > c` and `b > c`. It can be also computed as stem:[v(G) = 4 = 11 - 9 + 2], as it has eleven edges, nine nodes and only one connected component.
 
@@ -400,7 +412,7 @@ else {
 }
 ----
 
-In <<hummel2014mccabe>>, the author advocates against the use of the metric. Besides showing concrete examples where tools produce different results, he shows the method in <<hummel-switch>>. The authors explain that this method is fairly easy to understand, yet it has a cyclomatic complexity of 14 while the more complex method in <<hummel-primes>> has a cyclomatic complexity of 5. 
+In <<hummel2014mccabe>>, the author advocates against the use of the metric. Besides showing concrete examples where tools produce different results, he shows the method in <<hummel-switch>>. The author explain that this method is fairly easy to understand, yet it has a cyclomatic complexity of 14 while the more complex method in <<hummel-primes>> has a cyclomatic complexity of 5. 
 
 [[hummel-switch, Listing {counter:listing}]]
 .Listing {listing}. A simple method with a cyclomatic complexity of 14. Taken from <<hummel2014mccabe>>.
@@ -449,9 +461,9 @@ int sumOfNonPrimes(int limit) {
 
 ===== Coupling between objects or class coupling
 
-A class is coupled to another if the former uses a method or a field from the latter. Coupling between classes can not be avoided, it is, in fact, desirable. We create classes as functionality units for reuse. At some point, existing classes will be leveraged to create new functionalities. However, coupling has important implications: changing a class most of the times will require changing its dependent classes. Therefore tight coupling between classes harms modularity, makes a software too sensitive to change and harder to maintain <<chidamber1994metrics>> <<fowler2001reducing>>.
+A class is coupled to another if the former uses a method or a field from the latter. Coupling between classes can not be avoided, it is, in fact, desirable. We create classes as functionality units for reuse. At some point, existing classes will be leveraged to create new functionalities. However, coupling has important implications: changing a class most of the times will require changing its dependent classes. Therefore, tight coupling between classes harms modularity, makes a software too sensitive to change and harder to maintain <<chidamber1994metrics>> <<fowler2001reducing>>.
 
-_Class coupling_ or _Coupling Between Objects_ (CBO) of a class is the number of external classes it uses. In <<coupling-example>>, `Point` has CBO of 0.. It only depends on `double` and the metric does not count primitive types. `Line`, on the other hand, depends on `Point` and has a CBO of 1. The metric counts only unique classes. In the example, `Line` uses `Point` several times, but it is counted only once.
+_Class coupling_ or _Coupling Between Objects_ (CBO) of a class is the number of external classes it uses. In <<coupling-example>>, `Point` has CBO of 0. It only depends on `double` and the metric does not count primitive types. `Line`, on the other hand, depends on `Point` and has a CBO of 1. The metric counts only unique classes. In the example, `Line` uses `Point` several times, but it is counted only once.
 
 [[coupling-example, Listing {counter:listing}]]
 .Listing {listing}. Two classes: `Point` as CB=0 coupling and `Line` 1.
@@ -502,11 +514,11 @@ class Segment {
 }
 ....
 
-Classes with low CBO values, or loosely coupled are easier to reuse. Classes with large CBO values or tightly coupled should be avoided and refactored. If a tightly coupled class is necessary, then these it requires rigorous testing to correctly verify its interaction with its dependencies. A study from 2010 performed on the Eclipse project concluded that, among other metrics, CBO is a significant predictor on how prone a class is to bugs. The same study says that a CBO greater than 9 signals a high risk to introduce a fault.
+Classes with low CBO values, or loosely coupled are easier to reuse. Classes with large CBO values or tightly coupled should be avoided and refactored. If a tightly coupled class is necessary, then it requires rigorous testing to correctly verify how it interacts with all its dependencies. A study from 2010 performed on the Eclipse project concluded that, among other metrics, CBO is a significant predictor on how prone a class is to bugs. The same study says that a CBO greater than 9 signals a high risk to introduce a fault.
 
-Coupling could measured not only at the class level but also between any modules that conform a system.
+Coupling could be measured not only at the class level but also between any modules that conform a system.
 
-The _Law of Demeter_ (LoD)  or _principle of least knowledge_ is a guideline aiming to keep classes loosely coupled <<appleton_demeter>>. Its idea is that any unit should only "talk" to "its closest friends" and not to "strangers". In the context of object-oriented programming, it means that a method can only invoke methods from `this`, a parameter, an object instantiated in the method and an attribute of the class. <<demeter-example>> shows examples of violations of this principle.
+The _Law of Demeter_ (LoD)  or _principle of least knowledge_ is a guideline aiming to keep classes loosely coupled <<appleton_demeter>>. Its idea is that any unit should only "_talk_" to "_its closest friends_" and not to "_strangers_". In the context of object-oriented programming, it means that a method can only invoke methods from the receiver (`this`), a parameter, an object instantiated in the method and an attribute of the class. <<demeter-example>> shows examples of violations of this principle.
 
 [[demeter-example, Listing {counter:listing}]]
 .Listing {listing}. Examples of violations of the Law of Demeter.
@@ -531,11 +543,13 @@ public class Foo {
 <3> Chaining method invocations does not conform to LoD
 <4> Conforms to LoD, as `d` was created inside the method
 
-LoD also has downsides. A strict adherence to its postulates may produce many unnecessary wrapper methods. In <<demeter-example>> the class `Bar` should had a wrapper method `doItInC` whose code could be `this.getC().doIt()` or something alike. This kind of wrapper would be widespread in the code and it could become a challenge for maintenance. On the other hand, fluent APIs encourage the use of method chains, which also tend to improve readability. As with any principle, the use of LoD should be balanced.
+LoD also has downsides. A strict adherence to its postulates may produce many unnecessary wrapper methods. In <<demeter-example>> the class `Bar` should had a wrapper method `doItInC` whose code could be `this.getC().doIt()` or something alike. This kind of wrapper would be widespread in the code and it could become a challenge for maintenance. On the other hand, fluent APIs encourage the use of method chains, which also tends to improve readability.
 
 ===== Class cohesion
 
-A class in an object-oriented program, or a module in general, is expected to have a responsibility over a single and well defined part of the software's functionalities. All services/methods of the module/class should be aligned with this responsibility and this responsibility should be entirely encapsulated in the class. This ensures that the module/class is only changed when the requirements concerning the specific responsibility change. Changes to different requirements should not make a single class to change <<martin2006agile>> <<martin2014single>>. This known as the The _Single Responsibility Principle_ was coined by Robert C. Martin in the late 1990's and is the *S* in the *SOLID* principles of object-oriented programming.
+A class in an object-oriented program, or a module in general, is expected to have a responsibility over a single and well defined part of the software's functionalities. All services/methods of the module/class should be aligned with this responsibility and this responsibility should be entirely encapsulated in the class. This ensures that the module/class is only changed when the requirements concerning the specific responsibility change. Changes to different requirements should not make a single class to change <<martin2006agile>> <<martin2014single>>. This is known as the The _Single Responsibility Principle_ and it was coined by Robert C. Martin in the late 1990's. This principle puts the *S* in the *SOLID* principles of object-oriented programming.
+
+NOTE: The SOLID principles of object-oriented programming are: *S*: Single Responsibility Principle, *O*: Open/Closed Principle, *L*: Liskov's Substitution Principle, *I*: Interface Segregation Principle and *D*: Dependency Inversion Principle.
 
 If a class violates this principle, then it can probably be divided in two or more classes with different responsibilities. In this case we say that the class lacks _cohesion_. In a more concrete view, a cohesive class performs different operations on the same set of instance variables <<chidamber1994metrics>>.
 
@@ -607,11 +621,12 @@ class Group {
 }
 ....
 
-__Tight Class Cohesion__ (TCC) and _Loose Class Cohesion_ (LCC) are other two well known and used metrics to evaluate the cohesion of a class <<bieman1995cohesion>>. Both these metrics start by creating a graph from the class. The graph is constructed as follows: Given a class `C`, each method `m` declared in the class becomes a node. Given any two pairs `m` and `n` declared in `C` we add an edge between `m` and `n` if and only if, `m` and `n` use at least one instance variable in common. Going back to the definition of `LCOM`, we add an edge between `m` and `n` if stem:[I_{m,n} \ne \emptyset]. TCC is defined as the ratio of directly connected pairs of node in the graph to the number or all pairs of nodes. On its side, LCC is the number of pairs of connected (directly or indirectly) nodes to all pairs of node. As before, constructors are not used.
+__Tight Class Cohesion__ (TCC) and _Loose Class Cohesion_ (LCC) are other two well known and used metrics to evaluate the cohesion of a class <<bieman1995cohesion>>. Both these metrics start by creating a graph from the class. The graph is constructed as follows: Given a class `C`, each method `m` declared in the class becomes a node. Given any two methods `m` and `n` declared in `C` we add an edge between `m` and `n` if and only if, `m` and `n` use at least one instance variable in common. Going back to the definition of `LCOM`, we add an edge between `m` and `n` if stem:[I_{m,n} \ne \emptyset]. TCC is defined as the ratio of directly connected pairs of node in the graph to the number or all pairs of nodes. On its side, LCC is the number of pairs of connected (directly or indirectly) nodes to all pairs of node. As before, constructors are not used.
 
 
 <<cohesion-graph>> shows the graph that results from the class `Point`. In this example, stem:[\text{TCC = 5/6 = 0.83] as there are 5 direct connections and only 6 method pairs. On the other hand stem:[\text{LCC} = 6/6 = 1] as all pairs of methods are indirectly or directly connected. For the `Group` class both LCC and TCC are 0, as no method is connected to the other. 
 
+[[cohesion-graph]]
 [graphviz, cohesion-graph, png, layout=neato]
 .Description
 ....
@@ -635,15 +650,15 @@ In object-oriented programs a class may inherit methods and instance variables f
 
 === Static analysis
 
-Enforcing coding guidelines, detecting code smells and computing code metrics, can and *should be* automated. All these goals can be achieve by inspecting the code without executing the program. This is known as _static analysis_. Any form of static analysis takes as input the code of a program. It may be a high level code, such as Python, or Java, or it could also target compiled code as the JVM bytecode. The static inspection of code also enables the early detection of problems like cyclic dependencies, potential null pointer exceptions, buffer overflows. Since it does not require the execution of the program, static analysis is, in most cases, very efficient in terms of computation time.
+Enforcing coding guidelines, detecting code smells and computing code metrics, can and *should be* automated. All these goals can be achieved by inspecting the code without executing the program. This is known as _static analysis_. Any form of static analysis takes as input the code of a program. It may be a high level code, such as Python, or Java, or it could also target compiled code as the JVM bytecode. The static inspection of code also enables the early detection of problems like cyclic dependencies, potential null pointer exceptions, buffer overflows. Since it does not require the execution of the program, static analysis is, in most cases, very efficient in terms of computation time.
 
-There are plenty of available tools that can perform many types of static analysis. Some of them are highly configurable to, for example, select the coding guidelines a team wants to enforce. Many of these tools are also extensible and may allow the incorporation of new metrics, code smell definitions and other unforeseen functionalities. There are also libraries that make it easy to implement custom static analysis tools. This section presents some of these libraries and tools for Java.
+There are plenty of tools available that can perform many types of static analysis. Some of them are highly configurable to, for example, select the coding guidelines a team wants to enforce. Many of these tools are also extensible and may allow the incorporation of new metrics, code smell definitions and other unforeseen functionalities. There are also libraries that make it easy to implement custom static analysis tools. This section presents some of these libraries and tools for Java.
 
 ==== Implementing a static analysis
 
-Most code analyses start with the two same initial phases of a compiler, lexicographic and syntactic analysis.
+Most code analyses start with the two same initial phases of a compiler: the lexicographic and syntactic analyses.
 
-Given a source code, say in Java as the one in <<static-analysis-example>>, lexicographical analyzer, lexer, or scanner, groups together sequences of characters. These sequences are usually are associated with a type  and are called _tokens_. The lexer produces as output a sequence of tokens.
+Given a source code, say in Java as the one in <<static-analysis-example>>, a lexicographical analyzer, lexer, or scanner, groups together sequences of characters. These sequences are usually associated with a type  and are called _tokens_. The lexer produces as output a sequence of tokens.
 
 [[static-analysis-example, Listing {counter:listing}]]
 .Listing {listing}. A simple Java class.
@@ -657,7 +672,7 @@ class A {
 }
 ....
 
-<<tokens>> shows the first tokens produced by a lexer for the code in <<static-analysis-example>>. A lexer also removes character that are not needed for subsequent phases like white spaces and comments.
+<<tokens>> shows the first tokens produced by a lexer for the code in <<static-analysis-example>>. A lexer also removes characters that are not needed for subsequent phases like white spaces and comments.
 
 
 [[tokens, Listing {counter:listing}]]
@@ -673,6 +688,7 @@ class A {
 
 The sequence of tokens is used as input for the syntactic analysis where a _parser_ checks that the order of the tokens is correct with respect to a formal specification or grammar and builds an _Abstract Syntax Tree_ (AST). An AST is a hierarchical representation of the source code. The nodes represent the elements in the code in a way that, for example, nodes representing classes have children representing methods and fields, and nodes representing methods contain nodes representing instructions. The AST does not contain purely syntactical elements such as semicolons or braces. <<ast-example>> shows a simplified version of an AST for the code in <<static-analysis-example>>.
 
+[[ast-example]]
 [graphviz, ast-example, png]
 .Description
 ....
@@ -686,19 +702,17 @@ graph {
 }
 ....
 
-//TODO: Link to GoF
 Most static analyses are implemented by tracing the AST and most implementations are based on the visitor pattern. The visitor pattern abstracts the operations to be performed over an object structure <<gamma1994design>>. Each operation is implemented as a visitor. The structure is traversed and each visitor is selected according to the elements of the structure that is being visited. In the case of a static analysis over an AST, each visitor could be a class or a method, designed to operate over a specific type of node, for example, a class will be handled by a _class visitor_. The static analysis is then carried by the joint actions of these visitors.
 
-//TODO: Link to Spoon, JavaParser and ASM
-There are libraries that facilitate the implementation of static analyses by accomplishing the construction of the AST and even providing abstractions to implement the visitor pattern. For Java sources two of the most famous are http://spoon.gforge.inria.fr/[Spoon] and JavaParser. There are other libraries that offer similar functionalities but targeting compiled code. One most famous JVM bytecode analysis tool is https://asm.ow2.io/[ASM].
+There are libraries that facilitate the implementation of static analyses by accomplishing the construction of the AST and even providing abstractions to implement the visitor pattern. For Java sources two of the most famous are http://spoon.gforge.inria.fr/[Spoon] and https://javaparser.org/[JavaParser]. There are other libraries that offer similar functionalities but targeting compiled code. One most famous JVM bytecode analysis tool is https://asm.ow2.io/[ASM].
 
 ===== Using JavaParser
 
 This section explains how to implement a simple static analysis tool using JavaParser. As a library, JavaParser provides a hierarchy of classes to represent ASTs for Java programs and implementations of the visitor pattern to help analyze and transform those ASTs.
 
-<<javapaerser-classes>> shows a selection of classes representing AST nodes. `Node` is the base class of the hierarchy. The instances of `ClassOrInterfaceDeclaration` represent declarations of classes and interfaces in the program. These nodes contain information about the type parameters, base class and interfaces implemented in the corresponding declaration. `ClassOrInterfaceDeclaration` inherits from the more general `TypeDeclaration`, which contains among other properties a `name` and inherits from `BodyDeclaration`. This latter class is the base for all elements that could be included in the body of a type declaration. `Expression` is the super class of all abstractions of expressions as it is the case for `MethodCallExpr` and `FieldAccessExpr`. Both these classes contain information about the scope or receiver of the method call or the field access, as well as the name of the method or the field. `MethodCallExpr` also provides information about the arguments. On its side,`Statement` is the super class for all types representing statements in the program, as it is the case of the `IfSmt`. This last class has an `Expression` representing the condition and two `Statement` instances for the _then_ and _else_ parts of the conditional statement.
+<<javaparser-classes>> shows a selection of classes representing AST nodes. `Node` is the base class of the hierarchy. The instances of `ClassOrInterfaceDeclaration` represent declarations of classes and interfaces in the program. These nodes contain information about the type parameters, base class and interfaces implemented in the corresponding declaration. `ClassOrInterfaceDeclaration` inherits from the more general `TypeDeclaration`, which contains, among other properties, a `name`. `TypeDeclaration` inherits from `BodyDeclaration` which is also the base class for all elements that could be included in the body of a type declaration. `Expression` is the super class of all abstractions of expressions as it is the case for `MethodCallExpr` and `FieldAccessExpr`. Both these classes contain information about the scope or receiver of the method call or the field access, as well as the name of the method or the field. `MethodCallExpr` also provides information about the arguments. On its side,`Statement` is the base class for all types representing statements in the program, as it is the case of the `IfSmt`. This last class has an `Expression` representing the condition and two `Statement` instances for the _then_ and _else_ branches of the conditional statement.
 
-
+[[javaparser-classes]]
 [plantuml, javaparser-classes, png]
 .Extract of the class hierearchy representing AST nodes in JavaParser
 ....
@@ -838,7 +852,7 @@ class A {
 }
 ....
 
-Using `ModifierVisitor` as base, we will implement a visitor that modifies the AST so that the _then_ and _else_ parts of all conditional statements are enclosed in braces, that is, the statements must be contained in a block. The implementation of this custom visitor is shown in <<blockenforcer-javaparser>>. The `BlockEnforcer` traverses the AST and modifies only `IfStmt` nodes. If ensures that each _then_ and _else_ parts are instances of `BlockStmt`. Notice the use of `Void` as a type parameter for the implementation as no extra information will be passed between nodes.
+Using `ModifierVisitor` as base, we will implement a visitor that modifies the AST so that the _then_ and _else_ parts of all conditional statements are enclosed in braces, that is, the statements must be contained in a block. The implementation of this custom visitor is shown in <<blockenforcer-javaparser>>. The `BlockEnforcer` traverses the AST and modifies only `IfStmt` nodes. It ensures that each _then_ and _else_ parts are instances of `BlockStmt`. Notice the use of `Void` as a type parameter for the implementation as no extra information will be passed between nodes.
 
 
 [[blockenforcer-javaparser, Listing {counter:listing}]]
@@ -877,7 +891,7 @@ public class BlockEnforcer extends ModifierVisitor<Void> {
 <6> Do nothing if the initial statement is already a block.
 <7> Otherwise, create a new `BlockStmt` containing the initial statement.
 
-<<blockenforcer-usage>> shows how to use `BlockEnforcer` to analyze a single Java file. The first step is to obtain an instance of `CompilationUnit`. A compilation unit in Java is a file that optionally declares a package and contains an arbitrary number of imports and type declarations. `StaticJavaParser` provides shortcut methods to get such objects from common `String`, `InputStream`, `Reader` and `File` inputs. Then the visitor is applied through the `accept` method. This snippet prints on the screen the result of the analysis by invoking the `toString` method of `CompilationUnit`. The result be also saved to a file on even rewrite the original source code.
+<<blockenforcer-usage>> shows how to use `BlockEnforcer` to analyze a single Java file. The first step is to obtain an instance of `CompilationUnit`. A compilation unit in Java is a file that optionally declares a package and contains an arbitrary number of imports and type declarations. `StaticJavaParser` provides shortcut methods to get such objects from common `String`, `InputStream`, `Reader` and `File` inputs. Then the visitor is applied through the `accept` method. This snippet prints on the screen the result of the analysis by invoking the `toString` method of `CompilationUnit`. The result cane be also saved to a file or we can even rewrite the original source code.
 
 [[blockenforcer-usage, Listing {counter:listing}]]
 .Listing {listing}. Using `BlockEnforcer` to analyze a single Java file.
@@ -914,19 +928,19 @@ class A {
 }
 ....
 
-Of course, JavaParser also includes functionalities to analyze a full Java project adn more. Further information can be found in https://javaparser.org/[the project's website].
+Of course, JavaParser also includes functionalities to analyze a full Java project and more. Further information can be found in https://javaparser.org/[the project's website].
 
 === Tools for static analysis
 
 There are plenty of static analysis tools for all languages and frameworks. Compilers are the first of such tools we use. They rely on static analysis to check the syntactic and semantic validity of the program. Compilers may also detect unreachable code, unused variables and potential conversion errors.
 
-Other tools, often called _linters_, help improve the quality of the program by detecting code smells, proposing code improvements and enforcing coding guidelines. In most cases they are highly customizable and extendable so each team, project or company can adapt the linter's functionalities to their own practices and goals. The term linter comes from _lint_  a tool conceived to analyze portability issues for C programs back in the 70's. 
+Other tools, often called _linters_, help improve the quality of the program by detecting code smells, proposing code improvements and enforcing coding guidelines. In most cases they are highly customizable and extensible so each team, project or company can adapt the linter's functionalities to their own practices and goals. The term linter comes from _lint_  a tool conceived to analyze portability issues for C programs back in the 70's. 
 
-In Java, the most popular alternatives are:
+For Java, the most popular alternatives are:
 
 - https://errorprone.info/index[Error Prone]: Detects common bug patterns and proposes potential fixes. For example, the tool is able to detect wrong printf-style formats used in the code.
 
-- https://spotbugs.github.io/[SpotBugs]: Also finds known bug patterns and bad practices, but targets the compiled bytecode instead of the source code. For example it can propose use a more efficient equivalent method such as use `Integer.valueOf` instead of `new Integer`.
+- https://spotbugs.github.io/[SpotBugs]: Also finds known bug patterns and bad practices, but targets the compiled bytecode instead of the source code. For example, it can propose use a more efficient equivalent method such as use `Integer.valueOf` instead of `new Integer`.
 
 - https://checkstyle.sourceforge.io/[checkstyle]: Detects coding guideline violations. For example, it checks that a class with only one private constructor is declared as final, as it can not be extended anyways.
 
@@ -936,7 +950,7 @@ All the tools mentioned above are able to detect several hundreds of know bug pa
 
 ==== Using and extending PMD
 
-PMD is one of the most complete alternatives available. It uses a huge and modifiable set of rule definitions to detect code patterns representing code smells and potential bugs. It can extended with custom rules and metrics. This section shows how to use PMD and how to extend it.
+PMD is one of the most complete alternatives available. It uses a huge and modifiable set of rule definitions to detect code patterns representing code smells and potential bugs. It can be extended with custom rules and metrics. This section shows how to use PMD and how to extend it.
 
 The tool can be freely downloaded from its website as a zip file. This file contains the PMD program itself and the files corresponding to the rule definitions. It can be used from the command line as follows:
 
@@ -969,7 +983,7 @@ The rule can be invoked as follows:
 See that `category/java/design.xml` is an internal PMD route to the `design.xml` which contains the definition of all rules targeting design issues in Java.
 
 
-In the _Error Prone_ category, PMD includes the `CloseResource` rule. This rules finds code where resources are not properly closed. As an example in <<connection-not-closed>> the `Bar` class does not close the `Connection` resource. PMD signals an error when passed this code to the `CloseResource` rule. The solution is to call `c.close()` in a `finally` block.
+In the _Error Prone_ category, PMD includes the `CloseResource` rule. This rule finds code where resources are not properly closed. As an example in <<connection-not-closed>> the `Bar` class does not close the `Connection` resource. PMD signals an error when passed this code to the `CloseResource` rule. The solution is to call `c.close()` in a `finally` block.
 
 [[connection-not-closed, Listing {counter:listing}]]
 .Listing {listing}. `Connection` is not closed.
@@ -988,8 +1002,7 @@ public class Bar {
 }
 ....
 
-If the `CloseResource` rule is used in the code from <<close-resource-method>>, PMD will report an error even when the connection is effectively closed in another method. The analysis performed by this rule can not handle this case, as the code is not executed nor any method dependency is checked. This is an example of a _false positive_, that is an error reported by PMD in a situation where the problem does not occur.
-
+If the `CloseResource` rule is used in the code from <<close-resource-method>>, PMD will report an error even when the connection is effectively closed in another method. The analysis performed by this rule can not handle this case. The code is not executed and no method dependency is checked. This is an example of a _false positive_, that is, an error reported by PMD in a situation where the problem does not occur.
 
 [[close-resource-method, Listing {counter:listing}]]
 .Listing {listing}. `Connection` is closed in another method but PMD still produces an error.
@@ -1041,13 +1054,13 @@ public class Stream {
 
 Tools like PMD search for patterns in the source code and these patterns may not include all cases, as seen in the two examples above. This is also a limitation of static analysis in general. The code is not executed, therefore therefore no dynamic behavior is considered, as in the case of <<stream-example>> where the issue is influenced by the input of the user. In this sense this is a _false negative_. No issue was signaled by the tool, when there is actually one.
 
-It is possible to extend PMD with new rule and metric definitions. This is useful to accommodate PMD to the requirements of a specific project and even define new sets of rules enforcing the team's best practices when using a third party library or framework like http://hibernate.org/[Hibernate] or https://spring.io/[Spring].
+It is possible to extend PMD with new rule and metric definitions. This is useful to accommodate PMD to custom requirements. For example, a team can define their own set of rules to reflect their best practices when using third party library or framework like http://hibernate.org/[Hibernate] or https://spring.io/[Spring].
 
-PMD provides a complete API to implement custom rules and metrics. As with the libraries discussed before, this API relies on a visitor pattern over the AST of the source code. Defining new metrics or rules this way is very similar to what can be done with the help of libraries like Javaparser. 
+PMD provides a complete API to implement custom rules and metrics. As with the libraries discussed before, this API relies on a visitor pattern over the AST of the source code. Defining new metrics or rules this way is very similar to what can be done with JavaParser. 
 
 However, there is another simpler alternative that does not require to program a new rule. As long as the rule requires only to query the AST looking for patterns, it could be written using XPath.
 
-XPath stands for _XML Path Language_. It is a language used to express queries selecting nodes in an XMl document based on their relationship with their ancestors, descendants and the value of their attributes. An XML document is, in fact, a tree. Therefore it does not require any special adaptation to use XPath and select nodes from an AST. PMD allows to define rules in this way.
+XPath stands for _XML Path Language_. It is a language used to express queries selecting nodes in an XML document based on their relationship with their ancestors, descendants and the value of their attributes. An XML document is, in fact, a tree. Therefore it does not require any special adaptation to use XPath and select nodes from an AST. PMD allows to define rules in this way.
 
 A rule defined using XPath consists in a selection query. If the query finds a match, then an error is reported. Retaking the example of `BlockEnforcer` to signal that a conditional statement must use braces, the query would be:
 
@@ -1100,9 +1113,8 @@ There are several ways to include linters and other static analysis tools in the
 
 Such tools can also be integrated in the compiling or building process. Utilities like https://maven.apache.org/[Maven] or https://gradle.org/[Gradle] permit the addition of custom build actions through plugins. Static analysis tools could be incorporated to the process as plugins and even make the build fail under certain conditions. In fact, there is already a https://maven.apache.org/plugins/maven-pmd-plugin/index.html[PMD Maven plugin]. With this plugin it is possible to generate a full report of issues discovered by PMD in the code of a project. This report could be exported in human readable formats like HTML or files adapted for automation like CSV and XML. The plugin can be configured with a selection of rules and provide means to make the build fail if there are issues with a given level of severity. As with any Maven plugin, this one can be attached to a build step so, for example, it is launched every time the compilation process starts without having to invoke the plugin directly.
 
-Most projects are not developed by a single person. Projects are regularly built by a team of developers that may not even use the same development environment and are used to different coding practices. Static analysis tools become then great allies to ensure the code remains understandable and to find potential issues. In those cases, these tools may be better used with the help of _Continuous Integration_ (CI) servers. These servers, like https://www.jenkins.io/[Jenkins] or https://travis-ci.org/[Travis] monitor the code repositories and execute the analysis tools on every commit or for pull requests (<<sa-integration-diagram>>). In this way all new additions to the project are automatically inspected. Integration could even go further and automatically report all the issues that were found in the new code. Major source hosting services provide their own CI solutions like https://github.com/features/actions[Github Actions] and https://docs.gitlab.com/ee/ci/[Gitlab CI] that are a good fit for this kind of integration scenario.
+Most projects are not developed by a single person. Projects are regularly built by a team of developers that may not even use the same development environment and may have different coding practices. Static analysis tools become then great allies to find potential issues and to keep the code understandable. In those cases, these tools may be better used with the help of _Continuous Integration_ (CI) servers. These servers, like https://www.jenkins.io/[Jenkins] or https://travis-ci.org/[Travis] monitor the code repositories and execute the analysis tools on every commit or for pull requests (<<sa-integration-diagram>>). In this way all new additions to the project are automatically inspected. Integration could even go further and automatically report all the issues that were found in the new code. Major source hosting services provide their own CI solutions like https://github.com/features/actions[Github Actions] and https://docs.gitlab.com/ee/ci/[Gitlab CI] that are a good fit for this kind of integration scenario.
 
-//TODO: Diagram showing the integration?
 
 [#sa-integration-diagram.text-center]
 .Example of integration between Github, Jenkins and PMD.
@@ -1112,7 +1124,7 @@ image::sa-integration-diagram.png[PMD's CI integration, 600]
 
 Nowadays it is a common practice in companies and open source projects to watch the quality of their code through manual inspection. These inspections are known as _code reviews_. In companies like Google, for example, every code change should be manually reviewed <<sadowski2018modern>>.
 
-A typical code review may involve people in 4 main roles: a moderator, the programmer responsible for the code under inspection, a system designed and the code inspector. The involvement of different roles helps in having different points of view and a more global system-wide perspective. In the review, the system designer and the inspector use their expertise to get a list of potential issues in the code being inspected. These issues are discussed with the programmer who shall fix those that represent actual problems after the review. The process could implemented as a formal meeting or deferred using a dedicated platform and even echanging direct messages.
+A typical code review may involve people in 4 main roles: a moderator, the programmer responsible for the code under inspection, a system designed and the code inspector. The involvement of different roles helps in having different points of view and a more global system-wide perspective. In the review, the system designer and the inspector use their expertise to get a list of potential issues in the code being inspected. These issues are discussed with the programmer who shall fix those that represent actual problems after the review. The process could be implemented as a formal meeting or deferred using a dedicated platform and even echanging direct messages.
 
 A code review is successful only if it is carried with very clear goals. For example, reviewing a change in the code may involve answering the following questions:
 
@@ -1121,10 +1133,10 @@ A code review is successful only if it is carried with very clear goals. For exa
 - Are there redundancies in the code?
 - Are there asymmetries like missing cases in the input validation?
 
-Static analysis tools help making code reviews more systematic by finding potential issues that might be missed bu the inspector. CI integration is specially helpful for this kind of process.
+Static analysis tools help making code reviews more systematic by finding potential issues that might be missed by the inspector. CI integration is specially helpful for this kind of process.
 
-There are tools that implement and automate code review processes. For example Github includes a review workflow for pull requests. The code in the pull request could be annotated and verified manually and using automated tools. The platform facilitates the exchange between the developer that originated the pull request and the inspector.
+There are tools that implement and automate code review processes. For example Github includes a review workflow for pull requests. The code in the pull request could be annotated and verified either manually or using automated tools. The platform facilitates the exchange between the developer that originated the pull request and the inspector.
 
 https://www.sonarqube.org/[SonarQube] has become one of the major players in this area. The tool integrates with most used CI/CD and source hosting services. It supports 27 different programming languages and evaluates the quality of the code using a comprehensive set of metrics and vulnerabilities and smell detectors. The platform also helps in the organization of the project by automatically assigning the issues it finds to the developers that made the change.
 
-Static analysis tools help assuring the quality of the code. They can efficiently spot potential issues and can be easily integrated in the development process at different levels. However, these tools do not run the code which makes them specially prone to false positives. They should be complemented with other tools that observe the execution of the program under different conditions, that is, dynamic analysis tools.
+Static analysis tools help assuring the quality of the code. They can efficiently spot potential issues and can be easily integrated in the development process at different levels. However, these tools do not run the code which makes them specially prone to false positives. They should be complemented with other tools that observe the execution of the program under different conditions, that is, dynamic analysis tools and testing.
