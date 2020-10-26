@@ -1115,6 +1115,13 @@ In those cases we can follow different strategies: either we keep the same value
 
 In any of the coverage criteria explained above, it could be possible that a test requirement becomes infeasible due to dependencies between the clauses. Given the case, we simply discard those inputs.
 
+In scientific literature and practice it is common to hear talk about _Modified Condition/Decision Coverage_ (MC/DC). This coverage criterion is defined as follows <<comar2012formalization>>: 
+
+[quote]
+Every point of entry and exit in the program has been invoked at least once, every condition in a decision in the program has taken all possible outcomes at least once, every decision in the program has taken all possible outcomes at least once, and each condition in a decision has been shown to independently affect that decision’s outcome. A condition is shown to independently affect a decision’s outcome by varying just that condition while holding fixed all other possible conditions.
+
+In this definition, a _decision_ is a predicate and a _condition_ is a clause. Therefore, achieving RACC for all predicates in a program ensures MC/DC.
+
 Now, we use ACC, to derive test requirements for the method in <<isleapyear-predicate>>. We rewrite the predicate encoded in the method as stem:[p = c_400 \vee (c_4 \wedge \neg c_100)], where stem:[c_x] is equivalent to `year % x == 0`.
 
 Selecting stem:[c_400] as the major clause we obtain stem:[p_{c_400} = \neg c_4 \vee c_100]. The following table shows the values, or interpretations of the clauses that make stem:[p_{c_400}] `true`.

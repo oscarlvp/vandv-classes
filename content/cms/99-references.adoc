@@ -55,3 +55,4 @@
 . [[xunitpatterns-assertion, ({counter:references})]] xUnitPatterns.com Assertion Roulette http://xunitpatterns.com/Assertion%20Roulette.html Last accessed: 07/09/2020
 . [[micco2016flaky, ({counter:references})]] Micco J. (2016) Flaky Tests at Google and How We Mitigate Them https://testing.googleblog.com/2016/05/flaky-tests-at-google-and-how-we.html Last accessed: 10/09/2020
 . [[li2016test, ({counter:references})]] Li, N., & Offutt, J. (2016). Test oracle strategies for model-based testing. IEEE Transactions on Software Engineering, 43(4), 372-395.
+. [[comar2012formalization, ({counter:references})]] Comar, C., Guitton, J., Hainque, O., & Quinot, T. (2012, February). Formalization and comparison of MCDC and object branch coverage criteria.
