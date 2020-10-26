@@ -4,3 +4,5 @@
 
 clean:
 	rm -rf output
+
+# bundle exec asciidoctor-pdf -r asciidoctor-diagram  content/cms/00-main.adoc --destination-dir output/
