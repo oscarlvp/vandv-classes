@@ -367,22 +367,29 @@ Module TreeExample.
   Proof.
     induction t.
     { 
-      cbv [depth is_leaf]. (* Inline the depth and is_leaf definitions *)
-      right. (* Right side of the lemma is false *)
-      reflexivity. (* Reflexivity to prove true = true *)
+      cbv [depth is_leaf]. <6>
+      right. <7>
+      reflexivity. <8>
     }
     { 
-      cbn [depth is_leaf]. (* Include, but do not overwrite depth and is_leaf *)
-      left. (* Left side of the lemma is false, therefore is an intermediate node *)
-      lia. (* The successor S of a natural number is always positive *)
+      cbn [depth is_leaf]. <9>
+      left. <10>
+      lia. <11>
     }
   Qed.
 ----
-<1> Definition of a tree type
-<2> Creating an instance of tree with three leaves and two intermediate nodes
-<3> Defining `is_leaf` which tells whether the given tree is a leaf or not
-<4> Defining a function to compute the depth of a leaf
-<5> Defining a lemma stating that the depth of a tree is positive when the tree is not a leaf
+<1> Definition of a tree type.
+<2> Creating an instance of tree with three leaves and two intermediate nodes.
+<3> Defining `is_leaf` which tells whether the given tree is a leaf or not.
+<4> Defining a function to compute the depth of a leaf.
+<5> Defining a lemma stating that the depth of a tree is positive when the tree is not a leaf.
+<6> Inline definitions for `depth` and `is_leaf`.
+<7> Set the right part of the disjunction as goal for the proof.
+<8> The right part is true. This proves `true = true`.
+<9> Inline again, but do not overwrite depth and is_leaf. This avoids recursive calls to `depth`.
+<10> Set the left part of the disjunction as the goal.
+<11> According to `depth`, the node can not be a leaf. So the second part of the `depth` definition is used.
+<12> Inductive step. The successor of a natural number is always greater than 0.
 
 The Coq system helps mechanizing the proof of lemmas and theorems by identifying the facts that can be used to achieve the proof and the formulas that still need to be proven.
 
