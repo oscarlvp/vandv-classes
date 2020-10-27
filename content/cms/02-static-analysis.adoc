@@ -2,17 +2,17 @@
 
 The goal of any software project is to deliver a product of the highest possible quality, or at least it should be. Good software has scarce bugs. However, the notion of quality also characterizes how the product is being built and structured. Observing these aspects should help, in the end, to avoid the introduction of bugs. Diomidis Spinellis in his book _Code Quality: The Open Source Perspective_ <<spinellis2006code>> presents four views of software quality:
 
-Quality in use:: This view is centered in the user experience, that is, how users perceive the software. It is the extent to which users can achieve their goals in a particular environment. It does not care about how the product is built. If a word processor makes it hard to edit a document, then it does not serve it purposes.
+Quality in use:: This view is centered in the user experience (abbrv., UX), that is, how users perceive the software. It is the extent to which users can achieve their goals in a particular environment. It does not care about how the product is built. If a word processor makes it hard to edit a document, then it does not serve it purposes.
 External quality attributes:: These attributes manifest themselves in the execution of the program. They characterize how well the product conforms to the specification. Observed failures signal the presence of bugs. Crashes, efficiency problems and alike degrade the external quality of the software. External quality attributes directly affect the quality in use.
 Internal quality attributes:: They characterize the internal structure of the product. According to Martin Fowler, <<fowler2019is>>, internal software quality is impacted by how easy it is to understand the code. This, in turn, impacts how easy it is to maintain the product, add new features, improve and detect errors. Internal quality has a great impact in the external quality of the software.
-Process quality:: It is a direct expression of how the software product was built. It is affected by the methodologies, practices, tools and frameworks used to develop the software. A good development process favors actions that improve the internal quality of the product.
+Process quality:: It is a direct expression of how the software product was built. It is affected by the methodologies, practices, tools and frameworks used to develop the software. A good development process favors actions that improve the internal quality of the product, and minimize the amount of _accidental complexity_ which is introduced into engineering solutions due to mismatches between a problem and the technology used to represent the problem.
 
 In the end, all views of quality are deeply interconnected. The process quality impacts the internal quality. The internal quality affects in turn the external quality which directly affects the user experience.
 
 Several models of software quality attributes have been proposed and standardized throughout the years <<boehm1976quantitative>>, <<iso2011square>>. However they all insist, as the Consortium for IT Software Quality (CISQ) summarizes, that high quality software products must be: 
 *reliable* (low risk level in use and low likelihood of potential failures), *efficient*, *secure*, and *maintainable*.
 
-Martin Fowler <<fowler2019is>> explains that, as time goes by and a project becomes more complex, it is harder to add new features. At this point, even small changes require programmers to understand large areas of code. Paying attention to internal quality is crucial to further develop the product. Fowler calls _cruft_ those deficiencies in internal quality that make it harder to modify and extend the system. _Crufts_ are redundant, useless and dysfunctional pieces of code that become obstacles and increase maintenance costs. This is also known as _Technical Debt_.
+Martin Fowler <<fowler2019is>> explains that, as time goes by and a project becomes more complex, it is harder to add new features. At this point, even small changes require programmers to understand large areas of code. Paying attention to internal quality is crucial to further develop the product. Fowler calls _cruft_ those deficiencies in internal quality that make it harder to modify and extend the system. _Crufts_ are redundant, useless and dysfunctional pieces of code that become obstacles and increase maintenance costs. This is part of what is also known as _Technical Debt_.
 
 External quality attributes can be observed and improved with the help of testing. Meanwhile internal quality attributes are observed by analyzing the code without executing it, that is, with the help of static code analysis. Some authors consider static analysis as a form of _static testing_. However, Meyer in its principles <<meyer2008seven>> excludes these techniques from the testing umbrella. Either way, static analysis helps to spot potential problems earlier and therefore impacts the testing process.
 
@@ -22,7 +22,7 @@ Internal quality is assured by good code and good development practices. Good co
 
 ==== Coding guidelines
 
-Some good development practices are presented as _coding guidelines_ or _coding conventions_. These are rules that specify how the code should be written so it can be understood by everyone. They may go from how to name a class or a method and how to handle exceptions to how and when to insert blank spaces in the code.
+Some good development practices are presented as _coding guidelines_ or _coding conventions_. These are rules that specify how the code should be written so it can be understood by everyone (e.g., <<TODO4>>). They may go from how to name a class or a method and how to handle exceptions to how and when to insert blank spaces in the code.
 
 Coding guidelines may be specific to a programming language, to a particular framework, library, or tool, they may even be specific to a company or even a project. There are also guidelines general enough so they could be applied anywhere or guidelines that pursue an specific goal such as reducing security breaches in a program.
 
@@ -78,7 +78,7 @@ public class ArrayList extends AbstractList implements RandomAccess {
 ✔️ DO ensure that the names differ only by the "I" prefix on the interface name when you are defining a class–interface pair where the class is a standard implementation of the interface.
 ====
 
-There are similarities between the naming conventions for Java and C#. For example, class names should be noun phrases starting with a capital letter and using _PascalCasing_ (Also called _UpperCamelCase_ or _DromedaryCase_). While method names in both languages should be verb phrases indicating an action, in Java developers use _camelCasing_. Notice that, in C#, interfaces should be prefixed with `I` but classes should not be prefixed with `C`. <<csharp-naming-example>> shows a code fragment matching these naming conventions. The `I` prefix helps to quickly differentiate between classes and interfaces.
+There are similarities between the naming conventions for Java and C#. For example, class names should be noun phrases starting with a capital letter and using _PascalCasing_ (Also called _UpperCamelCase_, _DromedaryCase_ or _CapWords_). While method names in both languages should be verb phrases indicating an action, in Java developers use _camelCasing_. Notice that, in C#, interfaces should be prefixed with `I` but classes should not be prefixed with `C`. <<csharp-naming-example>> shows a code fragment matching these naming conventions. The `I` prefix helps to quickly differentiate between classes and interfaces.
 
 [[csharp-naming-example, Listing {counter:listing}]]
 .Listing {listing}. C# code respecting naming conventions
@@ -149,9 +149,9 @@ Wikipedia lists nine different indentation styles most of them with additional v
 
 ===== Framework and company specific guidelines
 
-Companies and even communities around a framework or project may impose specific guideline to override or extend language conventions.
+Companies and even communities around a framework or project may impose specific guidelines to override or extend language conventions.
 
-Sometimes these guidelines have a concrete goal other than readability. <<microsoft-security-example>> shows an extract of the guidelines Microsoft enforces to write secure code using the .NET framework <<microsoft2018secure>>.
+Sometimes these guidelines have a concrete goal other than readability. For instance, <<microsoft-security-example>> shows an extract of the guidelines Microsoft enforces to write secure code using the .NET framework <<microsoft2018secure>>.
 
 [[microsoft-security-example]]
 .Microsoft's secure coding guidelines for the .NET framework.
@@ -183,7 +183,7 @@ somethingThatYieldsAFoo().aStaticMethod(); // very bad
 
 ===== Should conventions be always enforced?
 
-Conventions are created to set a common ground for understanding. This is specially useful when we are learning a new language and to ease the collaboration between different developers in a project. However, there are cases in which strictly following these conventions actually has the opposite effect. For example, when dealing with legacy code that followed different guidelines, it is better to stick to the practices in place rather than introducing new conventions. 
+Conventions are created to set a common ground for understanding. This is especially useful when we are learning a new language and to ease the collaboration between different developers in a project. However, there are cases in which strictly following these conventions actually has the opposite effect. For example, when dealing with legacy code that followed different guidelines, it is better to stick to the practices in place rather than introducing new conventions. 
 
 In any case, the ultimate goal must be to write consistent code that can be understood by all team/project members. Common sense is always the best guideline.
 
@@ -204,16 +204,16 @@ This is very readable and explains the relationship clearly. Some examples of th
 ====
 A style guide is about consistency. Consistency with this style guide is important. Consistency within a project is more important. Consistency within one module or function is the most important.
 
-However, know when to be inconsistent -- sometimes style guide recommendations just aren't applicable. When in doubt, use your best judgment. Look at other examples and decide what looks best. And don't hesitate to ask!
+However, know when to be inconsistent -- sometimes style guide recommendations just are not applicable. When in doubt, use your best judgment. Look at other examples and decide what looks best. And don't hesitate to ask!
 
 In particular: do not break backwards compatibility just to comply with this PEP!
 ====
 
 ==== Code Smells and AntiPatterns
 
-Thorough the years, developers have identified patterns of code that usually become symptoms of hidden problems affecting the quality of the software. Such code patterns are known as _Code Smells_, a term coined by Kent Beck and first presented in Martin Fowler's _Refactoring_ book <<fowler2006codesmells>>.
+Thorough the years, developers have identified patterns of code that usually become symptoms of hidden problems affecting the quality of the software. Such code patterns are known as _Code Smells_ (aka. bad smells), a term coined by Kent Beck and first presented in Martin Fowler's _Refactoring_ book <<fowler2006codesmells>>.
 
-Code smells do not always lead to a problem or a bug. But, in most, cases, their presence makes the code harder to understand and maintain, and in Fowler's words "`they are often an indicator of a problem rather than the problem themselves`". Code smells can be eliminated by refactoring, that is, restructuring the program to make it simpler.
+Code smells do not always lead to a problem or a bug. But, in most cases, their presence makes the code harder to understand and maintain, and in Fowler's words "`they are often an indicator of a problem rather than the problem themselves`". Code smells can be eliminated by refactoring, that is, restructuring the program to make it simpler.
 
 The https://sourcemaking.com/[Source Making Blog] presents a list of well known code smells and how they could be solved <<source2020smells>>. Internet is full with such lists which might differ on the (generally catchy) name they use to categorize a smell and some might miss one or two patters.
 
@@ -372,7 +372,7 @@ digraph {
 }
 ....
 
-The cyclomatic number, or circuit rank of an undirected graph, is the minimum number of edges that has to be removed in order to break all cycles and obtain ithe spanning tree of the graph. The cyclomatic number stem:[v(G)] of a graph stem:[G] is computed as stem:[v(G) = E - V + 2P], where stem:[N] is the number of nodes, stem:[E] the number of edges and stem:[P] the number of connected components. The cyclomatic complexity of a method is defined as the cyclomatic number of the underlying undirected graph of the control flow graph. 
+The cyclomatic number, or circuit rank of an undirected graph, is the minimum number of edges that has to be removed in order to break all cycles and obtain the spanning tree of the graph. The cyclomatic number stem:[v(G)] of a graph stem:[G] is computed as stem:[v(G) = E - V + 2P], where stem:[N] is the number of nodes, stem:[E] the number of edges and stem:[P] the number of connected components. The cyclomatic complexity of a method is defined as the cyclomatic number of the underlying undirected graph of the control flow graph (considering P as the number of _end_ nodes). 
 
 McCabe showed that the computation of the  cyclomatic complexity could be simplified as the number of predicate nodes (conditionals) plus one. The method in <<max-method>> has a cyclomatic complexity of stem:[v(G) = 4 = 3 + 1], as it has three conditionals: `a > b`, `a > c` and `b > c`. It can be also computed as stem:[v(G) = 4 = 11 - 9 + 2], as it has eleven edges, nine nodes and only one connected component.
 
@@ -461,7 +461,7 @@ int sumOfNonPrimes(int limit) {
 
 ===== Coupling between objects or class coupling
 
-A class is coupled to another if the former uses a method or a field from the latter. Coupling between classes can not be avoided, it is, in fact, desirable. We create classes as functionality units for reuse. At some point, existing classes will be leveraged to create new functionalities. However, coupling has important implications: changing a class most of the times will require changing its dependent classes. Therefore, tight coupling between classes harms modularity, makes a software too sensitive to change and harder to maintain <<chidamber1994metrics>> <<fowler2001reducing>>.
+A class is coupled to another if the former uses a method or a field from the latter. Coupling between classes can not be avoided, it is, in fact, desirable. We create classes as functional units for reuse. At some point, existing classes will be leveraged to create new functionalities. However, coupling has important implications: changing a class most of the times will require changing its dependent classes. Therefore, tight coupling between classes harms modularity, makes a software too sensitive to change and harder to maintain <<chidamber1994metrics>> <<fowler2001reducing>>.
 
 _Class coupling_ or _Coupling Between Objects_ (CBO) of a class is the number of external classes it uses. In <<coupling-example>>, `Point` has CBO of 0. It only depends on `double` and the metric does not count primitive types. `Line`, on the other hand, depends on `Point` and has a CBO of 1. The metric counts only unique classes. In the example, `Line` uses `Point` several times, but it is counted only once.
 
@@ -516,7 +516,7 @@ class Segment {
 
 Classes with low CBO values, or loosely coupled are easier to reuse. Classes with large CBO values or tightly coupled should be avoided and refactored. If a tightly coupled class is necessary, then it requires rigorous testing to correctly verify how it interacts with all its dependencies. A study from 2010 performed on the Eclipse project concluded that, among other metrics, CBO is a significant predictor on how prone a class is to bugs. The same study says that a CBO greater than 9 signals a high risk to introduce a fault.
 
-Coupling could be measured not only at the class level but also between any modules that conform a system.
+Coupling could be measured not only at the class level but also between any modules at all granularity levels (e.g., packages, components...).
 
 The _Law of Demeter_ (LoD)  or _principle of least knowledge_ is a guideline aiming to keep classes loosely coupled <<appleton_demeter>>. Its idea is that any unit should only "_talk_" to "_its closest friends_" and not to "_strangers_". In the context of object-oriented programming, it means that a method can only invoke methods from the receiver (`this`), a parameter, an object instantiated in the method and an attribute of the class. <<demeter-example>> shows examples of violations of this principle.
 
@@ -1002,7 +1002,7 @@ public class Bar {
 }
 ....
 
-If the `CloseResource` rule is used in the code from <<close-resource-method>>, PMD will report an error even when the connection is effectively closed in another method. The analysis performed by this rule can not handle this case. The code is not executed and no method dependency is checked. This is an example of a _false positive_, that is, an error reported by PMD in a situation where the problem does not occur.
+If the `CloseResource` rule is used in the code from <<close-resource-method>>, PMD will report an error even when the connection is effectively closed in another method. The analysis performed by this rule can not handle this case. The code is not executed and no method dependency is checked. This is an example of a _false negative_, that is, an error reported by PMD in a situation where the problem does not occur.
 
 [[close-resource-method, Listing {counter:listing}]]
 .Listing {listing}. `Connection` is closed in another method but PMD still produces an error.
