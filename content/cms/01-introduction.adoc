@@ -390,8 +390,7 @@ Module TreeExample.
 <8> The right part is true. This proves `true = true`.
 <9> Inline again, but do not overwrite depth and is_leaf. This avoids recursive calls to `depth`.
 <10> Set the left part of the disjunction as the goal.
-<11> According to `depth`, the node can not be a leaf. So the second part of the `depth` definition is used.
-<12> Inductive step. The successor of a natural number is always greater than 0.
+<11> According to `depth`, the node can not be a leaf. So the second part of the `depth` definition is used. This is the inductive step. The successor of a natural number is always greater than 0.
 
 The Coq system helps mechanizing the proof of lemmas and theorems by identifying the facts that can be used to achieve the proof and the formulas that still need to be proven.
 
