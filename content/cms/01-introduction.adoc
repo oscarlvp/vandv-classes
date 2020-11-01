@@ -15,7 +15,7 @@ We say that a software has a _bug_ when its behavior produces unexpected results
 .First known case of an actual bug! _Photo taken from Wikipedia._
 image::first-bug.jpg[First bug, 300]
 
-When they develop a product, software engineers should follow a set of requirements which is called the product specification. In whatever format it is presented, the specification should describe the features of the product (functional requirements): e.g.: the program should open a document, save it, etc. and its constraints (non-functional requirements): e.g.: should be secure, easy to use, fast <<mancoridis2018slides>>.
+When they develop a product, software engineers should follow a set of requirements which is called the product specification. In whatever format it is presented, the specification should describe the features of the product (functional requirements): _e.g._: the program should open a document, save it, etc. and its constraints (non-functional requirements): _e.g._: should be secure, easy to use, fast <<mancoridis2018slides>>.
 
 A bug appears when the software does not match the requirements. Maybe the program does not perform correctly a functional requirement _e.g._  the window closes when the maximize button is pressed. Also, bugs can make a program violate non-functional requirement _e.g._ there is a lag between the moment the user types something and the moment the text appears on the screen.
 
@@ -252,7 +252,7 @@ function halts(f, x):
 If the `halts` function exists, then we can create a procedure, `confused`, that will loop forever if `halts` returns `true` (<<confused-proc>>).
 
 [[confused-proc, Listing {counter:listing}]]
-.Listing {listing}. A procedure that does not halt when `hatls(f, f)` is `true`, otherwise it does halt.
+.Listing {listing}. A procedure that does not halt when `halts(f, f)` is `true`, otherwise it does halt.
 [source,javascript]
 ----
 function confused(f) {
@@ -320,7 +320,7 @@ _N-version programming_ is an example of this approach. With an initial and rigo
 
 Another example is _Chaos engineering_ popularized by Netflix with its Simian Army. The main concept is to perform a controlled experiment in production to study how the entire system behaves under unexpected conditions. For example, in Netflix, they would simulate random server shutdowns to see how the system responds to this phenomenon <<netflix2011>>. This is a form of _testing in production_. Main challenges are to design the experiments in a way that the system does not actually fail and to pick the system properties to observe. In the case of Netflix, they want to preserve the availability of the content even when the quality has to be reduced.
 
-Finally, approximate computing techniques <<mittal2016survey>> can be also applied to deal with a trade-off between accuracy and performance in a changing environment (_e.g._, time-varying bandwidth), when a _good enough_ result is better than nothing <<hardesty2010when>>. For example, Loop Perforation <<misailovic2010quality>>, which transforms loops to perform fewer iterations than the original loop, is used to keep the system running in a degraded environment, with a good enough result (e.g., dynamically adapting the video quality according to the actual bandwidth).
+Finally, approximate computing techniques <<mittal2016survey>> can be also applied to deal with a trade-off between accuracy and performance in a changing environment (_e.g._, time-varying bandwidth), when a _good enough_ result is better than nothing <<hardesty2010when>>. For example, Loop Perforation <<misailovic2010quality>>, which transforms loops to perform fewer iterations than the original loop, is used to keep the system running in a degraded environment, with a good enough result (_e.g._, dynamically adapting the video quality according to the actual bandwidth).
 
 ==== Constructive approach
 

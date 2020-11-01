@@ -522,7 +522,7 @@ class Segment {
 }
 ....
 
-Classes with low CBO values, or loosely coupled are easier to reuse. Classes with large CBO values or tightly coupled should be avoided and refactored. If a tightly coupled class is necessary, then it requires rigorous testing to correctly verify how it interacts with all its dependencies. A study from 2010 performed on the Eclipse project concluded that, among other metrics, CBO is a significant predictor on how prone a class is to bugs. The same study says that a CBO greater than 9 signals a high risk to introduce a fault.
+Classes with low CBO values, or loosely coupled are easier to reuse. Classes with large CBO values or tightly coupled should be avoided and refactored. If a tightly coupled class is necessary, then it requires rigorous testing to correctly verify how it interacts with all its dependencies.
 
 Coupling could be measured not only at the class level but also between any modules at all granularity levels (_e.g._, packages, components...).
 
@@ -1010,9 +1010,9 @@ public class Bar {
 }
 ....
 
-If the `CloseResource` rule is used in the code from <<close-resource-method>>, PMD will report an error even when the connection is effectively closed in another method. The analysis performed by this rule can not handle this case. The code is not executed and no method dependency is checked. 
+If the `CloseResource` rule is used in the code from <<close-resource-method>>, PMD will report an error even when the connection is effectively closed in another method. The tool fails to see that the resource is closed in `bar` as the rule matching does not go beyond the code of `foo`. PMD does not analyze how methods invoke each other, probably to keep the analysis and rule matching simple and scalable.
 
-We can consider tools like PMD as an algorithm that classifies a piece of code into _issue_ and _not issue_. IN this sense,  <<close-resource-method>> is an example of a _false positive_, that is, an error reported by PMD in a situation where the problem does not occur.
+We can consider tools like PMD as an algorithm that classifies a piece of code into _issue_ and _not issue_. In this sense,  <<close-resource-method>> is an example of a _false positive_, that is, an error reported by PMD in a situation where the problem does not occur.
 
 [[close-resource-method, Listing {counter:listing}]]
 .Listing {listing}. `Connection` is closed in another method but PMD still produces an error.
@@ -1037,7 +1037,7 @@ public class Bar {
 }
 ....
 
-The `CloseResource` rule signals no error when given the code in <<stream-example>> as input. However, in this code it is clear that, if an exception is thrown, the resource will not be closed.  
+The `CloseResource` rule signals no error when given the code in <<stream-example>> as input. However, in this code it is clear that, if an exception is thrown, the resource will not be closed. This is an example of a _false negative_: no issue was signaled by the tool, when there is actually one.
 
 [[stream-example, Listing {counter:listing}]]
 .Listing {listing}. A piece of code where the resource is not always closed.
@@ -1062,7 +1062,7 @@ public class Stream {
 ....
 <1> If the code above throws an exception the resource is never closed.
 
-Tools like PMD search for patterns in the source code and these patterns may not include all cases, as seen in the two examples above. This is also a limitation of static analysis in general. The code is not executed, therefore therefore no dynamic behavior is considered, as in the case of <<stream-example>> where the issue is influenced by the input of the user. In this sense this is a _false negative_. No issue was signaled by the tool, when there is actually one.
+PMD searches for patterns in the source code and these patterns may not include all cases, as seen in the two examples above. This is a limitation of static analysis in general. The code is not executed, therefore no dynamic behavior is considered, as in the case of <<stream-example>> where the issue is influenced by the input of the user. 
 
 It is possible to extend PMD with new rule and metric definitions. This is useful to accommodate PMD to custom requirements. For example, a team can define their own set of rules to reflect their best practices when using third party library or framework like http://hibernate.org/[Hibernate] or https://spring.io/[Spring].
 
