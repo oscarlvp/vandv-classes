@@ -317,7 +317,7 @@ A sequence of code instructions, and by extension the body of a method, could be
  - There is an edge from the start node to the node with the first instruction.
  - There is an edge from all nodes that could terminate the execution of the code, to the end node.
 
-For example, the method in <<max-method>> computes the maximum of three given integers. The control flow for this method is shown in <<control-flow-max-method>>.
+For example, the method in <<max-method>> computes the maximum of three given integers. The control flow graph for this method is shown in <<control-flow-max-method>>.
 
 [[max-method, Listing {counter:listing}]]
 .Listing {listing}. A method that computes the maximum between three given integers
@@ -380,7 +380,7 @@ digraph {
 }
 ....
 
-The cyclomatic number, or circuit rank of an undirected graph, is the minimum number of edges that has to be removed in order to break all cycles and obtain the spanning tree of the graph. The cyclomatic number stem:[v(G)] of a graph stem:[G] is computed as stem:[v(G) = E - V + 2P], where stem:[N] is the number of nodes, stem:[E] the number of edges and stem:[P] the number of connected components. The cyclomatic complexity of a method is defined as the cyclomatic number of the underlying undirected graph of the control flow graph. 
+The cyclomatic complexity of a program, represented by its control flow graph, is defined as stem:[v(G) = E - V + 2P], where stem:[N] is the number of nodes, stem:[E] the number of edges and stem:[P] the number of connected components or the underlying undirected graph. In the way we have defined the control flow graph, stem:[P] will always be 1. This metric is directly derived from the cyclomatic number or circuit rank of the undirected graph. This property represents the minimum number of edges that has to be removed in order to break all cycles and obtain a spanning tree.
 
 McCabe showed that the computation of the  cyclomatic complexity could be simplified as the number of predicate nodes (conditionals) plus one. The method in <<max-method>> has a cyclomatic complexity of stem:[v(G) = 4 = 3 + 1], as it has three conditionals: `a > b`, `a > c` and `b > c`. It can be also computed as stem:[v(G) = 4 = 11 - 9 + 2], as it has eleven edges, nine nodes and only one connected component.
 
