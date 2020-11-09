@@ -1,10 +1,10 @@
 == Software Testing
 
-According to Ammann and Offutt <<ammann2016introduction>> _Software Testing_ is the process of evaluating a software by observing its execution to reveal the presence of faults or as Meyer says in his principles <<meyer2008seven>> _"`to test a program is to try to make it fail`"_. Per this definition, testing is a form of dynamic analysis, as it requires the execution of the program or system under test. The testing process is achieved with the design and application of test cases. 
+According to Ammann and Offutt <<ammann2016introduction>> _Software Testing_ is the process of evaluating a software by observing its execution to reveal the presence of faults. Or, as Meyer says in his principles <<meyer2008seven>> _"`to test a program is to try to make it fail`"_. Per this definition, testing is a form of dynamic analysis: it requires the execution of the program or system under test.  
 
-In broad terms, a test case must provide the required _input_ and set the program in the desired state by _triggering specific behaviors_. It then, must _check the output_ of the program against expected results. Often, the output of the test execution is validated with an _oracle_, a predicate to tell whether the execution was successful or not. A test case may optionally include _prefix values_ which are inputs necessary to get the system ready for the input and _postfix values_ which are inputs needed to clean the environment after the execution of the test. Test cases may be _functional_, if it checks that a functionality is correct, or _non-functional_ if it is directed to evaluate properties like performance, security or even energy consumption. If a test case executes normally it is said to _pass_ otherwise, if the output is not correct we say that there is a _test failure_ and that the test _fails_.
+Testing is achieved through the design and application of test cases. In broad terms, a test case is a set of steps and values that must provide the required _input_ and set the program in the desired state by _triggering specific behaviors_. It then, must _check the output_ of the program against expected results. Often, the output of the test case execution is validated with an _oracle_, _i.e._ a predicate to tell whether the execution was successful or not. A test case may optionally include _prefix values_ which are inputs necessary to get the system ready for the input and _postfix values_ which are inputs needed to clean the environment after the execution of the test. Test cases may be _functional_, if they check that a functionality is correct, or _non-functional_ if it is directed to evaluate properties like performance, security or even energy consumption. If a test case executes normally it is said to _pass_ otherwise, if the output is not correct, we say that there is a _test failure_ and that the test _fails_.
 
-A test case exercises the system in one specific scenario. So, only one test case is not enough to correctly verify the system. Therefore we always create a set of multiple test cases usually called _test suite_. 
+A test case exercises the system in one specific scenario. So, only one test case is not enough to correctly verify the system. Therefore we always need tp create a set of multiple test cases. This set is usually called _test suite_. 
 
 === Levels of testing
 
@@ -14,38 +14,80 @@ Unit Testing:: It is the lowest level of testing and targets the code units of t
 
 Module Testing:: Units are often grouped in _modules_ that could be classes, packages or files. This level of testing verifies each module in isolation and evaluates how the component units interact with each other. For example, a test for a `Stack` class may create an instance of the class, push an element onto the stack, pop it out and finally check that the stack is empty.
 
-NOTE: In Object-Oriented Programming a class is considered as both a unit and a module. Therefore the distinction between _unit tests_ and _module tests_ is not clear within this context. In fact, for most testers and developers both types of testing are known as _unit testing_ and it will be also the case for the rest of this text. 
+NOTE: In Object-Oriented Programming a class is at the same time a unit and a module. Therefore the distinction between _unit tests_ and _module tests_ is not clear within this context. In fact, for most testers and developers both types of testing are known as _unit testing_ and it will be also the case for the rest of this text. 
 
-Integration Testing:: The goal of this level of testing is to assess the interaction between modules and verify that they are communicating correctly. Integration tests assume that modules work correctly, that is the task of the previous testing levels. As an example, an integration test for an online store may check the interaction between the shopping cart module and the payment gateway by creating and validating an order, or it could also verify that data access abstractions communicate correctly with the database by creating the right queries and interpreting the results in the right way.
+Integration Testing:: The goal of this level of testing is to assess the interaction between modules and verify that they are communicating correctly. Integration tests assume that modules work correctly. Modules should be verified by the previous testing levels. As an example, an integration test for an online store may check the interaction between the shopping cart module and the payment gateway by creating and validating an order, or it could also verify that data access abstractions communicate correctly with the database by creating the right queries and interpreting the results in the right way.
 
-System Testing::  The goal of this level is to check whether the assembled system meets the specifications thus, It assumes that all subsystems work correctly, which is the task of the previous testing levels. Integration tests execute the system as a whole from beginning to end, that is why they are sometimes also referred as _end-to-end_ tests. An example of such tests in the context of an online store could verify that: a user can log in with the right credentials, she can create a shopping cart with a selection of products, she can validate the order, she receives an email with the invoice and then she is able to log out. Testing done from the graphical user interface is also a for of system testing.
+System Testing::  The goal of this level is to check whether the assembled system meets the specifications. Thus, it assumes that all subsystems work correctly, which is the task of the previous testing levels. Integration tests execute the system as a whole from beginning to end, that is why they are sometimes also referred as _end-to-end_ tests. An example of such tests in the context of an online store could verify that: a user can log in with the right credentials, she can create a shopping cart with a selection of products, she can validate the order, she receives an email with the invoice and then she is able to log out. Testing done from the graphical user interface is also a form of system testing.
 
-Acceptance Testing:: This level checks that the finished product meets the needs of the users, that is, if the system does what they want. These tests should be elaborated from the user's perspective and may be used to evaluate the requirements. Like system tests, these also verify the product from beginning to end.
+Acceptance Testing:: This level checks that the finished product meets the needs of the users, that is, if the system does what users want. These tests should be elaborated from the user's perspective and may be used to evaluate the requirements. Like system tests, these also verify the product from beginning to end.
 
-NOTE: There might be other, even finer-grained, classifications for tests and they all tend to be blurred sometimes ambiguous. Classifying one test case as unit, module, integration or system is not crucial. The most important message here is that testing should be carried at different levels, for each unit, whatever they may be, then how these units interact and then how the entire system behaves.
+NOTE: There might be other, even finer-grained, classifications for tests and they all tend to be blurred and even ambiguous. Classifying one test case as unit, module, integration or system is not crucial. The most important message here is that testing should be carried at different levels, for each unit, whatever they may be, then how these units interact and then how the entire system behaves.
 
-Each level of testing has its own level of complexity. Unit tests tend to be easier to define and faster to execute. System tests are more complex and slower. Inputs for unit tests may not be completely realistic compared to the inputs that shall appear in production and they are not generally able to find faults arising from the interaction of modules. System tests tend to be more realistic  Also finding an implementation fault from a system test may be even impractical.
+Each level of testing has its own level of complexity. Unit tests tend to be easier to define and faster to execute. System tests are more complex and slower. Inputs for unit tests may not be completely realistic compared to the inputs that shall appear in production and they are not generally able to find faults arising from the interaction of modules. System tests tend to be more realistic. ON the oder hand, finding an implementation fault from a system test may be even impractical.
 
 Automating the execution of tests at all levels is key for modern software development practices. Manual tests are tedious, take a lot of time and are prone to errors. Automated test execution allows having more tests and therefore more scenarios are explored. As Meyer explains in his fourth principle,<<meyer2008seven>> it is not feasible to manually check the output of hundreds of tests. Automated tests help producing a faster, almost immediate feedback during development on whether certain types of faults are being inserted. In this way they enable efficient CI/CD processes which facilitate the integration of the work of development teams. Automated tests help also preventing _regressions_ that is, the reinsertion of an already solved fault. This is specially true if we adhere to Meyer's third principle "`Any failed execution must yield a test case, to remain a permanent part of the project’s test suite`" <<meyer2008seven>>.
 
-The accepted practice nowadays is to have most tests automated, while keeping only a small amount of manual tests, mainly as acceptance tests. Most organizations have a large number of unit tests, which are easier to write, faster to execute and easier to understand and less system tests which are more complex, expensive and harder to maintain. This is reflected on what is known as the _testing pyramid_ <<testing-pyramid>>.
+The accepted practice nowadays is to have most tests automated, while keeping only a small amount of manual tests, mainly as acceptance tests. Most organizations have a large number of unit tests, which are easier to write, faster to execute and easier to understand. Organizations tend to have less system tests which are more complex, expensive and harder to maintain. This is reflected on what is known as the _testing pyramid_ <<testing-pyramid>>.
 
 [#testing-pyramid.text-center]
 .The testing pyramid.
 image::testing-pyramid.png[Testing pyramid, 600]
 
-So, as we move in the pyramid from unit tests, which directly assess the implementation of the system,  up to acceptance tests which check the compliance of the system with the users' needs, we mode from verification to validation.
+So, as we move up in the pyramid from unit tests, which directly assess the implementation of the system, to acceptance tests which check the compliance of the system with the users' needs, we move from the area of verification to the area of validation.
 
 === Test automation frameworks: JUnit
 
 Test automation allows having more tests to explore more execution scenarios, provides a faster feedback and facilitates integration processes. It is achieved with the help of _test automation frameworks_ or _testing frameworks_.
 
-A testing framework is a set of tools and libraries providing mechanisms to define or specify test cases and execute them. One of the most famous alternatives at the moment is _JUnit_, initially developed by Kent Beck back in 1997. JUnit has become a sort of _de-facto_ standard for Java projects and has inspired the creation of similar frameworks for other languages and platforms which are informally called as the _xUnit_ family.
-Despite hading "`unit`" in the name and being widely used for unit testing, the framework can be use to implement all sort of automated tests.
+A testing framework is a set of tools and libraries providing mechanisms to define or specify test cases and execute them. One of the most famous alternatives at the moment is _JUnit_, initially developed by Kent Beck in 1997. JUnit has become a sort of _de-facto_ standard for Java projects and has inspired the creation of similar frameworks for other languages and platforms which are informally called as the _xUnit_ family.
+Despite having "`unit`" in the name and being widely used for unit testing, the framework can be use to implement all sort of automated tests.
 
 NOTE: At the moment of writing this material the latest stable version of JUnit is 5.6.2. This version will be used for all code examples.
 
-Suppose we have a `Stack` class that implements a _LIFO_ (Last In First Out) data structure. The class has a `void` method `push` to insert an element onto the stack and `pop` that removes the element on top of the stack and returns it. A typical unit test for this class written with the help of JUnit would look like the code shown in <<junit-example>>.
+Suppose we have the `BoundedStack` class, shown in <<example-stack>>, that implements a _LIFO_ (Last In First Out) data structure with a fixed capacity. The class has a `void` method `push` to insert an element onto the stack and `pop` that removes the element on top of the stack and returns it. 
+
+[[example-stack, Listing {counter:listing}]]
+.Listing {listing}. The `BoundedStack` class represents  a _LIFO_ data structure with maximum capacity.
+[source, java]
+----
+
+class BoundedStack {
+    private int[] elements;
+    private int count;
+
+    public Stack(int capacity) {
+        elements = new int[capacity];
+        count = 0;
+    }
+
+    public void push(int item) {
+        if(count == elements.length) {
+            throw new IllegalOperationException();
+        }
+        elements[count++] = item;
+    }
+
+    public int pop(int item) {
+        if(elements == 0) {
+            throw new IllegalOperationException();
+        }
+        elements[count--] = item;
+    }
+
+    public int size() {
+        return count;
+    }
+
+    public int capacity() {
+        return elements.length;
+    }
+
+}
+
+----
+
+A typical unit test for this class written with the help of JUnit would look like the code shown in <<junit-example>>.
 
 [[junit-example, Listing {counter:listing}]]
 .Listing {listing}. A typical unit test written with JUnit.
@@ -55,7 +97,7 @@ class StackTest {
     @Test
     public void testPushPop() {
         int original = 1;
-        Stack stack = new Stack();
+        BoundedStack stack = new Stack();
         stack.push(original);
         int onTop = stack.pop();
         assertSame(item, onTop, "Element on top of the stack should be " + original);
@@ -67,7 +109,7 @@ Test cases in JUnit are implemented inside _test classes_. These classes declare
 
 The last line uses an oracle to verify that the element obtained from the stack was the same that was pushed in the first place. This type of oracle is known as an _assertion_. It evaluates a given condition and if the condition is false an `AssertionError` is thrown. It also includes a message to use as output in the case the assertion fails. In the absence of any assertion in the code, JUnit tests have an implicit oracle that checks if unexpected errors occur, that is, if an unexpected exception is thrown.
 
-JUnit provides a set of utility methods implementing different assertions such as: `assetEquals` that checks if two given objects are equal, `assertNotEqual`, the contrary, `assertNull` which verifies if a given value is `null` or not, `assertSame` used in the example to verify if two objects are the same and many more.
+JUnit provides a set of utility methods implementing different assertions such as: `assetEquals` that checks if two given objects are equal, `assertNotEqual`, the contrary, `assertNull` which verifies if a given value is `null`, `assertSame` used in the example to verify if two objects are the same and many more.
 
 In some scenarios, a test case should verify whether an operation with the wrong input signals the right error. <<junit-throw>> shows how to achieve this. The test verifies that invoking `pop` in an empty `Stack` should throw an `IllegalOperationException`.
 
@@ -78,7 +120,7 @@ In some scenarios, a test case should verify whether an operation with the wrong
 @Test
 public void testErrorPopEmptyStack() {
     assertThrows(IllegalOperationException.class, () -> {
-        new Stack().pop();
+        new BoundedStack().pop();
     });
 }
 ----
@@ -93,19 +135,19 @@ It is important to add information that helps identifying the fault in the event
 
 === Best practices and antipatterns in testing
 
-Automated test cases are code, _test code_, and like the _application code_ they should be maintained and we should care about their quality. Poorly written test cases bring no value to the development process. They negatively impact the fault detection capabilities of a test suite. They are also hard to understand and hard to leverage when identifying faults.
+Automated test cases are code, _test code_, and like their counter part, the _application code_ they should be maintained and we should care about their quality. Poorly written test cases bring no value to the development process. They negatively impact the fault detection capabilities of a test suite. They are also hard to understand and hard to leverage to correctly identify faults.
 
-As summarized in <<meszaros2003test>> automated test cases should be *concise* and *clear*: brief yet comprehensive and easy to understand, *self-checking*: they should report results without human intervention, *repeatable*, *robust* and *independent*: it should be possible to run them consecutive times without human intervention and they should always produce the same results whether their are run in isolation or with other tests. Tests should also be *efficient*: they should be run in a reasonable amount of time and should be *maintainable*: that is, they must be easy to modify and extend even when the system under test changes. Also, with respect to the application and the requirements, tests must be *sufficient* so all requirements of the system are verified, *necessary* so that everything in each test contributes to the specification of the desired behavior, with no redundancy and unneeded artifacts, each test should be *specific* so tests failures point to the specific fault, and *traceable* so that it can be easily mapped to the parts of the application code it verifies and the part of the specification it has been derived from. 
+As summarized in <<meszaros2003test>> automated test cases should be *concise* and *clear*: brief, yet comprehensive and easy to understand, *self-checking*: they should report results without human intervention, *repeatable*, *robust* and *independent*: it should be possible to run them consecutive times without human intervention and they should always produce the same results whether their are run in isolation or with other tests. Tests should also be *efficient*: they should run in a reasonable amount of time and should be *maintainable*: that is, they must be easy to modify and extend even when the system under test changes. Also, with respect to the application and the requirements, tests must be *sufficient* so all requirements of the system are verified, *necessary* so that everything inside each test contributes to the specification of the desired behavior, with no redundancy and unneeded artifacts, each test should be *specific* so tests failures point to the specific fault, and *traceable* so that it can be easily mapped to the parts of the application code it verifies and the part of the specification it has been derived from. 
 
 ==== Test smells
 
-Along the years, the testing community has identified bad practices, _smells_ that deviate from the principles mentioned above and impact the quality of tests. Garousi and Küçük <<garousi2018smells>> reviewed the scientific and industry literature on the subject and were able to identify 179 different test smells. It is important to notice that test smells are not bugs but affect the tests by lowering their efficiency, maintainability, readability, comprehension and their ability to find faults. This section presents and exemplifies some of these test smells.
+Along the years, the testing community has identified bad practices, _smells_ that deviate from the principles mentioned above and have a negative impact in the quality of tests. Garousi and Küçük <<garousi2018smells>> reviewed the scientific and industry literature on the subject and were able to identify 179 different test smells. It is important to notice that test smells are not bugs but affect the tests by lowering their efficiency, maintainability, readability, comprehension and their ability to find faults. This section presents and exemplifies some of these test smells.
 
-Manual intervention:: Happens when the person running the test case must do something manually before the test is run, during the execution or should manually verify the results. This goes in detriment of test automation.
+Manual intervention:: Happens when the person running a test case must do something manually before the test is run, during the execution of the test or she should manually verify the results. This practice undermines test automation.
 
-Testing Happy Path only:: Tests only verify the common scenario, and never check boundaries or input values that should result in exceptions. Most of the time developers program with the happy path / normal situation in mind and it is most likely that this scenario will work. Therefore testing the happy path only have lower chances to catch a bug. The test case in <<junit-example>> tests only the most expected scenario or happy path. We need to add test cases like <<junit-throw>> where we explore extreme scenarios like a pop on an empty stack or when a null element is pushed or if if there is a point at which we can push no more elements to the stack.
+Testing Happy Path only:: These tests verify only the common scenario and never check boundaries or input values that should result in exceptions. Most of the time developers write code with the happy path / normal situation in mind and it is most likely that this scenario will work. Therefore, testing only the happy path have lower chances to catch a bug. The test case in <<junit-example>> tests only the most expected scenario or happy path. We need to add test cases like <<junit-throw>> where we explore extreme scenarios like a pop on an empty stack or when a null element is pushed, or if there is a point at which we can push no more elements to the stack.
 
-Test logic in production code:: The application code put into production contains logic that should be exercised only during test execution. This logic has been put there only to support testing, for example, to help tests gain access to the internal state of the application. It also may happen that part of the production logic can not be executed in testing. This makes the system behaves differently in production and testing. An example is shown in <<test-logic-in-production>>.
+Test logic in production code:: The application code deployed in production contains logic that should be exercised only during test execution. This logic is there only to support testing, for example, to help tests gain access to the internal state of the application. It also may happen that part of the production logic can not be executed in testing. This makes the system behaves differently in production and testing. An example is shown in <<test-logic-in-production>>.
 
 [[test-logic-in-production, Listing {counter:listing}]]
 .Listing {listing}. Example of test logic in production code.
@@ -130,7 +172,7 @@ In general, all forms of this test smell make the application code more complex 
 
 A way to solve this smell, is to use _dependency injection_. The code that has to work differently in production and tests can be moved onto a dependency that can be exchanged without affecting the application logic. In case of equality pollution we could use an _equality comparer_, that is, a class that checks if two objects are equals per our needs.
 
-Eager test:: Also known as *The Test It All* or *Split Personality*. It is a single test that verifies too many functionalities. <<eager-roulette>> shows an example of this test smell. When such a test fails, it is hard to tell which is the actual functionality that contains the fault. The solution is to separate all verifications into different test cases.
+Eager test:: Also known as *Test It All* or *Split Personality*. It is a single test that verifies too many functionalities. <<eager-roulette>> shows an example of this test smell. When such a test fails, it is hard to tell which code produced the failure. The solution is to separate all verifications into different test cases.
 
 [[eager-roulette, Listing {counter:listing}]]
 .Listing {listing}. An example of a test that tries to test too much in the same test case (Eager Test) and it is also hard to know the fault in the presence of a test failure. Taken from <<xunitpatterns-assertion>>.
@@ -163,7 +205,7 @@ public void testFlightMileage_asKm2() throws Exception {
 }
 ----
 
-Assertion roulette:: Appears when it is hard to tell which of the many assertions of  a test method produced the test failure. This makes harder to diagnose the actual fault. Eager tests tend to also produce assertion roulettes as can be seen in <<eager-roulette>>. This smell also occurs when assertions do not have any message, as seen in <<no-message-assertion>>. To solve this smell we should refactor the test code and add a descriptive message to all assertions.
+Assertion roulette:: Appears when it is hard to tell which of the many assertions of a test method produced the test failure. This makes harder to diagnose the actual fault. Eager tests tend to also produce assertion roulettes as can be seen in <<eager-roulette>>. This smell also occurs when assertions do not have any message, as seen in <<no-message-assertion>>. To solve this smell we should refactor the test code and add a descriptive message to all assertions.
 
 [[no-message-assertion, Listing {counter:listing}]]
 .Listing {listing}. Example of a test case with several assertions with no message. In the case of a test failure it is hard to know which assertion failed and to diagnose the fault. Taken from <<xunitpatterns-assertion>>
@@ -183,7 +225,7 @@ public void testInvoice_addLineItem7() {
 }
 ----
 
-The Free Ride:: Also known as *Piggyback* and closely related to the two previous test smells. In this smell, rather than write a new test case method to test another feature or functionality, testers add new assertions to verify other functionalities. It can lead to eager tests and assertion roulettes. As with this two other smells, piggybacking makes it hard to diagnose the fault. <<piggybacking>> shows an actual example of this smell from the Apache Commons Lang project.
+The Free Ride:: Also known as *Piggyback* and closely related to the two previous test smells. In this smell, rather than write a new test case method to test another feature or functionality, testers add new assertions to verify other functionalities. It can lead to eager tests and assertion roulettes. As with those two other smells, piggybacking makes it hard to diagnose the fault. <<piggybacking>> shows an actual example of this smell from the Apache Commons Lang project.
 
 [[piggybacking, Listing {counter:listing}]]
 .Listing {listing}. Actual example of the piggybacking test smell. Code can be consulted in the https://github.com/apache/commons-lang/blob/649dedbbe8b6ab61fb3c4792c86b7e0af7ec4a73/src/test/java/org/apache/commons/lang3/ArrayUtilsRemoveMultipleTest.java#L34[Apache Commons Lang code repository]. This is also an example of an eager test and assertion roulette.
@@ -279,21 +321,18 @@ Conditional test logic:: Also known as *Guarded Test*. Consists in a test that c
 
 Fragile test:: A test that fails to compile or run when the system under test is changed in ways that do not affect the part the test is exercising. These tests increase the cost of maintenance. There are many causes for this smell, so code should be carefully inspected and refactored.
 
-Erratic tests:: Also known as *Flaky Tests*. Test that behave erratically, sometimes they fail and sometimes they don't under the same conditions. These tests undermine the trust developers have on their test suites. It is hard to know whether the failure is due to an actual fault or not. There are many reasons this could happen, for example, the already mentioned *Interacting Tests* smell, incorrect handling of the resources the test should use, and any type of non-determinism in tests coming from race conditions, synchronization, concurrency, time-outs and randomly generated data. Erratic or flaky tests are more common in higher level testing such as integration or system tests. They are a true plague for companies that develop big systems. As an example, Google has reported that nearly 1.5% of their tests behave erratically  <<micco2016flaky>>. 
+Erratic tests:: Also known as *Flaky Tests*. It is a test that behave erratically under the same conditions, sometimes it fails and sometimes it does not. These tests undermine the trust developers have on their test suites. It is hard to know whether the failure is due to an actual fault or not. There are many reasons this could happen, for example: the already mentioned *Interacting Tests* smell, incorrect handling of the resources the test should use, and any type of non-determinism in tests coming from race conditions, synchronization, concurrency, time-outs and randomly generated data. Erratic or flaky tests are more common in higher level testing such as integration or system tests. They are a true plague for companies that develop big systems. As an example, Google has reported that nearly 1.5% of their tests behave erratically  <<micco2016flaky>>. 
 
-Get really clever and use random numbers in your tests:: Using randomly generated data in tests cases is not necessarily a bad idea. Random tests can discover cases that developers have missed. However, random data has to be carefully managed to avoid creating *Erratic Tests* and to ensure that tests can be *repeatable*. Some of the key actions to consider are, to use pseudo-random numbers and store or log the seed used to generate the data and log the data used in case of a failure, so the test can be repeated in a posterior moment to diagnose the fault.
+Get really clever and use random numbers in your tests:: Using randomly generated data in tests cases is not necessarily a bad idea. Random tests can discover cases that developers have missed. However, random data has to be carefully managed to avoid creating *Erratic Tests* and to ensure that tests can be *repeatable*. Some of the key actions to consider are to use pseudo-random numbers and to store or log the seed used to generate the data and to log the data used in case of a failure. With this information, the test can be repeated later to diagnose the fault.
 
-Testing private methods:: Also known as  *X-Ray Specs*. Tests should verify results, not the implementation. Results are most likely to remain the same even when the implementation changes, also results come from the specification the implementation should follow. Private  methods are implementation artifacts hidden from external users. Verifying results should only involve the public API and not knowing the internals of a module or class. Also, trying to test private methods, requires a non-trivial plumbing, that would make tests more complicated. So, tests should not directly target private methods, but they _must assess their effect_ through the public API.
+Testing private methods:: Also known as  *X-Ray Specs*. Tests should verify results, not the implementation. Results are most likely to remain the same even when the implementation changes. Results usually come from the specification and the implementation should match the specification. Private  methods are implementation artifacts hidden from external users. Verifying results should only involve the public API without knowing the internals of a module or class. Also, trying to test private methods, requires a non-trivial plumbing that would make tests more complicated. So, tests should not directly target private methods, but they _must assess their effects_ through the public API.
 
 ==== Real examples of good testing practices
 
-The previous sections presented the features a good test should have and described a selection of common antipatterns in testing. This section presents examples of good testing practices in Apache Commons Math, a serious open-source Java library quite used and popular. 
+The previous sections presented the features good tests should have and described a selection of common antipatterns in testing. This section presents examples of good testing practices in Apache Commons Math, a popular open-source Java library.
 
-For each: presence of good features, and kinds of antipatterns they avoid
-
-
-<<testing-exceptional-case>> shows a good example on how to handle the verification of exceptional cases and avoiding to test only the happy path. In this example, developers did two things. First the use of an special assertion for when the exception should expected, which can be seen in the annotation. This example uses JUnit 4. In JUnit 5, `assertThrows` is preferred. Also, they used the special assertion `fail` to mark the part of the test code that should not be executed if the exception is not thrown. In this way they ensure that the test will not silently pass in the event of any faut. The original code can be seen https://github.com/apache/commons-math/blob/eb57d6d457002a0bb5336d789a3381a24599affe/src/test/java/org/apache/commons/math4/filter/KalmanFilterTest.java#L43
-[here].
+<<testing-exceptional-case>> shows a good example on how to handle the verification of exceptional cases and avoiding to test only the happy path. In this example, developers do two things. First, they annotate the expected exception in the test with `@Test(expected=...)`. With this, JUnit will verify that an exception is thrown and that it should be of the right type. Then, they used the special assertion `fail` to mark the part of the test code that should not be executed due to the exception. In this way they ensure that the test will not silently pass in the event of any fault and even if they do not annotate the test with the exception. The original code can be consulted https://github.com/apache/commons-math/blob/eb57d6d457002a0bb5336d789a3381a24599affe/src/test/java/org/apache/commons/math4/filter/KalmanFilterTest.java#L43
+[here]. Note that this uses JUnit 4. In JUnit 5, `assertThrows` is preferred. 
 
 [[testing-exceptional-case, Listing {counter:listing}]]
 .Listing {listing}. A test case, testing the exceptional case, notice the use of `fail` to avoid finishing the test silently.
@@ -325,9 +364,7 @@ public void testTransitionMeasurementMatrixMismatch() {
 <1> Annotation with an assertion to indicate that a `MatrixDimensionMismatchException` should be thrown.
 <2> This line must not be executed, if the exception is properly thrown. This is therefore a safeguard ensuring that the test should fail in case this line is executed.
 
-
-<<random-data>> shows and example on the use of random data in testing. Developers fixed the seed to generate the random numbers. It could be argued that this is in fact not random data, as the same numbers will be generated every time. However, this test reflects that the actual numbers play no role in the behavior being tested. On the other hand, the code is an example of a test case that should be divided in two. The actual code can be checked https://github.com/apache/commons-math/blob/eb57d6d457002a0bb5336d789a3381a24599affe/src/test/java/org/apache/commons/math4/linear/BlockFieldMatrixTest.java#L182[here].
-
+<<random-data>> shows a test case using random data. Developers fixed the seed to generate the random numbers. It could be argued that this is in fact not random data, as the same numbers will be generated every time. However, this test reflects that the actual numbers play no role in the behavior being tested. On the other hand, the code is an example of a test case that should be divided in two. The actual code can be checked https://github.com/apache/commons-math/blob/eb57d6d457002a0bb5336d789a3381a24599affe/src/test/java/org/apache/commons/math4/linear/BlockFieldMatrixTest.java#L182[here].
 
 [[random-data, Listing {counter:listing}]]
 .Listing {listing}. Right use of random data. The test case fixes the seed, however it could be argued that it is in fact not exactly random.
@@ -352,7 +389,7 @@ public void testCopyFunctions() {
 ----
 <1> Using a fixed seed to ensure repeatability.
 
-<<distribution-test>> provides an additional example of the use of random data. In this case developers are actually testing a random generator which should build a collection of vectors uniformly distributed around the unit sphere. Again, developers used a fixed seed. This test case also exemplifies the use of a good strong oracle, that validates the property of the distribution without assumptions on the actual numbers in use. Changing the seed it is most likely that will not change the result or make the test fail unnecessarily. The original code can be checked https://github.com/venkateshamurthy/java-quantiles/blob/master/src/test/java/org/apache/commons/math3/random/UnitSphereRandomVectorGeneratorTest.java#L29[here].
+<<distribution-test>> shows another test case using random data. In this code developers are testing a random generator which should produce a collection of vectors uniformly distributed around the unit sphere. Again, developers used a fixed seed. This test case also exemplifies the use of a good strong oracle that validates the property of the distribution without assumptions on the actual numbers. Changing the seed should not not change the outcome of the test or make the test fail unnecessarily. On the other hand, the oracle might be better placed in a separate method in the form of a custom assertion, as we will explain later. The original code can be checked https://github.com/venkateshamurthy/java-quantiles/blob/master/src/test/java/org/apache/commons/math3/random/UnitSphereRandomVectorGeneratorTest.java#L29[here].
 
 [[distribution-test, Listing {counter:listing}]]
 .Listing {listing}. Another example on the use of random data. This time, he test case also has a strong verii
@@ -460,7 +497,7 @@ public void test2DDistribution() {
 
 === Test design
 
-Any testing process, automatic or manual, could be abstracted as <<testing-process>>  shows. The system or program under test is executed using selected test inputs. The result of the execution is evaluated with the help of an oracle based on the specification. If the oracle deems the result incorrect, then we must find the fault. Otherwise, we continue the testing process until a stopping criterion is met. 
+Any testing process, automatic or manual, could be abstracted as <<testing-process>> shows. The system or program under test is executed using selected test inputs. The result of the execution is evaluated with the help of an oracle based on the specification. If the oracle deems the result incorrect, then we must find the fault. Otherwise, we continue the testing process until a stopping criterion is met. 
 
 [graphviz, testing-process, png]
 .Testing process at a glance. 
@@ -489,15 +526,16 @@ digraph {
 }
 ....
 
-This diagram puts in evidence three main problems to be solved when designing our tests. First we need to identify a set of test inputs that will become the starting point for the tests cases. Then, for each test case we need to define a strong oracle able to tell when the result of the execution meets the requirements or not. Also we need to know how much should we test, that is, to set a stopping criterion. Ideally we would test until there are no more faults or when we explore all possible inputs, but this can not be done in practice. Locating and fixing an identified fault is also a very important problem, but it is out of the scope of testing. However, tests failures should provide enough information for developers to find and correct the fault.
+This diagram puts in evidence three main problems to be solved when designing our tests. First we need to identify a set of test inputs that will become the starting point for the tests cases. Then, for each test case we need to define a strong oracle able to tell when the result of the execution meets the requirements or not. Also we need to know how much should we test, that is, to set a stopping criterion. Ideally we would test until there are no more faults or when we explore all possible inputs, but this can not be done in practice. Locating and fixing an identified fault is also a very important problem, but it is out of the scope of testing and more related to _debugging_. However, tests failures should provide enough information for developers to find and correct the fault.
 
-Solving these problems is far from easy. Whatever decision is made, it should have as ultimate goal to design tests capable of discovering faults.
+Solving these problems is far from easy. But, no matter the solution or strategy we pick, out ultimate goal should be to design tests capable of discovering faults.
 
 ==== Reachability, Infection, Propagation, Revealability
 
-The main goal of testing is to reveal the presence of faults. However, there are concrete conditions test cases should meet in order to be able to observe a fault. These are expressed in the _Reachability, Infection, Propagation, Revealability_ (RIPR) model  <<li2016test>>.
+The main goal of testing is to reveal the presence of faults. However, there are four concrete conditions that a test case execution should meet to be able to discover a fault. These conditions are expressed in the _Reachability, Infection, Propagation, Revealability_ (RIPR) model <<li2016test>>.
 
-<<ripr-faulty-program>> shows the `findLast` method. It should return the index of the last occurrence of a given element in a given array. If the element is not present the method should return -1 and if the array is `null` it should throw a `NullPointerException` exception. The method in question has a fault, the loop condition should be `i >= 0` otherwise the element in the first position is never inspected. Test cases in <<ripr-no-reachability>>, <<ripr-no-infection>>, <<ripr-no-propagation>>, <<ripr-no-revealability>> fail to observe the bug for different reasons.
+<<ripr-faulty-program>> shows the `findLast` method. This method should return the index of the last occurrence of a given `element` in a given `array`. If the element is not present the method should return -1 and if the array is `null` it should throw an instance of `NullPointerException`. The method in question has a fault, the loop condition should be `i >= 0` instead of `i > 0`. Due to this fault this `findLast` will never compare `element` to the value in the first position of the array. 
+
 
 [[ripr-faulty-program, Listing {counter:listing}]]
 .Listing {listing}. `findLast` is supposed to return the index of the last occurrence of a given element in a given array. If the array is `null` the method should throw a `NullPointerException` exception. If the element is not present, then it should return -1. This method contains a fault as it never inspects the first element of the array.
@@ -514,9 +552,11 @@ public static int findLast(int[] array, int element) {
 ----
 <1> Loop condition should be `i >= 0`. 
 
+<<ripr-no-reachability>>, <<ripr-no-infection>>, <<ripr-no-propagation>> and <<ripr-no-revealability>> show test cases exercising `findLast`. However, all these test cases fail to observe the bug for different reasons. We shall use these test cases to illustrate the concepts behind the RIPR model. We shall also discover how the model can explain why the fault is not discovered.
+
 Reachability::
 
-For a test case to discover a fault it must first execute/reach, the code location where the bug is present. The test case in <<ripr-no-reachability>> tests the behavior of the method when the input array is `null`. Therefore this test case never executes the loop condition and does not reach the fault.  
+For a test case to discover a fault it must first execute/_reach_, the code location where the bug is present. The test case in <<ripr-no-reachability>> tests the behavior of the method when the input array is `null`. Therefore this test case never executes the loop condition and does not reach the fault.
 +
 [[ripr-no-reachability, Listing {counter:listing}]]
 .Listing {listing}. A test case that does not reach the fault.
@@ -532,7 +572,7 @@ public void testNull() {
 
 Infection::
 
-Reaching the location of the fault is not the only condition that should be met to discover the fault. The test case should also produce an incorrect program state, that is it should _infect_ the program state with incorrect values. <<ripr-no-infection>> fails to do that. For this test case the element in the first position of the array is never inspected. The last occurrence of the element given as input is found at the last position of the array. The test case has the same behavior in the presence of the fault as is the program was correct. On the other hand, <<ripr-no-propagation>> do infect the state of the program. The first position is not checked in the faulty version which is not the case for the correct program.
+Reaching the location of the fault is not the only condition the execution should meet to discover the fault. The test case should also produce an incorrect program state, that is, it should _infect_ the program state with incorrect values. <<ripr-no-infection>> fails to do that. In this test case the element in the first position of the array is never inspected. The last occurrence of the element given as input is found at the last position of the array. The test case has the same behavior in the presence of the fault as is the program was correct. On the other hand, <<ripr-no-propagation>> do infect the state of the program. The first position is not checked in the faulty version which is not the case for the correct program. So, the infection comes for the fact `i` is never `0` during the execution while it should have had this value at some point.
 +
 [[ripr-no-infection, Listing {counter:listing}]]
 .Listing {listing}. A test case that reaches the location of the fault but does not infect the program state.
@@ -547,7 +587,7 @@ public void testLastElement() {
 
 Propagation::
 
-<<ripr-no-propagation>> do infect the program but does not reveal the fault. A test case must reach the location of the fault, infect the program state but also _propagate_ the program state infection to the rest of the execution. <<<ripr-no-propagation>> produces an incorrect program state as the first position of the array is not inspected but returns the right result, so the error does not even reach the code of the test case.
+<<ripr-no-propagation>> do infect the program but does not reveal the fault. A test case must reach the location of the fault, infect the program state but also _propagate_ the program state infection to the rest of the execution. <<<ripr-no-propagation>> produces an incorrect program state as the first position of the array is not inspected but returns the right result, so the error does not even reach the code of the test case. On the other hand, <<ripr-no-revealability>> do propagate the infection to an observable code location. In this new test case `findLast` produces a wrong result. However, the test case is not yet able to detect the fault.
 +
 [[ripr-no-propagation, Listing {counter:listing}]]
 .Listing {listing}. A test case that reaches the fault, infects the program state but does not propagate the infection.
@@ -561,7 +601,7 @@ public void testNotFound() {
 
 Revealability::
 
-It is impractical, if not impossible, to create an oracle that observes the entire state of the program. That is why, for a test case to discover a fault, it must not only reach the location, infect the program state and propagate the infection to the rest of the execution, it also must also observe the right portion of the state and use a strong condition to verify it. <<ripr-no-revealability>> reaches the fault, infects the program state, produces a wrong result that propagates to the code of the test case, but the oracle is not adequate. The condition of the result to be greater than zero is met by the incorrect result `2`, it is an example of a weak oracle and the test case fails to _reveal_ the fault. 
+It is impractical, if not impossible, to create an oracle that observes the entire program state. That is why, for a test case to discover a fault, it must not only reach the location, infect the program state and propagate the infection to the rest of the execution. The test must also observe the right portion of the state and use a strong condition to verify it. <<ripr-no-revealability>> reaches the fault, infects the program state, produces a wrong result that propagates to the code of the test case, but the oracle is not adequate. The condition of the result to be greater than zero is met by the incorrect result `2`, it is an example of a weak oracle and the test case fails to _reveal_ the fault. 
 +
 [[ripr-no-revealability, Listing {counter:listing}]]
 .Listing {listing}. A test case that fails to reveal the fault, due to a weak oracle. The method returns a worng value `2` when the correct value is `0`. Both values meet the assertion.
@@ -573,7 +613,7 @@ public void testRepeated() {
 }
 ----
 +
-Only the test case in <<ripr-test>> meets all the conditions to reveal the fault in the method. The method produces an incorrect value, `-1`, which is not the expected value `0`.
+Only the test case in <<ripr-test>> meets all the conditions to reveal the fault in the method. The method produces an incorrect value, `-1`, which is not the expected value `0`. When this new test case is executed all conditions are met. The fault is reached, the state is infected, the infection is propagated to the code of the test case, there is an oracle observing the right portion of the program state and the oracle is strong enough to make the test case fail with the wrong result.
 +
 [[ripr-test, Listing {counter:listing}]]
 .Listing {listing}. A test case able to reveal the fault.
@@ -585,23 +625,27 @@ public void testFirst() {
 }
 ----
 
+Not all test cases should discover all faults. Test cases should remain simple as we discussed before. A single test case can not cover all possible execution scenarios and can not discover all potential faults. That is why a test suite should be conformed by many different test cases. These test cases should be carefully designed to select the right input able to reach faults, infect the program state and propagate the infection. Then, test cases need strong oracles to discover the fault. The design of a test suite should be guided by concrete criteria ensuring that these conditions if there is a fault. These criteria not only will ensure the creation of good test cases, they will also provide a concrete way to evaluate the quality of a test suite as a whole.
+
 ==== Coverage criteria for test qualification
 
 Designing tests is hard. We need to choose good inputs to ensure potential faults are _reached_ and that their effects do propagate to an observable point in the program execution. We also need to design strong oracles so the faults can be discovered and we need to know how many test cases our test suite should have to assure certain level of quality in the testing process.Formal *Coverage criteria* help testers solve these problems.
 
 According to Ammann and Offutt <<ammann2016introduction>>, a  _coverage criterion_ can be seen as a collection of rules that impose _test requirements_ for a test suite. A _test requirement_ is a specific element of a software artifact that a test case must satisfy or cover.
 
-Perhaps the most widely used coverage criterion nowadays in industry is _statement coverage_. This coverage establishes each program statement as a test requirement, that is, it expects the test suite to execute all statements in the code of the program under test. 
+Perhaps the most widely used coverage criterion nowadays in industry is _statement coverage_. This coverage establishes each program statement as a test requirement, that is, it expects the test suite to execute all statements in the code of the program under test. So, following this criterion we create test cases until all statements are executed by the test suite.
 
-In practice it is quite hard, sometimes not even desirable, that all test requirements of a coverage criterion are satisfied or covered by the test suite. For example, making test cases just to execute statements from simple getter methods might be a waste of resources. In this sense, we associate a _coverage level_ to a coverage criterion, which nothing more than the ratio of test requirements that are covered by the test suite. For statement coverage this is the percentage of statements in the program that are executed by the tests.
+In practice it is quite hard, sometimes not even desirable, that all test requirements of a coverage criterion are satisfied or covered by the test suite. For example, making test cases just to execute statements from simple getter methods might be a waste of resources. 
 
-Coverage criteria help testers create more effective and efficient test suites, with fewer tests cases and better fault detection capabilities. They help better explore the input space, and ensure traceability from each test case to the test requirements they cover. These criteria also set a well defined stopping condition for the test creation process and provide an effective way to evaluate the quality of the test suite.
+A coverage criterion has a _coverage level_ associated. The coverage level is the ratio of test requirements that are covered by the test suite. For statement coverage this is the percentage of statements in the program that are executed by the tests.
 
-The following sections introduce and explain some of the most relevant coverage criteria.
+Coverage criteria help testers create more effective and efficient test suites, with fewer tests cases and better fault detection capabilities. Following coverage criteria we are able to better explore the input space. A coverage criterion ensures the traceability from each test case to the test requirements they cover. The purpose of a test case becomes, clear, as it  is designed to cover a specific requirement or a specific set of requirements. Coverage criteria also set a well defined stopping condition for the test creation process and provide an effective way to evaluate the quality of the test suite.
+
+The following sections introduce and explain some of the most relevant and known coverage criteria.
 
 ===== Input space partitioning
 
-The _input domain_ of a system under test is the set of all possible values that the input parameters can take. If there are more than one parameter, then the input domain is the cartesian product of the domains of all parameters. The input domain also includes values that could be incorrect for the program. These are also very important for testing purposes. A test input is  a tuple of values from the domain, one for each parameter.
+The _input domain_ of a system under test is the set of all possible values that the input parameters can take. If there are more than one parameter, then the input domain is the cartesian product of the domains of all parameters. The input domain also includes values that could be incorrect for the program. These are also very important for testing purposes. A test input is then a tuple of values from the domain, one for each parameter.
 
 For example, <<isp-findlast>> shows the signature of the `findLast` method introduced first in <<ripr-no-infection>>. This method takes as input an array of integers and an integer. Therefore its input domain is a tuple of all possible integer arrays, including `null` and empty arrays and all possible integers. Test inputs for this method could be `{ array: null, element: 1 }`, `{ array: {}, element: 2 }`, `{ array: {1, 2, 3}, element: 4 }`.
 
@@ -621,10 +665,10 @@ public static int findLast(int[] array, int element) { ... }
 public static boolean isValidDate(int day, int month, int year) { ... }
 ----
 
-<<isp-stack>> shows an extract of a `BoundedStack` implementation. In case we are testing methods `push` and `pop`, we should consider all possible values of `elements` and `count`. That is, when testing classes, instance fields, and even global static fields used by the method are also part of the input. Observe that in this case, `elements` will never be `null`.
+<<isp-stack>> shows an extract of the `BoundedStack` class shown in <<stack-example>>. In case we are testing methods `push` and `pop`, we should consider all possible values of `elements` and `count`. That is, when testing classes, instance fields, and even global static fields used by the method are also part of the input. Observe that in this case, `elements` will never be `null` since it is created in the constructor.
 
 [[isp-stack, Listing {counter:listing}]]
-.Listing {listing}. Extract from a `BoundedStack` class, that is a _LIFO_ data structure with maximum capacity. Observe that all values of the fields `elements` and `count` form part of the input domain for the `push` and `pop` methods.
+.Listing {listing}. Extract from the `BoundedStack` class presented in <<stack-example>>. Observe that all values of the fields `elements` and `count` form part of the input domain for the `push` and `pop` methods.
 [source, java]
 ----
 
@@ -632,10 +676,7 @@ class BoundedStack {
     private int[] elements;
     private int count;
 
-    public Stack(int capacity) {
-        elements = new int[capacity];
-        count = 0;
-    }
+    ...
 
     public void push(int item) {
         if(count == elements.length) {
@@ -656,15 +697,15 @@ class BoundedStack {
 
 ----
 
-The _input space partitioning_ technique models the input domain of the system we are testing. From this model it is possible to derive several coverage criteria which result in a broad selection of potential test inputs. The technique uses only the interface of the program, the signature of the method or even the specification, but does not need to observe the internal structure of the artifact being tested. In this sense it is said to be a `blackbox` technique, as opposed to `whitebox` techniques, that heavily rely on the internal structure, for example, the code of the method.
+The _input space partitioning_ technique design tests based on a model of the input domain. From this model it is possible to derive several coverage criteria which result in a broad selection of potential test inputs. The technique uses only the interface of the program, the signature of the method or even the specification, but does not need to observe the internal structure of the artifact being tested. In this sense it is said to be a `blackbox` technique, as opposed to `whitebox` techniques, that heavily rely on the internal structure, for example, the code of the method.
 
-To model the input, this technique creates partitions of the domain. A partition is a subdivision of the domain into subsets or _blocks_ in such a way that the union of all blocks results in the entire input domain and all blocks are disjoint, that is, no element, or test input, can be included in more than one block for the same partition. Each partition is created by identifying characteristics which describe the structure of the input domain. Characteristics and blocks should be designed in such a way that all values in one block are equivalent according to the characteristic that defined the partition.
+To model the input, this technique creates partitions of the domain. A partition is a subdivision of the domain into subsets or _blocks_ in such a way that the union of all blocks results in the entire input domain and all blocks are disjoint, that is, no element, or test input, can be included in more than one block for the same partition. Each partition is created by identifying characteristics which describe the structure of the input domain. Characteristics and blocks should be designed in such a way that all values in one block are equivalent according to the characteristic that defines the partition.
 
-Identifying the right characteristics is hard and requires expertise. There are two main approaches: _interface based modeling_ and  _functionality based modeling_.
+Identifying the right characteristics is hard and requires expertise. There are two main approaches: _interface based modeling_ and _functionality based modeling_.
 
-Interface based modeling considers each parameter separately and takes information only from their specific domain. It is a simple alternative that makes easier to identify the characteristics. However, it does not use all the information available, such as the specification and misses the interaction between parameters.
+Interface based modeling considers each parameter separately and takes information only from their specific domain. It is a simple alternative that makes it easier to identify the characteristics. However, it does not use all the information available like the specification and fails to capture the interaction between parameters.
 
-Taking as example `findLast` from <<isp-findlast>> by using this approach we may identify the characteristics shown in <<isp-interface-findlast>>. Two characteristics are identified: _`array` is `null`_ and _`array` is empty_. Each characteristic defines a partition with two blocks, one to contain the arrays for which the condition of the characteristic is true and another for arrays for which the characteristic is false.
+Using interface based modeling to describe the input of `findLast` from <<isp-findlast>> we may identify the characteristics shown in <<isp-interface-findlast>>. Two characteristics are identified: _`array` is `null`_ and _`array` is empty_. Each characteristic defines a partition with two blocks, one to contain the arrays for which the condition of the characteristic is true and another containing arrays for which the characteristic is false.
 
 [[isp-interface-findlast]]
 .Characteristics and blocks identified for `findLast` from <<isp-findlast>> considering only the `array` parameter.
@@ -679,7 +720,7 @@ The same could be done in the parameter `element`, but it will not yield charact
 
 Functionality based modeling uses semantic information and plays with the specification, the domain of each parameter and the interplay between the values of different parameters. Identifying good characteristics with this approach is harder but may yield better results.
 
-For the same `findLast` method in <<isp-findlast>>, using this approach we may identify the characteristics in <<isp-functionality-findlast>>. The table shows a characteristic that captures the number of times `element` appears in `array` which yields three blocks, one for arrays that do not contain `element`, one for arrays where only one occurrence of `element` appears in `array`, and another for arrays in which `element` more than once. The other two characteristics consider the position of `element` in the `array` and each of them yields a partition with two block.
+For the same `findLast` method in <<isp-findlast>>, with this approach we may identify the characteristics in <<isp-functionality-findlast>>. The table shows a characteristic that captures the number of times `element` appears in `array` which yields three blocks: one for arrays that do not contain `element`, one for arrays containing only one occurrence of `element`, and another for arrays in which `element` appears more than once. The other two characteristics consider the position of `element` in the `array` and each of them yields a partition with two block.
 
 [[isp-functionality-findlast]]
 .Characteristics identified using functionality based modeling for `findLast` from <<isp-findlast>>.
@@ -692,7 +733,7 @@ For the same `findLast` method in <<isp-findlast>>, using this approach we may i
 
 All characteristics in <<isp-interface-findlast>> and <<isp-functionality-findlast>> could be used in conjunction to design test inputs.
 
-Considering `isValidDate` from <<isp-isvaliddate>> we could start identifying characteristics with the interface based approach. That may yield the following result:
+Now we shall model the input of `isValidDate` from <<isp-isvaliddate>>. We first identify characteristics with the interface based approach. This may yield the following result:
 
 |===
 | Characteristics  2+| Blocks 
@@ -715,13 +756,13 @@ These blocks may be too broad for testing purposes. Sometimes it is useful to pa
 
 In our example, the meaningful values of `month` and `day` depend on each other and the value of `year`. Actually, the number of valid days depend on the month, and even the year in the case of February, so we turn to a functionality based approach for new characteristics. 
 
-We first include the notion of leap year and subdivide years greater than 0 into leap and non-leap. Another almost equivalent solution for this could be to add a new characteristic reflecting this condition. We then include a block for valid month numbers and another for valid days which depend on the maximum valid number according to the month, represented as `max(month)`.
+We first include the notion of leap year and subdivide years greater than 0 into leap and non-leap. Another almost equivalent solution for this could be to add a new characteristic reflecting this condition. We then include a block for valid month numbers and another for valid days which depend on the maximum valid number according to the month, represented as `max(month, year)`.
 
 |===
 | Characteristics  4+| Blocks 
-| Value of `year`    | < 0 | 0 | valid leap year           | valid non leap year
-| Value of `month`   | < 0 | 0 | >= 1 and \<= 12]          | > 12
-| Value of `day`     | < 0 | 0 | >= 1 and \<= max(`month`) | > `max(month)` 
+| Value of `year`    | < 0 | 0 | valid leap year                   | valid non leap year
+| Value of `month`   | < 0 | 0 | >= 1 and \<= 12]                  | > 12
+| Value of `day`     | < 0 | 0 | >= 1 and \<= max(`month`, `year`) | > max(`month`, `year`)` 
 |===
 
 We can go further and sub-partition valid month numbers into groups matching the maximum number of days on each. The result would be as follows:
@@ -730,10 +771,10 @@ We can go further and sub-partition valid month numbers into groups matching the
 .Final partitions and blocks for `isValidDate`. Each partition and block have been named for future reference.
 |===
 2.2+| Characteristics     6+| Blocks 
-                            h| b1  h| b2 h| b3                        h| b4                  h| b5 h| b6
-h| q1 | Value of `year`      | < 0  | 0   | valid leap year            | valid common year    |     |
-h| q2 | Value of `month`     | < 0  | 0   | { 1, 3, 5, 7, 8, 10, 12}   | { 4, 6, 9, 11 }      | 2   | > 12
-h| q3 | Value of `day`       | < 0  | 0   | >= 1 and \<= max(`month`)  | > `max(month)`       |     |
+                            h| b1  h| b2 h| b3                                h| b4                          h| b5 h| b6
+h| q1 | Value of `year`      | < 0  | 0   | valid leap year                    | valid common year            |     |
+h| q2 | Value of `month`     | < 0  | 0   | { 1, 3, 5, 7, 8, 10, 12}           | { 4, 6, 9, 11 }              | 2   | > 12
+h| q3 | Value of `day`       | < 0  | 0   | >= 1 and \<= max(`month`, `year`)  | > max(`month`, `year`)       |     |
 |===
 
 Now we have a block for months with 31 days, another for months with 30 days and one for February which is a very special case.
@@ -742,7 +783,7 @@ NOTE: Notice that this is not the only input model that we can design, and it mi
 
 If the input contains a parameter with a enumerative domain of a few values, it could make sense to create a partition with one block per value. In our example we could have one block for each month, but there is no substantial different among months with the same amount of days for this particular method we are testing.
 
-It should be taken into account that, when testing classes, different methods of the same class could share the same characteristics to define partitions. For example, both the `push` and `pop` methods in the stack implementation shown in <<isp-stack>> could partition the input considering when the stack is empty or not. Therefore it is a good idea, when testing a class, to first find the characteristics for all methods and reuse them.
+It should be taken into account that, when testing classes, different methods of the same class could share the same characteristics to define partitions. For example, both the `push` and `pop` methods in the stack implementation shown in <<stack-example>> could partition the input considering when the stack is empty or not. Therefore it is a good idea, when testing a class, to first find the characteristics for all methods and reuse them.
 
 Once the features and blocks have been identified, the concrete test inputs are built by picking values matching a selection of blocks from different partitions. For example: `{day: 1, month: 2, year:2000}` is an input matching the third block for each of the partitions identified in <<final-partitions>>, that is, blocks `q1b3`, `q2b3`and `q3b3`. 
 
@@ -758,7 +799,7 @@ public void test29DaysFebruaryCommonYear () {
 
 Notice how designing test cases from block selections makes the test case clear and helps trace it back to the requirements. 
 
-The challenge now is to create effective combinations of identified the blocks. For that we can use the following coverage criteria:
+The challenge now is to create effective block combinations. For that we can use the following coverage criteria:
 
 
 Each choice coverage (ECC):: This criterion sets each block from each partition as a test requirement. That is, we must select a set of inputs in such a way that all blocks are represented at least once.
@@ -775,37 +816,37 @@ The following set of inputs achieve ECC coverage. All blocks from <<final-partit
 | `{ day:  0, month: 13, year: 2018}` | `q1b4`, `q2b6`, `q3b2`
 |===
 
-Sometimes it is not feasible to select certain blocks at the same time. For example, we should not pick `q3b3`: `day` larger than the maximum according to `month`, if `month` does not have a valid value, for example if we pick `q2b1`. Such combinations can be dropped when creating test inputs. However, if an input model contains too many of these restrictions it might be a good idea to redesign the partitions.
+Sometimes it is not feasible to select certain blocks at the same time. For example, we should not pick `q3b3`: `day` larger than the maximum according to `month` and `year`, if `month` does not have a valid value, for example if we pick `q2b1`. Such combinations can be dropped when creating test inputs. However, if an input model contains too many of these restrictions it might be a good idea to redesign the partitions.
 
-While is coverage criterion is easy to achieve, it may not yield good results, as it does not force for combinations between blocks.
+While this coverage criterion is easy to achieve, it may not yield good results, as it may miss interesting combinations between blocks.
 
-All combinations coverage (ACoC):: AS a counter part to ECC, to meet this criterion we must combine all blocks from all characteristics. This could lead to a very high number of combinations making it impractical. So fewer combinations are desirable. For partitions in <<final-partitions>> this criterion yields 82 test requirements or combinations after dropping unfeasible block selections.
+All combinations coverage (ACoC):: As a counterpart to ECC, to meet this criterion we must combine all blocks from all characteristics. This could lead to a very high number of combinations making it impractical. So fewer combinations are desirable. For partitions in <<final-partitions>> this criterion yields 82 test requirements or combinations after dropping unfeasible block selections.
 
-Pair-wise coverage (PWC):: Instead of all combinations, a value from each block, for each partition must be combined with a value from every block for each other partition. That is, all pair combinations of blocks from different partitions are test requirements. For partitions in <<final-partitions>> this criterion produces 62 test requirements, which can be covered by only 25 inputs. The number of inputs could still be high for some partitions.
+Pair-wise coverage (PWC):: Instead of all combinations, a value from each block, for each partition must be combined with a value from every block for each other partition. That is, all pair of blocks from different partitions are selected as test requirements. For partitions in <<final-partitions>> this criterion produces 62 test requirements, which can be covered by only 25 inputs. The number of inputs could still be high for some partitions.
 
 An extension of PWC is to combine `T` characteristics or partitions at the same time, but it has been shown that this does not produce any improvement in practice.
 
 Combining more than one invalid value is not useful in general. Most of the times, the program recognizes only of them and the effects of the others are masked. The following two criteria provide a good alternative to avoid that and produce a smaller number of inputs.
 
-Base choice coverage (BCC):: A _base choice_ block is chosen for each partition or characteristic. A _base test_ is formed with the base choice for each partition. Subsequent test inputs are formed by changing only one base choice from this base test and replacing it with another non-base block for the same partition and keeping the others. Base choices should always be the simplest, smallest, most common choices or they should represent the happy path.
+Base choice coverage (BCC):: A _base choice_ block is chosen for each partition or characteristic. A _base test_ is formed with the base choice for each partition. Subsequent test inputs are formed by changing only one base choice from this base test and replacing it with another non-base block for the same partition and keeping the others. Base choices should always be the simplest, smallest, most common choices.
 
-Multiple base choice coverage (MBCC):: It is an extension of the previous criterion. This one selects at least one base choice for each partition, probably more than one. An initial test set is built using an ECC coverage on the base choices, then subsequent inputs are formed in the same way as in BCC: by replacing one base choice for another non-base block in the same partition and keeping the others.
+Multiple base choice coverage (MBCC):: It is an extension of the previous criterion. This criterion may select more than one base choice for each partition. An initial test set is built using an ECC coverage on the base choices, then subsequent inputs are formed in the same way as in BCC: by replacing one base choice for another non-base block in the same partition and keeping the others.
 
-For partitions in <<final-partitions>>, we can pick `q1b3` and `q1b4` as base choices for the first characteristic, `q2b3`, `q2b4`, `q2b5` for the second and `q3b3` for the third one. With this setup we could pick the following inputs covering base choices: `{ day:  1, month: 3, year: 2019 }`, `{ day: 30, month: 9, year: 2018 }`, `{ day: 29, month: 2, year: 2020 }`. Then, more inputs could be added by exchanging one basic block by another non-basic choice. For example, if we take `{ day: 29, month: 2, year: 2020 }`, it matches blocks `q1b4`, `q2b5` and `q3b3`. Changing `q3b3` by `q3b4` implies to change the value of `day` to a value larger than the maximum according to the month. With this we could  change 29 by 30 and obtain a new input `{ day: 30, month: 2, year: 2020 }`. The process continues until no new inputs can be added.
+For partitions in <<final-partitions>>, we can pick `q1b3` and `q1b4` as base choices for the first characteristic, `q2b3`, `q2b4`, `q2b5` for the second and `q3b3` for the third one. With this setup we could pick the following inputs covering base choices: `{ day:  1, month: 3, year: 2019 }`, `{ day: 30, month: 9, year: 2018 }`, `{ day: 29, month: 2, year: 2020 }`. Then, more inputs could be added by exchanging one basic block by another non-basic choice. For example, if we take `{ day: 29, month: 2, year: 2020 }`, it matches blocks `q1b4`, `q2b5` and `q3b3`. Changing `q3b3` by `q3b4` implies to change the value of `day` to a value larger than the maximum according to the month. With this we could change 29 by 30 and obtain a new input `{ day: 30, month: 2, year: 2020 }`. The process continues until no new inputs can be added.
 
 
-Input space partitioning helps defining an initial set of tests inputs but the criteria explained in this section do not ensure any of the conditions to discover a fault as stated by the RIPR model.
+Input space partitioning helps defining an initial set of tests inputs. However, the criteria explained in this section do not ensure any of the conditions to discover a fault as stated by the RIPR model.
 
 ===== Structural coverage
 
-As their name implies, _structural coverage criteria_ rely on the internal structure of the artifact under test, that is, the code of the method, class or complete program we are testing.
+As their name implies, _structural coverage criteria_ rely on the internal structure of the artifact under test, that is, the code of the method, class or complete program we are testing. This section present some of the more commonly used criteria in this category.
 
 Statement coverage::
-The simplest structural criterion is *statement coverage*. This criterion establishes each statement in a program as a test requirement, that is, the test suite should be designed in such a way that all statements in the program are executed by at least one test case. In this way it ensures the _reachability_ of the RIPR model. 
+The simplest structural criterion is *statement coverage*. This criterion establishes each statement in a program as a test requirement, that is, the test suite should be designed in such a way that all statements in the program are executed by at least one test case. In this way it ensures the _reachability_ of the RIPR model. If all statements are covered, then all potential faults will be reached.
 +
 It is a simple criterion, easy to interpret and also very easy and fast to compute. Nowadays, most practitioners use the _statement coverage level_, that is, the ratio of statements executed by the test suite as a proxy for the quality of their tests. The practice is so common that the statement coverage level is known as _code coverage_ or simply _coverage_. There are many available tools to compute code coverage and they are supported by most mainstream IDEs and CI/CD servers.
 +
-<<findlast-coverage-found>> highlights the statements covered/executed by the test case shown in <<ripr-no-infection>> on the code of the method included in <<ripr-faulty-program>>. With coverage information it is easy to see that, in absence of more test cases we miss a test where the element could not be found in the array, as the last statement is not executed.
+<<findlast-coverage-found>> highlights the statements executed/covered/reached by the test case shown in <<ripr-no-infection>> on the code of the method included in <<ripr-faulty-program>>. With coverage information it is easy to see that, in the absence of more test cases, we miss a test where the element could not be found in the array, as the last statement is not executed.
 +
 [[findlast-coverage-found, Listing {counter:listing}]]
 .Listing {listing}. Statements covered by the test case in <<ripr-no-infection>> on the code of the method from <<ripr-faulty-program>>.
@@ -837,7 +878,7 @@ public static int findLast(int[] array, int element) {
 }
 ----
 +
-Notice that both test cases together cover all the instructions of the method. However they are not able to discover the fault. This criterion ensures reachability but does not ensure any of the other conditions for the fault to be found. It is extremely useful to rapidly known which pieces of code haven't been tested by it is not a good quality metric for a test suite.
+Notice that both test cases together cover all the instructions of the method. However they are not able to discover the fault. This criterion ensures reachability but does not ensure any of the other conditions for the fault to be found. It is extremely useful to rapidly known which pieces of code haven't been tested but is not a good quality metric for a test suite.
 
 Other structural criteria can be defined over the control flow graph of a method or a sequence of instructions. Recalling the procedure explained in <<cyclomatic>>, the control flow graph of a method is built as follows:
 
@@ -928,7 +969,7 @@ Block coverage::
 With *block coverage* we consider each basic block or control flow graph node as a test requirement. This is very related to statement coverage, as basic blocks guarantee that if one instruction from the block is executed, all the other instructions in the same block will be executed as well. In fact, some tools actually compute block coverage to report statement coverage. In the example discussed before, the test from <<ripr-no-propagation>> was able to cover all blocks but nodes `(4)` and `(6)`.
 
 Branch coverage::
-This criterion sets branches in the program, that is, edges in the control flow graph as test requirements. Instead of the nodes, here we consider the edges in the execution paths. It helps determine whether all outcomes from decision branches have been explored by the test cases. In the example discussed before, the test from  <<ripr-no-propagation>> was able to cover all edges but `(3) => (4)`, `(4) => (2)`, `(2) => (6)` and `(6) => end`. 
+This criterion sets branches in the program, that is, edges in the control flow graph as test requirements. Instead of the nodes, here we consider the edges in the execution paths. It helps determine whether all outcomes from decision branches have been explored by the test cases. In the example discussed before, the test from <<ripr-no-propagation>> was able to cover all edges but `(3) => (4)`, `(4) => (2)`, `(2) => (6)` and `(6) => end`. 
 
 Path coverage::
 This criterion sets all possible execution paths as test requirements. That is, we aim to design a test suite that traces all execution paths in the control flow graph. Executing all possible paths leads to exhaustive testing, and this is, however ideal, not possible in practice. For example, if the control flow graph contains a loop as in <<control-flow-findlast>> the number of possible execution paths is infinite. Therefore, we need to select which paths to cover in practice. The two following criteria are examples of how to select which paths to execute. 
@@ -949,12 +990,12 @@ For the graph in <<control-flow-findlast>> the number of circuits in the basis i
 . `(2) => (3) => (4) => (2)`
  
 +
-If we set all linearly independent circuits as test requirements, then we create a test for each circuit in the base and we ensure that we are testing, at least once, each outcome from a decision or conditional node. For example, the test case in <<ripr-test>> covers the first circuit in the basis, in which the element appears in the first position. Testing with an empty array would cover, the second circuit in the basis. Any test case that loops over the array covers the third and last circuit in the basis, such as the test case in <<ripr-no-infection>> which covers the first and third circuits in the basis. The cyclomatic complexity sets a lower bound for the number of different tests executing all branches. New paths can be generated by combining circuits from the basis. 
+If we set all linearly independent circuits as test requirements, then we create a test for each circuit in the base and we ensure that we are testing, at least once, each outcome from a decision or conditional node. For example, the test case in <<ripr-test>> covers the first circuit in the basis, in which the element appears in the first position. Testing with an empty array would cover the second circuit in the basis. Any test case that loops over the array covers the third and last circuit in the basis, such as the test case in <<ripr-no-infection>>. The cyclomatic complexity sets a lower bound for the number of different tests executing all branches.
 
 Prime path coverage::
-A _simple path_ in a graph is a path where no node appears more than once, except perhaps the first node, that could also be the last one. A _prime path_ in a graph is a simple path that is no proper sub-path of any other simple path. This means that a prime path is a simple maximal path.
+A _simple path_ in a graph is a path where no node appears more than once, except perhaps the first node, that could be also the last one. A _prime path_ in a graph is a simple path that is no proper sub-path of any other simple path. This means that a prime path is a simple maximal path.
 +
-In <<control-flow-findlast>> `(2) => (3) => (4) => (2)` is a prime path that starts and ends in `(2)`. Computing all prime paths from a graph is simple. We start with all edges, which are simple paths of length one. From there we form more simple paths by adding edges until we reach the initial node, there are no more edges to add or the next node already appears in somewhere in the path. Finally we keep the paths that are no proper sub-paths of any other. For the graph of the example the prime paths are:
+In <<control-flow-findlast>> `(2) => (3) => (4) => (2)` is a prime path that starts and ends in `(2)`. Computing all prime paths from a graph is simple. We start with all edges, which are simple paths of length one. From there we form more simple paths by adding edges until we reach the initial node, there are no more edges to add or the next node already appears somewhere in the path. Finally, we keep the paths that are no proper sub-paths of any other. For the graph of the example the prime paths are:
 
 . `start => (1) => (2) => (3) => (5) => end`
 . `start => (1) => (2) => (6) => end`
@@ -966,23 +1007,23 @@ In <<control-flow-findlast>> `(2) => (3) => (4) => (2)` is a prime path that sta
 . `(3) => (4) => (2) => (3)`
  
 +
-Prime path coverage sets each prime path as a test requirement. That is, at least one test case should cover each prime path. For example, <<ripr-no-infection>> covers the first prime path of the list. The test case in <<ripr-no-propagation>> produces the following path: `start => (1) => (2) => (3) => (4) => (2) => (3) => (4) => (2) => (3) => (4) => (2) => (6) => end`. This test traces the entire array and does not fin the element. It is able to cover prime paths 2, 5, 6, 7 and 8 from the list above. This criterion is useful when testing loops in a program. It ensures the cretion of tests cases that skip the loops and test cases that execute several iterations. In our example, prime path 2 corresponds to a scenario where the `for` loop is never entered, _i.e._ `array` is empty. The execution of prime paths 6, 7, 8 produces tests performing more than one iteration.
+Prime path coverage sets each prime path as a test requirement. That is, at least one test case should cover each prime path. For example, <<ripr-no-infection>> covers the first prime path of the list. The test case in <<ripr-no-propagation>> produces the following path: `start => (1) => (2) => (3) => (4) => (2) => (3) => (4) => (2) => (3) => (4) => (2) => (6) => end`. This test traces the entire array and does not fin the element. It is able to cover prime paths 2, 5, 6, 7 and 8 from the list above. This criterion is useful when testing loops in a program. It ensures the creation of tests cases that skip the loops and test cases that execute several iterations of each loop. In our example, prime path 2 corresponds to a scenario where the `for` loop is never entered, _i.e._ `array` is empty. The execution of prime paths 6, 7, 8 produces tests performing more than one iteration.
 
 Many software artifacts can be represented as graphs. As an example, _Finite State Machines_ are a special type of graph that have been widely used to represent the behavior of software elements. Actually, most embedded software is modeled as a state machine. Finite state machines can also be used to describe specifications for software and even how a user interface should behave.
 
 In a finite state machine, a node represent a state of the artifact and edges represent changes in those states. As an example, recall <<microwave>> where a state machine was used to model the behavior of a microwave oven. 
 
-The structural criteria defined over the control flow graph of a method can be extended to any type of graph. Branch coverage can be generalized as _edge coverage_ and block coverage is just a special case of _node coverage_. In the particular case of finite state machines, designing test cases to achieve  edge coverage ensures that all state transitions are explored and targeting node coverage ensures that all possible states of the artifact have been observed in at least one test case.
+The structural criteria defined over the control flow graph of a method can be extended to any type of graph. Branch coverage can be generalized as _edge coverage_ and block coverage is just a special case of _node coverage_. In the particular case of finite state machines, designing test cases to achieve edge coverage ensures that all state transitions are explored and targeting node coverage ensures that all possible states of the artifact have been observed in at least one test case.
 
-But, as explained before, the structural criteria discussed in this section only ensure that most parts of the software under test are executed. Therefore they guarantee that, if there is a fault, it will be executed by at least one test case. However, these criteria do not ensure that the input will infect the program state, or that the effects will be propagated to an observable point or that there will be an oracle strong enough to observe right portion of the state.
+But, as explained before, the structural criteria discussed in this section only ensure that most parts of the software under test are executed. Therefore they guarantee that, if there is a fault, it will be executed by at least one test case. However, these criteria do not ensure that the input will infect the program state, or that the effects will be propagated to an observable point or that there will be an oracle strong enough observing the right portion of the state.
 
 ===== Logic coverage
 
-A predicate is a boolean expression. They are used in all kinds of software. Predicates define branches in source code and also define the state of finite state machines like the microwave in <<microwave>>.
+A predicate is a boolean expression. They are used in all kinds of software. Predicates define branches in source code and also define the state of finite state machines like the microwave oven in <<microwave>>.
 
-The coverage criteria presented in this section are designed specifically for predicates. They are also designed in such a way that, if there is a fault, test cases created with the help of these criteria guarantee that the state of the program will be, at least, infected by the fault.
+The coverage criteria presented in this section are designed specifically for predicates. They are also designed in such a way that, if there is a fault, test cases created with the help of these criteria guarantee that the state of the program will be, at least, infected by the fault. This means that, if there is a fault in the code of the predicate, there will be at least one test case where the predicate will produce the wrong result.
 
-Formally a predicate is defined as follows:
+A predicate is defined as follows:
 
 * A clause is a predicate. Clauses are the shortest predicates. They are the simplest boolean expressions that do not contain logical operators. They can be:
  
@@ -1000,7 +1041,7 @@ Formally a predicate is defined as follows:
 
 stem:[ a < 3 \vee c \implies fn(b)] is a predicate with three clauses: stem:[a < 3], stem:[c] and stem:[fn(b)].
 
-<<isleapyear-predicate>> shows the `isLeapYear` method which implements a predicate to determine if a given integer represents a leap year or not. The predicate has three clauses, stem:[c_400]: `year % 400 == 0`, stem:[c_4] `year % 4 == 0` and stem:[c_!100] `year % 100 != 0`, that, for convenience could be seen as the negated form of stem:[c_100]: `year % 100 == 0`. In this example the clauses are not independent from each other. Also, given the short-circuit behavior of logical operators in most programming languages, the order in which the clauses are evaluated may play a role in the value of the predicate.
+<<isleapyear-predicate>> shows the `isLeapYear` method which implements a predicate to determine if a given integer represents a leap year or not. The predicate has three clauses, stem:[c_400]: `year % 400 == 0`, stem:[c_4] `year % 4 == 0` and stem:[c_!100] `year % 100 != 0`, that, for convenience could be seen as the negated form of stem:[c_100]: `year % 100 == 0`. In this example the clauses are not independent from each other. Also, given the short-circuit behavior of logical operators in most programming languages, the order in which the clauses are evaluated play a role in the evaluation of the predicate.
 
 [[isleapyear-predicate, Listing {counter:listing}]]
 .Listing {listing}. A method that says if a given integer value corresponds to a leap year or not.
@@ -1015,7 +1056,7 @@ The simplest logic coverage criteria sets test requirements according to the val
 
 Predicate Coverage (PC):: This coverage criterion sets two test requirements: one on which the predicate evaluates to `true` and another where the predicate evaluates to `false`.
 +
-To fulfill this criterion we require only two inputs. It is a simple criterion but the clauses are not considered individually. Taking the predicate, stem:[((a > b) \wedge C) \vee p(x)] we can cover both requirements with stem:[(a = 5, b = 4, C = true, p(x) = true)] and stem:[(a = 5, b = 4, C = true, p(x) = false)], however, in both interpretations, the first two clauses of the predicate have always the same value.
+To fulfill this criterion we require only two inputs one making the predicate `true` and another making the predicate `false`. It is a simple criterion but the clauses are not considered individually. Taking the predicate, stem:[((a > b) \wedge C) \vee p(x)] we can cover both requirements with stem:[(a = 5, b = 4, C = true, p(x) = true)] and stem:[(a = 5, b = 4, C = true, p(x) = false)], however, in both interpretations, the first two clauses of the predicate have always the same value.
 
 Clause Coverage (CC):: This criterion sets two test requirements for each clause in a predicate. For one requirement, the selected clause should be `true` and for the other the same clause should be false `false`.
 +
@@ -1050,7 +1091,7 @@ A major clause _determines_ the predicate if the minor clauses have values such 
 +
 For the predicate  stem:[((a > b) \wedge C) \vee p(x)] if we select stem:[a > b] as the major clause, stem:[C] and stem:[p(x)] are the minor clauses. If we assign values stem:[(C = true, p(x) = false)] to the minor clauses, stem:[a > b] determines the predicate because, when the major clause is `true` the entire predicate is `true` and when the major clause is `false` the predicate evaluates to `false`.
 +
-This criterion selects each clause in the predicate as major clause. Then, for each major clause stem:[c], we select values for the minor clauses in a way that stem:[c] determines the predicate. Then the criterion sets one test requirement for stem:[c = true] and another for stem:[c = false].
+This criterion selects each clause in the predicate as a major clause. Then, for each major clause stem:[c], we select values for the minor clauses in a way that stem:[c] determines the predicate. Then the criterion sets one test requirement for stem:[c = true] and another for stem:[c = false].
 +
 For example, for the predicate stem:[p = a \vee b] is easy to see that each clause determines the predicate when the other is `false`. So, selecting stem:[a] as the major clause we obtain requirements stem:[(a = true, b = false)] and stem:[(a = false, b = false)]. We proceed in a similar way with clause stem:[b] and obtain stem:[(a = false, b = true)] and stem:[(a = false, b = false)]. One of the requirements is common for both clauses, so in the end we have three test requirements stem:[(a = true, b = false)], stem:[(a = false, b = true)] and stem:[(a = false, b = false)].
 +
@@ -1060,7 +1101,7 @@ Given a predicate stem:[p] and a major clause stem:[c \in p], the predicate stem
 +
 The following examples illustrate how to use this result to find the values for the minor clauses.
 +
-WARNING: The following examples make heavy use of  https://en.wikipedia.org/wiki/Boolean_algebra[_Boolean Algebra_]. It would be better to refresh the main rules before going any further.
+WARNING: The following examples make heavy use of https://en.wikipedia.org/wiki/Boolean_algebra[_Boolean Algebra_]. It would be better to refresh the main rules before going any further.
 +
 Take the predicate stem:[p = a \wedge b], selecting stem:[a] as the major clause we need to find a condition for stem:[b] so stem:[a] dominates the predicate. We proceed as follows:
 +
@@ -1108,21 +1149,18 @@ As seen in the examples above, we can obtain four possible outcome when finding 
 *(2)* there is only one possible assignment (also known as interpretation) for the values of the minor clauses, *(3)* there is more than one possible interpretation and *(4)* the clause always determines the predicate. 
 
 +
-In those cases we can follow different strategies: either we keep the same values , in particular the two following:
+ACC sets two test requirements for each major clause: one in which the clause is `true` and another in which the clause is `false`. If there is more than one possible interpretation for the minor clauses we may decide to use different values on each requirement or force the same values of the minor clauses. If we force the use of the same values for the minor clauses, then we are using what is known as *Restricted Active Clause Coverage* (RACC). This is a stronger criterion but it can not be always satisfied when clauses are not independent. 
 
-- *Correlated Active Clause Coverage* (CACC): The values chosen for the minor clauses must cause the predicate to be `true` for one value of the major clause and `false` for the other.
-- *Restricted Active Clause Coverage* (RACC): The values chosen for the minor clauses must be the same for when the major clause is `true` and when the major clause is `false`. This is a stronger criterion that not always can be satisfied as the clauses may not be independent from each other.
+In fact, it could be possible that a test requirement becomes infeasible due to dependencies between the clauses for any of the previous coverage criteria. Given the case, we simply discard those inputs.
 
-In any of the coverage criteria explained above, it could be possible that a test requirement becomes infeasible due to dependencies between the clauses. Given the case, we simply discard those inputs.
-
-In scientific literature and practice it is common to hear talk about _Modified Condition/Decision Coverage_ (MC/DC). This coverage criterion is defined as follows <<comar2012formalization>>: 
+The literature often describes _Modified Condition/Decision Coverage_ (MC/DC). This coverage criterion is defined as follows <<comar2012formalization>>: 
 
 [quote]
 Every point of entry and exit in the program has been invoked at least once, every condition in a decision in the program has taken all possible outcomes at least once, every decision in the program has taken all possible outcomes at least once, and each condition in a decision has been shown to independently affect that decision’s outcome. A condition is shown to independently affect a decision’s outcome by varying just that condition while holding fixed all other possible conditions.
 
 In this definition, a _decision_ is a predicate and a _condition_ is a clause. Therefore, achieving RACC for all predicates in a program ensures MC/DC.
 
-Now, we use ACC, to derive test requirements for the method in <<isleapyear-predicate>>. We rewrite the predicate encoded in the method as stem:[p = c_400 \vee (c_4 \wedge \neg c_100)], where stem:[c_x] is equivalent to `year % x == 0`.
+Now, we use ACC to derive test requirements for the method in <<isleapyear-predicate>>. We rewrite the predicate encoded in the method as stem:[p = c_400 \vee (c_4 \wedge \neg c_100)], where stem:[c_x] is equivalent to `year % x == 0`.
 
 Selecting stem:[c_400] as the major clause we obtain stem:[p_{c_400} = \neg c_4 \vee c_100]. The following table shows the values, or interpretations of the clauses that make stem:[p_{c_400}] `true`.
 
@@ -1134,7 +1172,7 @@ Selecting stem:[c_400] as the major clause we obtain stem:[p_{c_400} = \neg c_4 
 | `false`    | `false`      | `true`
 |===
 
-But, these clauses are not independent. In fact the first row of the table is impossible. The same number can not be divisible by 100 (stem:[c_100 = true]) and not by 4 (stem:[c_4 = false]). Therefore we throw it away and keep only the two last rows, which leads us to the following truth values for stem:[p]:
+But, these clauses are not independent. In fact the first row of the table is infeasible. The same number can not be divisible by 100 (stem:[c_100 = true]) and not by 4 (stem:[c_4 = false]). Therefore we throw it away and keep only the two last rows, which leads us to the following truth values for stem:[p]:
 
 [options="header"]
 |===
@@ -1157,7 +1195,7 @@ Again, the clauses are not independent in this example. The first, second and fi
 | `false`      | `false`    | `false`      | `false`
 |===
 
-For this clause we can pick the first and the third rows to apply CACC and the first and second rows to apply RACC.
+For this clause we can pick the the first and second rows to satisfy RACC.
 
 Now we select stem:[c_4] as the major clause and obtain stem:[p_{c_4} = \neg c_100 \wedge \neg c_400] which is `true` only for the following interpretation:
 
@@ -1176,8 +1214,6 @@ Therefore, we obtain the following two additional test cases:
 | `false`      | `false`    | `false`      | `false`
 |===
 
-For this clause, both CACC and RACC are still applicable.
-
 Finally we pick stem:[c_100] as the major clause obtaining stem:[p_{c_100} = \neg C_400 \wedge c_4]. The only possible interpretation to make stem:[c_100] dominate the predicate is:
 
 [options="header"]
@@ -1195,7 +1231,7 @@ Which leads to the following test cases:
 | `false`      | `true`     | `false`      | `true`
 |===
 
-Some of the test cases for different clauses are the same, so combine them and obtain as final requirement, the following inputs:
+Some of the test cases for different clauses are the same, so we combine them and obtain as final requirements the following inputs:
 
 [options="header"]
 |===
