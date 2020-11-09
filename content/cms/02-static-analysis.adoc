@@ -84,7 +84,8 @@ There are similarities between the naming conventions for Java and C#. For examp
 .Listing {listing}. C# code respecting naming conventions
 [source,csharp]
 ----
-public class ComplexNode : Node, IEnumerable {
+public class ComplexNode : Node, IEnumerable 
+{
     public void RemoveNode(Node node) { ... }
 }
 ----
@@ -420,10 +421,10 @@ else {
 }
 ----
 
-In <<hummel2014mccabe>>, the author advocates against the use of the metric. Besides showing concrete examples where tools produce different results, he shows the method in <<hummel-switch>>. The author explain that this method is fairly easy to understand, yet it has a cyclomatic complexity of 14 while the more complex method in <<hummel-primes>> has a cyclomatic complexity of 5. 
+In <<hummel2014mccabe>>, the author advocates against the use of the metric. Besides showing concrete examples where tools produce different results, he shows the method in <<hummel-switch>>. The author explain that this method is fairly easy to understand, yet it has a cyclomatic complexity of 13 while the more complex method in <<hummel-primes>> has a cyclomatic complexity of 5. 
 
 [[hummel-switch, Listing {counter:listing}]]
-.Listing {listing}. A simple method with a cyclomatic complexity of 14. Taken from <<hummel2014mccabe>>.
+.Listing {listing}. A simple method with a cyclomatic complexity of 13. Taken from <<hummel2014mccabe>>.
 [source, java]
 ....
 String getMonthName (int month) {
@@ -642,10 +643,10 @@ graph {
     rankdir=LR;
     getX[pos="0,1!"];
     dot[pos="1,0!"];
-    sum[pos="1,2!"];
+    sub[pos="1,2!"];
     getY[pos="2,1!"];
-    getX -- sum[label=x] 
-    getY -- sum[label=y];
+    getX -- sub[label=x] 
+    getY -- sub[label=y];
     getX -- dot[label=x];
     getY -- dot[label=y];
     sum -- dot [label="x,y"];
