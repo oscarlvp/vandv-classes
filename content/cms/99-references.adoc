@@ -61,3 +61,8 @@
 . [[micco2016flaky, ({counter:references})]] Micco J. (2016) Flaky Tests at Google and How We Mitigate Them https://testing.googleblog.com/2016/05/flaky-tests-at-google-and-how-we.html Last accessed: 10/09/2020
 . [[li2016test, ({counter:references})]] Li, N., & Offutt, J. (2016). Test oracle strategies for model-based testing. IEEE Transactions on Software Engineering, 43(4), 372-395.
 . [[comar2012formalization, ({counter:references})]] Comar, C., Guitton, J., Hainque, O., & Quinot, T. (2012, February). Formalization and comparison of MCDC and object branch coverage criteria.
+. [[demillo1978hints, ({counter:references})]] DeMillo, R. A., Lipton, R. J., & Sayward, F. G. (1978). Hints on test data selection: Help for the practicing programmer. Computer, 11(4), 34-41.
+. [[coles2016pit, ({counter:references})]] Coles, H., Laurent, T., Henard, C., Papadakis, M., & Ventresque, A. (2016, July). Pit: a practical mutation testing tool for java. In Proceedings of the 25th International Symposium on Software Testing and Analysis (pp. 449-452).
+. [[coles2018making, ({counter:references})]] Coles H. (2018, October). Making Mutants Work For You or how I learned to stop worrying and love equivalent mutants, Paris JUG October 24th 2018
+. [[deng2013empirical, ({counter:references})]] Deng, L., Offutt, J., & Li, N. (2013, March). Empirical evaluation of the statement deletion mutation operator. In 2013 IEEE Sixth International Conference on Software Testing, Verification and Validation (pp. 84-93). IEEE.
+. [[untch1993mutation, ({counter:references})]] Untch, R. H., Offutt, A. J., & Harrold, M. J. (1993, July). Mutation analysis using mutant schemata. In Proceedings of the 1993 ACM SIGSOFT international symposium on Software testing and analysis (pp. 139-148).

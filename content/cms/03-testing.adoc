@@ -45,34 +45,35 @@ Despite having "`unit`" in the name and being widely used for unit testing, the 
 
 NOTE: At the moment of writing this material the latest stable version of JUnit is 5.6.2. This version will be used for all code examples.
 
-Suppose we have the `BoundedStack` class, shown in <<example-stack>>, that implements a _LIFO_ (Last In First Out) data structure with a fixed capacity. The class has a `void` method `push` to insert an element onto the stack and `pop` that removes the element on top of the stack and returns it. 
+Suppose we have the `BoundedStack` class, shown in <<stack-example>>, that implements a _LIFO_ (Last In First Out) data structure with a fixed capacity. The class has a `void` method `push` to insert an element onto the stack and `pop` that removes the element on top of the stack and returns it. 
 
-[[example-stack, Listing {counter:listing}]]
+[[stack-example, Listing {counter:listing}]]
 .Listing {listing}. The `BoundedStack` class represents  a _LIFO_ data structure with maximum capacity.
 [source, java]
 ----
-
-class BoundedStack {
+public class BoundedStack {
     private int[] elements;
     private int count;
 
-    public Stack(int capacity) {
+    public BoundedStack(int capacity) {
         elements = new int[capacity];
         count = 0;
     }
 
     public void push(int item) {
         if(count == elements.length) {
-            throw new IllegalOperationException();
+            throw new IllegalStateException();
         }
-        elements[count++] = item;
+        elements[count] = item;
+        count = count + 1;
     }
 
-    public int pop(int item) {
-        if(elements == 0) {
-            throw new IllegalOperationException();
+    public int pop() {
+        if(count == 0) {
+            throw new NoSuchElementException();
         }
-        elements[count--] = item;
+        count = count - 1;
+        return elements[count];
     }
 
     public int size() {
@@ -82,9 +83,7 @@ class BoundedStack {
     public int capacity() {
         return elements.length;
     }
-
 }
-
 ----
 
 A typical unit test for this class written with the help of JUnit would look like the code shown in <<junit-example>>.
@@ -93,25 +92,25 @@ A typical unit test for this class written with the help of JUnit would look lik
 .Listing {listing}. A typical unit test written with JUnit.
 [source,java]
 ----
-class StackTest {
+class BoundedStackTest {
     @Test
     public void testPushPop() {
         int original = 1;
-        BoundedStack stack = new Stack();
+        BoundedStack stack = new BoundedStack(10);
         stack.push(original);
         int onTop = stack.pop();
-        assertSame(item, onTop, "Element on top of the stack should be " + original);
+        assertEquals(original, onTop, "Element on top of the stack should be " + original);
     }
 }
 ----
 
-Test cases in JUnit are implemented inside _test classes_. These classes declare _test methods_ which contain the main code for the test cases. These test methods are identified with the `@Test` annotation. In <<junit-example>> the first four lines of `testPushPop` provide the input values of the test case and set the instance of `Stack` in the required state: an element has been pushed and then popped from the stack. 
+Test cases in JUnit are implemented inside _test classes_. These classes declare _test methods_ which contain the main code for the test cases. These test methods are identified with the `@Test` annotation. In <<junit-example>> the first four lines of `testPushPop` provide the input values of the test case and set the instance of `BoundedStack` in the required state: an element has been pushed and then popped from the stack. 
 
 The last line uses an oracle to verify that the element obtained from the stack was the same that was pushed in the first place. This type of oracle is known as an _assertion_. It evaluates a given condition and if the condition is false an `AssertionError` is thrown. It also includes a message to use as output in the case the assertion fails. In the absence of any assertion in the code, JUnit tests have an implicit oracle that checks if unexpected errors occur, that is, if an unexpected exception is thrown.
 
-JUnit provides a set of utility methods implementing different assertions such as: `assetEquals` that checks if two given objects are equal, `assertNotEqual`, the contrary, `assertNull` which verifies if a given value is `null`, `assertSame` used in the example to verify if two objects are the same and many more.
+JUnit provides a set of utility methods implementing different assertions such as: `assetEquals` that checks if two given objects are equal and it is used in the example, `assertNotEqual`, the contrary, `assertNull` which verifies if a given value is `null`, `assertSame` to verify if two objects are the same and many more.
 
-In some scenarios, a test case should verify whether an operation with the wrong input signals the right error. <<junit-throw>> shows how to achieve this. The test verifies that invoking `pop` in an empty `Stack` should throw an `IllegalOperationException`.
+In some scenarios, a test case should verify whether an operation with the wrong input signals the right error. <<junit-throw>> shows how to achieve this. The test verifies that invoking `pop` in an empty `Stack` should throw an `IllegalStateException`.
 
 [[junit-throw, Listing {counter:listing}]]
 .Listing {listing}. Verifying the correct error with JUnit.
@@ -119,8 +118,8 @@ In some scenarios, a test case should verify whether an operation with the wrong
 ----
 @Test
 public void testErrorPopEmptyStack() {
-    assertThrows(IllegalOperationException.class, () -> {
-        new BoundedStack().pop();
+    assertThrows(IllegalStateException.class, () -> {
+        new BoundedStack(1).pop();
     });
 }
 ----
@@ -164,7 +163,7 @@ else {
 }
 ...
 ----
-. <1> This line makes the code return a wired values to use in production.
+<1> This line makes the code return a wired values to use in production.
 
 Another example of this type of smell is when a class does not require an implementation of `equals` and we do need it just for testing purposes. This is known as _equality pollution_. The application code is filled with unnecessary `equals` methods, whose logic may actually go against the requirements. 
 
@@ -682,14 +681,16 @@ class BoundedStack {
         if(count == elements.length) {
             throw new IllegalOperationException();
         }
-        elements[count++] = item;
+        count = count + 1;
+        elements[count] = item;
     }
 
     public int pop(int item) {
         if(elements == 0) {
             throw new IllegalOperationException();
         }
-        elements[count--] = item;
+        count = count - 1;
+        return elements[count];
     }
 
     ...
@@ -1259,7 +1260,215 @@ Here we picked values that resemble recent years to be closer to the intention o
 
 ===== Mutation testing
 
-===== Examples of practice in industry
+We can use the coverage criteria studied so far to select meaningful sets of test inputs, to create test cases able to reach most potential faults and even to guarantee the program state infection for predicates. However, they do not ensure the creation of test cases able to reveal faults. In particular they do not consider the propagation and revealability conditions of the RIPR model. As an extreme example, we could remove all the assertions in a test suite. The test suite will be able to cover the same number of statements as before while it will loose its ability to evaluate the result of the tests. See for instance, that removing the assertion invocation in <<ripr-test>> leaving the method invocation, will produce the same coverage for `findLast`, but it will not uncover the fault anymore. Statement coverage, is useful to discover the code that is not tested but it is not good when it comes to evaluate the capability of the test suite to reveal bugs, which is, in the end, the main purpose of testing.
+
+_Mutation testing_ or _mutation analysis_ is a coverage criterion that directly assesses the capability of a test suite to discover bugs. It was first proposed in by DeMillo _et.al._ in the late 70's of the last century <<demillo1978hints>>.
+
+The idea behind this criterion is simple: if a test suite should reveal bugs, then we can assess how effective it is by using artificial faults. That is, we insert  artificial faults in the program and then we execute the test suite for each fault. The test suite should fail under these conditions, otherwise it needs to be improved.
+
+By inserting the artificial fault we _mutate_ the original program to create a faulty version. This version is called a _mutant_. If there is at least one test case in the test suite that fails when it is executed with the mutant, then the mutant is considered as detected and it is said to be _killed_. Otherwise it is a _live_ mutant. As a coverage criterion, mutation testing targets all live mutants as test requirements. This means that we design test cases to fail with those mutants that are not detected by the current set of test cases.
+
+The _mutation score_ is the ratio of killed mutants to the total number of mutants used. It is the the coverage level for this criterion and it is often used to quantitatively evaluate the bug revealing capabilities of a test suite. We aim to design test suite with high mutation score.
+
+In general, mutation testing works under following two assumptions: 
+
+- Programmers create programs that are close to being correct (_The competent programmer hypothesis_) and 
+- A test suite that detects all simple faults can detect most complex faults. That is, complex errors are coupled to simple errors. (_The coupling effect_)
+
+So, to create a mutant, mutation testing inserts only small and well localized syntactic changes. These changes follow predefined fault or transformation models called _mutation operators_. A mutation operator could, for example, change `+` by `-` in an arithmetic expression. Other operators may change a comparison operator, for example `>` by `>=`, change a constant in the code, for example, change any constant by `0`, remove a method invocation and so on.
+
+<<mutation-testing-algorithm>> shows in pseudo-code how mutation testing works. The procedure takes as input a program under test, the test suite designed to verify the program and a set of mutation testing operators. All mutation operators are used to create a set of mutants. Each mutant is then challenged against the test suite. If the test suite does not fail when executing a mutant, the faulty program version is kept as a _live mutant_. In the end, the procedure reports the list of live mutants and the mutation score.
+
+//TODO: explain the mutation testing algorithm
+[[mutantion-testing-algorithm, Listing {counter:listing}]]
+.Listing {listing}. Pseudo-code of the mutation testing process.
+[source, python]
+----
+input: program, test_suite, mutation_operators
+ouput: live_mutants = {}, 
+procedure:
+    for mutant in generate_mutants(program, mutation_operators): #<1>
+        fails = execute(test_suite, mutant) #<2>
+        if not fails:
+            live_mutants.append(mutant)
+    mutation_score = size(live_mutants)/size(mutants)
+    return  live_mutants, mutation_score #<3>
+----
+<1> Create mutants based on the mutation operators.
+<2> Execute the entire test suite with the mutant. `fails` is `false` if no test case failed in the execution.
+<3> The procedure returns the set of live mutants and the mutation score. 
+
+To illustrate the functioning of mutation testing we go back to the code of <<stack-example>>. We will consider the `BoundedStack` class as the program under test. <<mutatns-test-suite-example>> shows the test suite we shall evaluate with the help of mutation testing. This test suite contains only two test cases: one verifying the `push` method and another verifying the `pop` method. 
+
+[[mutants-test-suite-example, Listing {counter:listing}]]
+.Listing {listing}. Test suite to evaluate using mutation testing.
+[source, java]
+----
+public class BoundedStackTest {
+    @Test
+    public void testPush() {
+        BoundedStack stack = new BoundedStack(1);
+        stack.push(1);
+        assertEquals(1, stack.size());
+    }
+
+    @Test
+    public void testPop() {
+        BoundedStack stack = new BoundedStack(1);
+        stack.push(1);
+        stack.pop();
+        assertEquals(0, stack.size());
+    }
+}
+----
+
+We use the following four mutation operators:
+
+- Negate the boolean expression of conditional statements.
+- Replace `+` by `-` in arithmetic expressions.
+- Replace `-` by `+` in arithmetic expressions.
+- If a method returns an integer, we change the return value by `0`.
+
+<<mutants-stack-example>> shows the same `BoundedStack` class as in <<stack-example>> and highlights are the locations where the artificial faults are inserted to create the mutants.
+
+[[mutants-stack-example, Listing {counter:listing}]]
+.Listing {listing}. Examples of mutants created for the `BoundedStack` shown in <<stack-example>>.
+[source, java]
+----
+public class BoundedStack {
+    private int[] elements;
+    private int count;
+
+    public BoundedStack(int capacity) {
+        elements = new int[capacity];
+        count = 0;
+    }
+
+    public void push(int item) {
+        if(count == elements.length) { //<1>
+            throw new IllegalStateException();
+        }
+        elements[count] = item;
+        count = count + 1; //<2>
+    }
+
+    public int pop() {
+        if(count == 0) { //<3>
+            throw new NoSuchElementException();
+        }
+        count = count - 1; //<4>
+        return elements[count]; //<5>
+    }
+
+    public int size() {
+        return count; //<6>
+    }
+
+    public int capacity() {
+        return elements.length; //<7>
+    }
+}
+----
+<1> Negate the conditional: `count != elements.length`.
+<2> Replace `+` by `-`: `count = count - 1`.
+<3> Negate the conditional: `count != 0`.
+<4> Replace `+` by `-`: `count = count + 1`.
+<5> Replace the result by `0`: `return 0`.
+<6> Replace the result by `0`: `return 0`.
+<7> Replace the result by `0`: `return 0`.
+
+With the four mutation operators we obtain seven mutants in total. Two mutants, (<1> and <3>) are produced by negating conditionals inside `push` and `pop`. A mutant (<2>) is produced by changing the arithmetic operator in the increment inside `push` and another by changing the decrement inside `pop` (<4>). The other three are created by changing the result of `pop`, `size` and `capacity`. No fault was inserted in the constructor of the class.
+
+Now, each fault is inserted in isolation from the rest and that each mutant is challenged by the execution of the test suite. The outcome for each mutant is as follows:
+
+- Mutant *1* is killed. It makes `pop` throw an unexpected exception which also makes both test cases `testPush` and `testPop` fail.
+- Mutant *2* is killed. After the fault is executed, `count` results in `-1` then the assertion in `testPush` fails as it expects the result of `size` to be 1 and not `-1`;
+- Mutant *3* is killed in the same way as mutant <1>: `pop` throws an unexpected exception and `testPop` fails.
+- Mutant *4* is killed. At the end of the invocation of `pop` in `testPop`, `count` is equal to `2` which is not the expected value per the assertion and the test case fails.
+- Mutant *5* lives. It is not detected by any of the two test cases. In the code of the mutant `pop` returns `0`. However, the `testPop` does not verify the result of the method. Therefore the test case does not fail and the mutant lives.
+- Mutant *6* is killed. The result of `size` changed to return `0`. This does not make `testPop` fail but it does make `testPush` fail as the expected value is `1`.
+- Mutant *7* lives. The method is not invoked by any test case, therefore the mutated code is never reached and the mutant lives.
+
+Out fo the seven mutants, two survived the analysis. Then, this small test suite has a score of stem:[\frac{2}{7}]. Inspecting both live mutants we can find hints on how to improve our test suite. 
+
+The fault introduced to create mutant *7* is not executed by the test suite. In this sense we say that the mutant is not reached by the test suite. `capacity` is a simple getter, it might be a waste of time to create a test case only to verify it but it exposes part of the internal state of a `BoundedStack` instance. The fact that it is not executed means that we are not verifying this part of the state. So, instead of creating a test case designed to check the functionalities of `capacity` it might be better to check that the other methods do not affect the part of the state that `capacity` exposes. In the case of our example we might verify that the capacity of the stack never changes. See that unreached mutants produce the same information as code coverage.
+
+On the other hand, mutant *5*, is reached by the test suite. The artificial fault actually infects the program state as the result of `pop` is changed in the execution from `1` to `0`. However the oracle in `testPop` does not check the result of `pop` and it becomes evident that we should either add a new assertion for this or even create a new test case designed to check the result of the method.
+
+Mutation testing evaluates the test suite as a whole. So, it is not required to improve `testPop` to detect mutant <6> as it is detected by `testPush`. In the same way no test case can cover all scenarios, all test cases shall not kill all mutants.
+
+Although it has gained some attention in the last few years and in spite of being several decades old, mutation testing has still a scarce adoption in industry when compared with code coverage. The main reason for that lay in the limitations of the criterion:
+
+- The mutation testing process is complex. There is a true lack of tooling support with easy integration in the development process beyond academic circles. However, this has been changing with emergence of industrial level tools like PIT, for Java programs <<coles2016pit>>. 
+- Mutation testing is very expensive in terms of execution time. This is one of the main arguments used against it. The test suite has to be executed for each mutant that is created in the process. The number of mutants, even for very small programs is potentially huge. Also, if the mutants are inserted in the source code then the program needs to be recompiled after the fault is inserted every execution, which increases even more the execution costs.
+- It is hard to interpret the mutation score as a global metric for the quality of the test suite. Code coverage is simpler, it represents the percentage of code that is executed by the test suite. However, the mutation score is tied to the mutation operators we use. It does not mean that we can catch that portion of all possible faults.
+- Live mutants need to be inspected by hand which may be tedious and difficult. The manual inspection has to main goals: understand why the mutant is not killed and obtain hints to improve the test cases and, to sort out mutants equivalent to the original code. Equivalent mutant are a major problem in mutation testing. These are artificial faults that turn out to be functionally equivalent to the original code. They pollute the value of the mutation score and waste the time of developers. In the general case, there is undecidable to determine if a mutant is equivalent to the original program.
+
+Along the years, the community has developed many strategies to cope with the limitations of mutation testing. First, equivalent mutants my not be totally negative. According to Henry Coles, the creator of PIT, they can be often an indication that the original program is redundant and that it could be refactored. <<equivalent-mutant>> shows an example of this phenomenon explained by Coles in <<coles2018making>>.
+
+The first method corresponds to the original method under test. The second is the mutant created by changing the comparison operator or the second conditional statement. The mutant is equivalent to the original code. The case where `i` is equal to `100` is already contained in the first condition. However, this situation reveals that the second condition is redundant and that it could be removed to make the code of the method simpler.
+
+[[equivalent-mutant, Listing {counter:listing}]]
+.Listing {listing}. Example of an equivalent mutant and how it signals the need for refactoring.
+[source, java]
+----
+//Original code
+public void someLogic(int i) { //<1>
+  if (i <= 100) { 
+    throw new IllegalArgumentException(); 
+  } 
+  if (i > 100) {
+    doSomething(); 
+  } 
+}
+
+//Mutant
+public void someLogic(int i) { //<2>
+  if (i <= 100) { 
+    throw new IllegalArgumentException(); 
+  } 
+  if (i >= 100) {
+    doSomething(); 
+  } 
+}
+
+// Refactored code
+public void someLogic(int i) { //<3>
+  if (i <= 100) { 
+    throw new IllegalArgumentException(); 
+  } 
+  doSomething();  
+}
+----
+<1> Original method code.
+<2> A mutant is created by changing the comparison operator from `>` to `>=`. The mutant is equivalent to the original code.
+<3> Refactored method.
+
+There are several strategies to reduce the cost of executing the mutation analysis. Here are some of them:
+
+- We can use a statistically significative sample instead of all mutants created in the process.
+- We may use only a handful of mutation operators. In fact, some research results indicate that using mutation operators that only remove statements produces much fewer mutants making the analysis more efficient and still highly effective <<deng2013empirical>>.
+- The execution of the test suite  against each mutant can be parallelized, for example in concurrent processes or even in more specialized infrastructures like clusters.
+- The test suite execution can stop after the first test case failure. In general there may be no need to run the rest of the tests once one of them has failed as the mutant is already detected.
+- When executing the test suite with a mutant, we should consider only the test cases reaching the mutant and not the entire test suite. As a consequence, the test suite will not be executed if a mutant is not reached by any test case. This strategy requires computing beforehand the statement coverage, but it has been proven to a huge real time saver in practice with tools like PIT.
+- To avoid compilation cycles, mutants could be inserted in-memory in the compiled code. Another strategy inserts  the code of all mutants at once with only one compilation cycle. Mutants are then activated with the help of external parameters <<untch1993mutation>>.
+
+Mutation testing is a strong coverage criterion to evaluate and improve a test suite. It can produce the same information as code coverage but leads to a more meaningful hints for the creation and hardening of test cases. This is particularly true if live mutants are analyzed with the RIPR model. A mutant that does not infect the state of any test case execution signals the need of additional test inputs. A live mutant that propagates the state infection to the test code signals the need for better oracles as seen in the examples above. In this sense, it is the strongest coverage criteria explained in this chapter. However, this strength comes at a high cost as evidenced by the limitations discussed before.
+
+===== Coverage criteria in practice
+
+//TODO: Mention the standards using MC/DC
+
+//TODO: Mention code coverage tools JaCoCo and OpenClover. Show how they instrument the code, show the report on statement and branch coverage
+
+//TODO: Google coverage guidelines
+
+//TODO: XWiki coverage strategy
+
+//TODO: PIT, show examples of the operators, show the output,
+
+//TODO: Mutation testing at Google
+
 
 ==== Test doubles
 
