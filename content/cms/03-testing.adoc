@@ -1526,7 +1526,214 @@ The system analyses programs written in C++, Java, Python, Go, JavaScript, TypeS
 
 ==== Test doubles
 
+Often, code units depend on other software components to achieve their functionalities. When testing a unit it may happen that some of its dependencies are not yet implemented and we only have an interface. It could also happen that these dependencies perform actions that can't be undone, like sending an email to a customer which makes them not suited for testing. In such scenarios we use test doubles. Doubles as in stunt doubles.
+
+Ammann and Offutt <<amman2017introduction>> define test doubles as software components implementing only partial functionalities that are used during testing in place of actual production components. That is, we create classes that do not contain the actual functionality but provide a minimal working code that we can leverage in our tests.
+
+Let's illustrate test doubles with a simplified example. Suppose we are building an e-commerce website. In our code (<<test-doubles-example-scenario>>) we have notions about customers, products and shopping carts. A product has a base price. A shopping cart belongs to a user and contains a collection of products. This class uses a service `PromoService` to obtain the active promotions for a user. A promotion applies to a product and informs the net discount for a product with `getDisscountFor`. A shopping cart computes the final price of the collection of products using the active promotions and applies all discounts.
+
+[[test-doubles-example-scenario, Listing {counter:listing}]]
+[source, java]
+.Listing {listing}. Components of a simplified e-commerce website.
+----
+class User { 
+    ... 
+}
+
+class Product { 
+    ...
+
+    public BigDecimal getBasePrice() {
+        ...
+    } 
+}
+
+class ShoppingCart {
+
+    User user;
+    Collection<Product> products;
+    PromoService service;
+
+    public BigDecimal getTotalBasePrice() {
+        // Sum of all base prices
+        ...
+    }
+
+    public BigDecimal getFinalPrice() {
+        ...
+    }
+
+}
+
+interface PromoService {
+
+    Collection<Promotion> getActivePromotions(User user);
+
+}
+
+interface Promotion {
+
+    boolean appliesTo(Product product);
+
+    BigDecimal getDiscountFor(Product product);
+
+}
+
+----
+
+Suppose we are given the task to test `getDiscountFor`. `ShoppingCart` depends on `PromoService`. The actual implementation of this interface could be still under development at the moment we will test `ShoppingCart`. It could also be the case, that the actual implementation requires access to a database which might make the test slower. To avoid dealing with these issues we can create test doubles for `PromoService`.
+
+For example, one scenario we would like to test is when the user has no active promotions. Instead of messing with the actual production code, we can create a simple test double like in <<empty-service-stub-example>>. This double returns a predefined constant value. Such test doubles are usually called _stubs_. Apart from returning fixed values, stubs could also return values selected from a collection, or values that depend on the input or even random values. 
+
+
+[[empty-service-stub-example, Listing {counter:listing}]]
+[source, java]
+.Listing {listing}. A simple test double for `PromoService` to test the scenario where the user has no active promotions and an extract of a test case using the test double.
+----
+
+class NoPromoServiceStub implements PromoService {
+    public Collection<Promotion> getActivePromotions(User user) {
+        return Collections.empty();
+    }
+}
+
+...
+
+@Test
+public void testPriceNoActivePromotion() {
+    ShoppingCart cart = ...
+    cart.setPromoService(new NoPromoServiceStub());
+
+    assertEquals(cart.getTotalBasePrice(), cart.getFinalPrice(), 
+                "With no promotions the final price must be equal to the total base price");
+}
+
+----
+
+Since we are testing the interaction between software components, sometimes it is useful to add verifications inside the code of a test double. This could help us verify, for example, that a method has been called a certain number of times. In our example, we could verify that `getActivePromotions` is invoked only once. Test doubles implementing verifications on the interaction of components are usually called _mocks_.
+
+
+NOTE: Some authors state that mocks are a kind of specialized stubs. As Ammann and Offutt say, whether a mock is also a stub is not relevant for practical purposes. Other authors may include more classifications for test doubles such as: _dummies_, _spies_ and _fakes_, depending on the amount of functionality they implement.
+
+
+Test doubles have several advantages in practice. We already discussed that test doubles are helpful when a component has not been implemented to create test cases matching the specification. Then, the implementation can leverage these early tests and the development of other functionalities is not blocked. As we discussed before, test doubles also avoid the execution during testing of actions that are permanent or hard to undone, like writing to a database or sending an email. Test doubles also provide a nice sandbox when dealing with external components that may not always be available or their execution takes a lot of time, for example, using a remote REST API. In such scenarios, using test doubles guarantee that our test cases will remain fast and will not fail if the service is not available.
+
+We can choose to create test doubles manually, like we did before with the stub. In such a simple example manually creating the stub was enough. But, for more complex scenarios and to perform more complex verifications inside mocks we might better use available _mocking frameworks_.
+
+===== Mocking frameworks: Mockito
+
+Our tests should be simple to understand, as we need to map them to the specification and we need to maintain them. Creating test doubles by hand could make our test cases more complex. _Mocking frameworks_ are software tools that keep the creation of test doubles clean and easy to incorporate to our test code. One of such frameworks for Java is https://site.mockito.org/[_Mockito_]
+
+Mockito has an easy to use and understand fluent API. With it we can create and verify stubs and mocks almost declaratively. <<empty-mockito-stub-example>> shows an example of who to rewrite <<empty-service-stub-example>> with Mockito.
+
+[[empty-mockito-stub-example, Listing {counter:listing}]]
+[source, java]
+.Listing {listing}. Rewriting <<empty-service-stub-example>> with the help of Mockito.
+----
+@Test
+public void testPriceNoActivePromotion() {
+    
+    PromoService service = mock(PromoService.class); //<1>
+
+    when(service.getActivePromotionsFor(any())) //<2>
+        .thenReturn(Collections.emptyList());
+    
+    ShoppingCart cart = ...
+    cart.setPromoService(service);
+
+    assertEquals(cart.getTotalBasePrice(), cart.getFinalPrice(), 
+                "With no promotions the final price must be equal to the total base price");
+}
+
+----
+<1> Instructs Mockito to create a test double for `PromoService`.
+<2> Specifies the behavior on `getActivePromotionsFor`. The double is instructed to return an empty list for any argument.
+
+<<empty-mockito-mock-example>> shows an extract of a test case verifying that `getFinalPrice` invokes `getActivePromotionsFor` only once. If during the execution of the test case, the method is not invoked or it is invoked two or more times, the test case will fail.
+
+[[empty-mockito-mock-example, Listing {counter:listing}]]
+[source, java]
+.Listing {listing}.
+----
+@Test
+public void testPromotionsConsutledOnce() {
+    PromoService service = mock(PromoService.class);
+    ShoppingCart cart = ...
+    cart.setPromoService(service)
+    BigDecimal finalPrice = cart.getFinalPrice();
+
+    ...
+    
+    verify(service, times(1)).getActivePromotionsFor(any()); //<1>
+}
+----
+<1> Assertion to verify the number of times the method was invoked.
+
+In both examples Mockito prevented the manual creation of classes and provided an easy to understand mechanism to incorporate the test doubles. The test code remains simple and self-contained. Also, the same general mechanism can be used for all our classes. The framework also allows mocking concrete classes beyond only interfaces. It also provides ways to verify that a method was invoked with specific arguments, and even to still invoke concrete methods while observing their behavior.
+
+===== Best practices and misuses
+
+Test doubles are powerful allies for testing, but they can be often misused. There are even testing smells that concern only mocks and stubs. 
+
+One of the test smells coined for mocks is the _Mock Happy_ smell. It refers to test cases that require many mocks to run. These test cases are often fragile and hard to understand <<garousi2018smells>> and maintain.
+
+In general terms, the overuse of mocks can damage the quality of our test code. For example, we should avoid mocking value types or any other immutable type or any class that is simple enough to control and observe. Mocking those classes may result in a test code that brings little value and it may even be harder to understand than using the original class directly.
+
+We should avoid mocking third party classes as much as possible. When we mock a class we make assumptions on their behavior. Those assumptions may be wrong if we don't fully understand how external classes behave in all scenarios. We should create mocks mostly for our own code. Expressing an incorrect behavior of external dependencies with mocks leads to test cases that do not fail, yet, the code will break in production <<freeman2007everything>>. 
+
 === The role of testability
 
+High quality test cases are concise, clear, repeatable, independent, efficient and maintainable <<meszaros2003test>>. A good test suite facilitates the development of our product as it catches bugs earlier. However, code quality has also an important effect over the quality of the test cases. Low quality code is hard to test. If the classes in the code are tightly coupled, or the software has hidden external dependencies, or if it forcibly depends on external services, then it is hard for test cases to instantiate the components and set them in the specific states required for testing <<day2014available>>.
+
+Therefore, we should design software with tests in mind, that is, we should design software to be testable. _Testability_ is the property of a system that characterizes how easy it is to test. It can be defined in terms of two other sub-properties: _controllability_: how easy it is so set a software component in the desired state and, _observability_: how easy it is to observe and verify the state of the component. In other words, a software is testable if its state is easy to control an observe. High quality code leads to a highly testable software.
+
+For example, loosely coupled classes with high cohesion, that observe the _Single Responsibility Principle_ are easier to instantiate and also lead to easier and more understandable test cases. Complex code will necessary produce complex and hard to understand test cases. Coupled classes will also make the test code unnecessarily large and harder to read since we will need to create many objects at the same time to test one of them.
+
+These symptoms of bad code often manifest themselves during testing. In most occasions it is better to go back and redesign our software components than creating complex test cases. For example repeating the same mocking setup across many test cases might be a signal of tight coupling that should be better solved in the application code than making the test code repetitive <<miller2008patterns>>.
+
+Design patterns are general solutions to recurring problems in programming <<source2020design>>. These solutions are proven to be effective and, if well used, they help making the code easier to understand. The good application of design patterns also make the code more testable <<day2014available>>, <<moore2019designing>>. Two patterns often used as examples of testing facilitators and in particular to make mocking easier are _Dependency Injection_ and _Repository_.
+
+Using _Dependency Injection_, classes receive their dependencies instead of explicitly create them. Classes then depend on abstractions, interfaces, that can be easily exchanged. Also, since classes are not in charge of creating their dependencies their code is simpler. Our example with `PromoService` is loosely based in this design pattern. This pattern makes it extremely easy to exchange the dependency, which is helpful for mocking and stubbing as we saw in the example. It also makes the component more controllable as we can create dependencies more easily than production code.
+
+With the _Repository_ pattern we create a class that manages all access to the data. This class encapsulates and hides the actual data access operations, separating even more our components from the data access implementation and the concrete storage method used in production. Using this design pattern facilitates mocking the data access mechanisms which in turn facilitates the verification of how our code interacts with the data components. We also avoid making actual database modifications that we might need to undo to keep our tests repeatable.
+
 === Test Driven Development
+
+_Test Driven Development_ (TDD) is an approach to software development that encourages writting tests first, before writing any application code. The concepts behind TDD are derived from the _Extreme Programming_ movement in the late 90's. The popularization of this methodology is credited to Kent Beck, who also created SUnit, a unit testing framework for Smalltalk and inceptor of the entire xUnit framework familly. Beck also participated in the development of JUnit together with Erich Gamma.
+
+In his seminal book, _Test-driven development: by example_ <<beck2003test>> Beck states that TDD follows two simple rules:
+
+* Don’t write a line of new code unless you first have a failing automated test.
+* Eliminate duplication.
+
+These two rules induce the organization of programming tasks in a cycle, knonw as the _Red/Green/Refactor_ cycle:
+
+Red:: Write a simple and short test that does not work. Since the application code isn't already entirely written, the test might not even compile. The name of this phase makes allution to the fact that failing tests are usually shown in red in many programming environments.
+
+Green:: Take any quick coding action required to make the failing test work. In this phase we will introduce low quality code with repetitions and non-optimal solutions. Our only goal is to make the test pass, hence the _Green_ name.
+
+Refactor:: Eliminate any redundancy or duplication and improve the code added to make the test pass by refactoring. This refactoring benefits for the previously created tests. If we make a mistake during this phase, the tests in place will catch it early enough.
+
+If we use TDD, whenever we add a new feature to our product we must start this cycle. At the end of each phase of the cycle we must execute all tests that have been created and not only the one we just addded. In the _Red_ phase only the new test should fail for the expected reasons. If the test does not fail, then it is wrong or does not bring any value to the test suite. No other test should fail by the addition of this new test. After the _Green_ phase all tests must pass. The new code should not brake any existing test and it must be created to make the new test pass. During the _Refactoring_ phase the test suite becomes a safety net in which we can rely to improve the quality of our code without introducing changes that break the expected behavior.
+
+TDD requires an efficient test suite that can be executed regularly to obtain early feedback from tests. It also requires developers to write their own test cases. These premises are actually at the core of modern software development.
+
+The methodology has true practical advantages <<moore2019designing>>. On the one hand, it forces the creation of tests that might otherwise never been written. On the other hand, the application code is designed from the users' perspective and it enforces developers to write testable application code. The effective use of TDD shall produce in the long term code with fewer bugs and shall reduce the need for debugging as tests should be informative enough to diagnose any fault.
+
+Like any other methodology TDD has gained adepts and detractors which regularly engage in never-ending discussions. Both sides use strong arguments to make their cases. However, we must keep in mind that, again, as any practical approach, TDD fits better the practices of ones and not the ways of others. We should not use it blindly and we should think whether its application may bring more damage than good.
+
+Applying TDD does not mean that we don't need a careful design of our product. An initial and comprehensive design phase is crucial for the quality of our software <<li2018why>>. A good design actually facilitates the application of TDD, as it helps keeping the tests focused. But it is not true in the opposite sense. Without a clear desing, we will be making the design on the fly and TDD may lead to bad design choices.
+
+Real life is not the same as the small and carefully crafted examples, often used to introduce TDD. In those examples, the requirements are clear and will not change. However, in a real development projects the requirements may change in time and are often vague. We should take that into account otherwise we will find ourselves adapting our code and our prematurely created tests many times increasing the cost of maintainnace and development <<fox2019test>>.
+
+TDD favors a strong focus on unit testing. Over-specifying our code with unit tests may lead to unuseful test cases that may well verify assertions that under no circumstances will be false. It may also lead to an important ammount of tests for very simple code. It may also induce to the overuse of mocks, whose perills we already discussed in the previous section. In practice, there are scenarios when a couple of higher level tests can be more useful than tens of unit tests. This tradeoff should be carefully taken into account <<schranz2014case>>.
+
+Projects with well defined functional requirements unlikely to change much seem to be a good match for TDD. Take as example the creation of a compiler. The specification of the source and target language do not change much in time. The structure of the tests is also well define in the for of input and expected output. In such a project we will be creating tests cases directly matching the specification and main goal of the product.
+
+Maybe, as Eric Gunnerson puts it, the most relevant phase of TDD is not creating the tests but the regular code refactoring. Refactoring should lead to a better designed product with high quality code, with low coupling and better testability <<gunnerson2017notdd>>.
+
+But, should we use TDD or not? There is no simple answer. We must use the approach that better fits our practices. In the words of Martin Fowler:
+
+[quote, Martin Fowler, Is TDD Dead? <<fowler2014is>>]
+Everything still boils down to the point that if you're involved in software development you have to be thoughtful about it, you have to build up what practices work for you and your team, you can't take any technique blindly. You need to try it, use it, overuse it, and find what works for you and your team. We're not in a codified science, so we have to work with our own experience.
 

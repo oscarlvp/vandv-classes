@@ -22,7 +22,7 @@
 . [[leswing2020bnew, ({counter:references})]] Leswing K., CNBC (2020 Apr 6^th^) New Jersey needs volunteers who know COBOL, a 60-year-old programming language https://www.cnbc.com/2020/04/06/new-jersey-seeks-cobol-programmers-to-fix-unemployment-system.html. Last accessed: 06/07/2020.
 . [[mittal2016survey, ({counter:references})]] Mittal, S. (2016). A survey of techniques for approximate computing. ACM Computing Surveys (CSUR), 48(4), 1-33.
 . [[hardesty2010when, ({counter:references})]] Hardesty L. (2010). When good enough is better. MIT News Office. https://news.mit.edu/2010/situationally-award-0513 Last accessed: 28/10/2020.
-. [[misailovic2010quality, ({counter:reference})]] Misailovic, S., Sidiroglou, S., Hoffmann, H., & Rinard, M. (2010, May). Quality of service profiling. In Proceedings of the 32nd ACM/IEEE International Conference on Software Engineering-Volume 1 (pp. 25-34).
+. [[misailovic2010quality, ({counter:references})]] Misailovic, S., Sidiroglou, S., Hoffmann, H., & Rinard, M. (2010, May). Quality of service profiling. In Proceedings of the 32nd ACM/IEEE International Conference on Software Engineering-Volume 1 (pp. 25-34).
 . [[meyer2008seven,({counter:references})]] Meyer, B. (2008). Seven principles of software testing. Computer, 41(8), 99-101. https://doi.org/10.1109/MC.2008.306 Also available here: http://se.inf.ethz.ch/old/people/meyer/publications/testing/principles.pdf
 . [[netflix2011,({counter:references})]] The Netflix Simian Army. (2011). https://netflixtechblog.com/the-netflix-simian-army-16e57fbab116 Last accessed: 01/05/2020
 . [[fowler2006continuous,({counter:references})]] Continuous Integration. (2006). https://martinfowler.com/articles/continuousIntegration.html Last accessed: 01/05/2020
@@ -70,4 +70,14 @@
 . [[ivankovic2019code, ({counter:references})]] Ivanković, M., Petrović, G., Just, R., & Fraser, G. (2019, August). Code coverage at Google. In Proceedings of the 2019 27th ACM Joint Meeting on European Software Engineering Conference and Symposium on the Foundations of Software Engineering (pp. 955-963).
 . [[massol2013tip, ({counter:references})]] Massol, V., (2013) Tip: Find out max Clover TPC for Maven modules Available at: https://massol.myxwiki.org/xwiki/bin/view/Blog/MaxCloverTPCTip Last accessed: 12/11/2020
 . [[petrovic2018state, ({counter:references})]] Petrović, G., & Ivanković, M. (2018, May). State of mutation testing at google. In Proceedings of the 40th international conference on software engineering: Software engineering in practice (pp. 163-171).
-
+. [[freeman2007everything, ({counter:references})]] Freeman S. (2007, April) Test Smell: Everything is mocked Available online: http://www.mockobjects.com/2007/04/test-smell-everything-is-mocked.html Last accessed: 23/11/2020
+. [[day2014available, ({counter:references})]] Day B. (2014) Better Unit Tests through Design Patterns: Repository, Adapter, Mocks, and more…. Available online: https://www.benday.com/wp-content/uploads/2014/08/benday-agile-2014-unit-testing-v2.pdf Last accessed: 23/11/2020
+. [[miller2008patterns, ({counter:references})]] Miller J. (2008) Patterns in Practice. Design For Testability. Available online: https://docs.microsoft.com/en-us/archive/msdn-magazine/2008/december/patterns-in-practice-design-for-testability Last accessed: 23/11/2020
+. [[moore2019designing, ({counter:references})]] Moore J. (2019, September) Designing for testability. Available online: https://jenniferplusplus.com/designing-for-testability/ Last accessed: 23/11/2020
+. [[source2020design, ({counter:references})]] Source Making. Design patterns https://sourcemaking.com/refactoring/smells Last accessed: 23/11/2020
+. [[beck2003test, ({counter:references})]] Beck, K. (2003). Test-driven development: by example. Addison-Wesley Professional.
+. [[li2018why, ({counter:references})]] Li, C. (2018, May) Why TDD is Bad (and How to Improve Your Process) Available online: https://medium.com/@charleeli/why-tdd-is-bad-and-how-to-improve-your-process-d4b867274255 Last accessed: 24/11/2020
+. [[fox2019test, ({counter:references})]] Fox, C. (2019, November) Test-Driven Development is Fundamentally Wrong. Available online: https://hackernoon.com/test-driven-development-is-fundamentally-wrong-hor3z4d Last accessed: 24/11/2020
+. [[schranz2014case, ({counter:references})]] Schranz, T. (2014, January) A Case against Test-Driven Development. Available online: https://medium.com/product-love/a-case-against-test-driven-development-b230ebecee64 Last accessed: 24/11/2020
+. [[gunnerson2017notdd, ({counter:references})]] Gunnerson, E. (2017, November) #NoTDD Available online: https://docs.microsoft.com/en-us/archive/blogs/ericgu/notdd Last accessed: 24/11/2020
+. [[fowler2014is, ({counter:references})]] Forwler, M. (2014), Is TDD dead? Available online: https://martinfowler.com/articles/is-tdd-dead/ Last accessed: 24/11/2020
