@@ -118,7 +118,7 @@ In some scenarios, a test case should verify whether an operation with the wrong
 ----
 @Test
 public void testErrorPopEmptyStack() {
-    assertThrows(IllegalStateException.class, () -> {
+    assertThrows(NoSuchElementException.class, () -> {
         new BoundedStack(1).pop();
     });
 }
@@ -136,7 +136,7 @@ It is important to add information that helps identifying the fault in the event
 
 Automated test cases are code, _test code_, and like their counter part, the _application code_ they should be maintained and we should care about their quality. Poorly written test cases bring no value to the development process. They negatively impact the fault detection capabilities of a test suite. They are also hard to understand and hard to leverage to correctly identify faults.
 
-As summarized in <<meszaros2003test>> automated test cases should be *concise* and *clear*: brief, yet comprehensive and easy to understand, *self-checking*: they should report results without human intervention, *repeatable*, *robust* and *independent*: it should be possible to run them consecutive times without human intervention and they should always produce the same results whether their are run in isolation or with other tests. Tests should also be *efficient*: they should run in a reasonable amount of time and should be *maintainable*: that is, they must be easy to modify and extend even when the system under test changes. Also, with respect to the application and the requirements, tests must be *sufficient* so all requirements of the system are verified, *necessary* so that everything inside each test contributes to the specification of the desired behavior, with no redundancy and unneeded artifacts, each test should be *specific* so tests failures point to the specific fault, and *traceable* so that it can be easily mapped to the parts of the application code it verifies and the part of the specification it has been derived from. 
+As summarized in <<meszaros2003test>> automated test cases should be *concise* and *clear*: brief, yet comprehensive and easy to understand, *self-checking*: they should report results without human intervention, *repeatable*, *robust* and *independent*: it should be possible to run them consecutive times without human intervention and they should always produce the same results whether their are run in isolation or with other tests. Tests should also be *efficient*: they should run in a reasonable amount of time and should be *maintainable*: that is, they must be easy to modify and extend even when the system under test changes. Also, with respect to the application and the requirements, tests must be *sufficient* so all requirements of the system are verified, *necessary* so that everything inside each test contributes to the specification of the desired behavior, with no redundancy and unneeded artifacts, each test should be *specific* so tests failures point to the specific fault and the broken functionality, and *traceable* so that it can be easily mapped to the parts of the application code it verifies and the part of the specification it has been derived from. 
 
 ==== Test smells
 
@@ -813,7 +813,7 @@ The following set of inputs achieve ECC coverage. All blocks from <<final-partit
 | `{ day: -1, month: -1, year:    0}` | `q1b2`, `q2b1`, `q3b1`
 | `{ day:  0, month:  4, year: 2020}` | `q1b3`, `q2b4`, `q3b2`
 | `{ day: -2, month:  0, year: 2019}` | `q1b4`, `q2b2`, `q3b1`
-| `{ day: 29, month:  2, year: 2020}` | `q1b3`, `q2b5`, `q3b4`
+| `{ day: 29, month:  2, year: 2019}` | `q1b3`, `q2b5`, `q3b4`
 | `{ day:  0, month: 13, year: 2018}` | `q1b4`, `q2b6`, `q3b2`
 |===
 
@@ -991,7 +991,9 @@ For the graph in <<control-flow-findlast>> the number of circuits in the basis i
 . `(2) => (3) => (4) => (2)`
  
 +
-If we set all linearly independent circuits as test requirements, then we create a test for each circuit in the base and we ensure that we are testing, at least once, each outcome from a decision or conditional node. For example, the test case in <<ripr-test>> covers the first circuit in the basis, in which the element appears in the first position. Testing with an empty array would cover the second circuit in the basis. Any test case that loops over the array covers the third and last circuit in the basis, such as the test case in <<ripr-no-infection>>. The cyclomatic complexity sets a lower bound for the number of different tests executing all branches.
+If we set all linearly independent circuits as test requirements, then we create a test for each circuit in the base and we ensure that we are testing, at least once, each outcome from a decision or conditional node. For example, the test case in <<ripr-no-infection>> covers the first circuit in the basis, in which the element appears in the last position. Testing with an empty array would cover the second circuit in the basis. Any test case that loops over the array covers the third and last circuit in the basis, such as the test case in <<ripr-no-propagation>>. See that with these three test cases we are able to cover the entire basis but we still do not reveal the fault.
+
+The cyclomatic complexity sets a lower bound for the number of different tests executing all branches. In this example the cyclomatic complexity is 3 which is also the number of test cases that cover the basis.
 
 Prime path coverage::
 A _simple path_ in a graph is a path where no node appears more than once, except perhaps the first node, that could be also the last one. A _prime path_ in a graph is a simple path that is no proper sub-path of any other simple path. This means that a prime path is a simple maximal path.
