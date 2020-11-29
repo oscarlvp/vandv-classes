@@ -134,7 +134,7 @@ It is important to add information that helps identifying the fault in the event
 
 === Best practices and antipatterns in testing
 
-Automated test cases are code, _test code_, and like their counter part, the _application code_ they should be maintained and we should care about their quality. Poorly written test cases bring no value to the development process. They negatively impact the fault detection capabilities of a test suite. They are also hard to understand and hard to leverage to correctly identify faults.
+Automated test cases are code, _test code_, and like their counter part, the _application code_, they should be maintained and we should care about their quality. Poorly written test cases bring no value to the development process. They negatively impact the fault detection capabilities of a test suite. They are also hard to understand and hard to leverage to correctly identify faults.
 
 As summarized in <<meszaros2003test>> automated test cases should be *concise* and *clear*: brief, yet comprehensive and easy to understand, *self-checking*: they should report results without human intervention, *repeatable*, *robust* and *independent*: it should be possible to run them consecutive times without human intervention and they should always produce the same results whether their are run in isolation or with other tests. Tests should also be *efficient*: they should run in a reasonable amount of time and should be *maintainable*: that is, they must be easy to modify and extend even when the system under test changes. Also, with respect to the application and the requirements, tests must be *sufficient* so all requirements of the system are verified, *necessary* so that everything inside each test contributes to the specification of the desired behavior, with no redundancy and unneeded artifacts, each test should be *specific* so tests failures point to the specific fault and the broken functionality, and *traceable* so that it can be easily mapped to the parts of the application code it verifies and the part of the specification it has been derived from. 
 
@@ -324,7 +324,7 @@ Erratic tests:: Also known as *Flaky Tests*. It is a test that behave erraticall
 
 Get really clever and use random numbers in your tests:: Using randomly generated data in tests cases is not necessarily a bad idea. Random tests can discover cases that developers have missed. However, random data has to be carefully managed to avoid creating *Erratic Tests* and to ensure that tests can be *repeatable*. Some of the key actions to consider are to use pseudo-random numbers and to store or log the seed used to generate the data and to log the data used in case of a failure. With this information, the test can be repeated later to diagnose the fault.
 
-Testing private methods:: Also known as  *X-Ray Specs*. Tests should verify results, not the implementation. Results are most likely to remain the same even when the implementation changes. Results usually come from the specification and the implementation should match the specification. Private  methods are implementation artifacts hidden from external users. Verifying results should only involve the public API without knowing the internals of a module or class. Also, trying to test private methods, requires a non-trivial plumbing that would make tests more complicated. So, tests should not directly target private methods, but they _must assess their effects_ through the public API.
+Testing private methods:: Also known as  *X-Ray Specs*. Tests should verify results, not the implementation. Results are most likely to remain the same even when the implementation changes. Results usually come from the specification and the implementation should match the specification. Private methods are implementation artifacts hidden from external users. Verifying results should only involve the public interface without knowing the internals of a module or class. Also, trying to test private methods, requires a non-trivial plumbing that would make tests more complicated. So, tests should not directly target private methods, but they _must assess their effects_ through the public interface.
 
 ==== Real examples of good testing practices
 
@@ -496,7 +496,7 @@ public void test2DDistribution() {
 
 === Test design
 
-Any testing process, automatic or manual, could be abstracted as <<testing-process>> shows. The system or program under test is executed using selected test inputs. The result of the execution is evaluated with the help of an oracle based on the specification. If the oracle deems the result incorrect, then we must find the fault. Otherwise, we continue the testing process until a stopping criterion is met. 
+Any testing process, automatic or manual, could be abstracted as <<testing-process>> shows. The system or program under test (SUT) is executed using selected test inputs. The result of the execution is evaluated with the help of an oracle based on the specification. If the oracle deems the result incorrect, then we must find the fault. Otherwise, we continue the testing process until a stopping criterion is met. 
 
 [graphviz, testing-process, png]
 .Testing process at a glance. 
@@ -525,7 +525,7 @@ digraph {
 }
 ....
 
-This diagram puts in evidence three main problems to be solved when designing our tests. First we need to identify a set of test inputs that will become the starting point for the tests cases. Then, for each test case we need to define a strong oracle able to tell when the result of the execution meets the requirements or not. Also we need to know how much should we test, that is, to set a stopping criterion. Ideally we would test until there are no more faults or when we explore all possible inputs, but this can not be done in practice. Locating and fixing an identified fault is also a very important problem, but it is out of the scope of testing and more related to _debugging_. However, tests failures should provide enough information for developers to find and correct the fault.
+This diagram puts in evidence three main problems to be solved when designing our tests. First we need to identify a set of *test inputs* that will become the starting point for the tests cases. Then, for each test case we need to define a strong *oracle* able to tell when the result of the execution meets the requirements or not. Also we need to know how much should we test, that is, to set a *stopping criterion*. Ideally we would test until there are no more faults or when we explore all possible inputs, but this can not be done in practice. Locating and fixing an identified fault is also a very important problem, but it is out of the scope of testing and more related to _debugging_. However, tests failures should provide enough information for developers to find and correct the fault.
 
 Solving these problems is far from easy. But, no matter the solution or strategy we pick, out ultimate goal should be to design tests capable of discovering faults.
 
@@ -1701,22 +1701,22 @@ With the _Repository_ pattern we create a class that manages all access to the d
 
 === Test Driven Development
 
-_Test Driven Development_ (TDD) is an approach to software development that encourages writting tests first, before writing any application code. The concepts behind TDD are derived from the _Extreme Programming_ movement in the late 90's. The popularization of this methodology is credited to Kent Beck, who also created SUnit, a unit testing framework for Smalltalk and inceptor of the entire xUnit framework familly. Beck also participated in the development of JUnit together with Erich Gamma.
+_Test Driven Development_ (TDD) is an approach to software development that encourages writing tests first, before writing any application code. The concepts behind TDD are derived from the _Extreme Programming_ movement in the late 90's. The popularization of this methodology is credited to Kent Beck, who also created SUnit, a unit testing framework for Smalltalk and inceptor of the entire xUnit framework family. Beck also participated in the development of JUnit together with Erich Gamma.
 
 In his seminal book, _Test-driven development: by example_ <<beck2003test>> Beck states that TDD follows two simple rules:
 
 * Don’t write a line of new code unless you first have a failing automated test.
 * Eliminate duplication.
 
-These two rules induce the organization of programming tasks in a cycle, knonw as the _Red/Green/Refactor_ cycle:
+These two rules induce the organization of programming tasks in a cycle, known as the _Red/Green/Refactor_ cycle:
 
-Red:: Write a simple and short test that does not work. Since the application code isn't already entirely written, the test might not even compile. The name of this phase makes allution to the fact that failing tests are usually shown in red in many programming environments.
+Red:: Write a simple and short test that does not work. Since the application code isn't already entirely written, the test might not even compile. The name of this phase makes allusion to the fact that failing tests are usually shown in red in many programming environments.
 
 Green:: Take any quick coding action required to make the failing test work. In this phase we will introduce low quality code with repetitions and non-optimal solutions. Our only goal is to make the test pass, hence the _Green_ name.
 
 Refactor:: Eliminate any redundancy or duplication and improve the code added to make the test pass by refactoring. This refactoring benefits for the previously created tests. If we make a mistake during this phase, the tests in place will catch it early enough.
 
-If we use TDD, whenever we add a new feature to our product we must start this cycle. At the end of each phase of the cycle we must execute all tests that have been created and not only the one we just addded. In the _Red_ phase only the new test should fail for the expected reasons. If the test does not fail, then it is wrong or does not bring any value to the test suite. No other test should fail by the addition of this new test. After the _Green_ phase all tests must pass. The new code should not brake any existing test and it must be created to make the new test pass. During the _Refactoring_ phase the test suite becomes a safety net in which we can rely to improve the quality of our code without introducing changes that break the expected behavior.
+If we use TDD, whenever we add a new feature to our product we must start this cycle. At the end of each phase of the cycle we must execute all tests that have been created and not only the one we just added. In the _Red_ phase only the new test should fail for the expected reasons. If the test does not fail, then it is wrong or does not bring any value to the test suite. No other test should fail by the addition of this new test. After the _Green_ phase all tests must pass. The new code should not brake any existing test and it must be created to make the new test pass. During the _Refactoring_ phase the test suite becomes a safety net in which we can rely to improve the quality of our code without introducing changes that break the expected behavior.
 
 TDD requires an efficient test suite that can be executed regularly to obtain early feedback from tests. It also requires developers to write their own test cases. These premises are actually at the core of modern software development.
 
@@ -1724,11 +1724,11 @@ The methodology has true practical advantages <<moore2019designing>>. On the one
 
 Like any other methodology TDD has gained adepts and detractors which regularly engage in never-ending discussions. Both sides use strong arguments to make their cases. However, we must keep in mind that, again, as any practical approach, TDD fits better the practices of ones and not the ways of others. We should not use it blindly and we should think whether its application may bring more damage than good.
 
-Applying TDD does not mean that we don't need a careful design of our product. An initial and comprehensive design phase is crucial for the quality of our software <<li2018why>>. A good design actually facilitates the application of TDD, as it helps keeping the tests focused. But it is not true in the opposite sense. Without a clear desing, we will be making the design on the fly and TDD may lead to bad design choices.
+Applying TDD does not mean that we don't need a careful design of our product. An initial and comprehensive design phase is crucial for the quality of our software <<li2018why>>. A good design actually facilitates the application of TDD, as it helps keeping the tests focused. But it is not true in the opposite sense. Without a clear design, we will be making the design on the fly and TDD may lead to bad design choices.
 
-Real life is not the same as the small and carefully crafted examples, often used to introduce TDD. In those examples, the requirements are clear and will not change. However, in a real development projects the requirements may change in time and are often vague. We should take that into account otherwise we will find ourselves adapting our code and our prematurely created tests many times increasing the cost of maintainnace and development <<fox2019test>>.
+Real life is not the same as the small and carefully crafted examples, often used to introduce TDD. In those examples, the requirements are clear and will not change. However, in a real development projects the requirements may change in time and are often vague. We should take that into account otherwise we will find ourselves adapting our code and our prematurely created tests many times increasing the cost of maintenance and development <<fox2019test>>.
 
-TDD favors a strong focus on unit testing. Over-specifying our code with unit tests may lead to unuseful test cases that may well verify assertions that under no circumstances will be false. It may also lead to an important ammount of tests for very simple code. It may also induce to the overuse of mocks, whose perills we already discussed in the previous section. In practice, there are scenarios when a couple of higher level tests can be more useful than tens of unit tests. This tradeoff should be carefully taken into account <<schranz2014case>>.
+TDD favors a strong focus on unit testing. Over-specifying our code with unit tests may lead to unuseful test cases that may well verify assertions that under no circumstances will be false. It may also lead to an important amount of tests for very simple code. It may also induce to the overuse of mocks, whose perils we already discussed in the previous section. In practice, there are scenarios when a couple of higher level tests can be more useful than tens of unit tests. This tradeoff should be carefully taken into account <<schranz2014case>>.
 
 Projects with well defined functional requirements unlikely to change much seem to be a good match for TDD. Take as example the creation of a compiler. The specification of the source and target language do not change much in time. The structure of the tests is also well define in the for of input and expected output. In such a project we will be creating tests cases directly matching the specification and main goal of the product.
 
