@@ -1010,7 +1010,7 @@ In <<control-flow-findlast>> `(2) => (3) => (4) => (2)` is a prime path that sta
 . `(3) => (4) => (2) => (3)`
  
 +
-Prime path coverage sets each prime path as a test requirement. That is, at least one test case should cover each prime path. For example, <<ripr-no-infection>> covers the first prime path of the list. The test case in <<ripr-no-propagation>> produces the following path: `start => (1) => (2) => (3) => (4) => (2) => (3) => (4) => (2) => (3) => (4) => (2) => (6) => end`. This test traces the entire array and does not fin the element. It is able to cover prime paths 2, 5, 6, 7 and 8 from the list above. This criterion is useful when testing loops in a program. It ensures the creation of tests cases that skip the loops and test cases that execute several iterations of each loop. In our example, prime path 2 corresponds to a scenario where the `for` loop is never entered, _i.e._ `array` is empty. The execution of prime paths 6, 7, 8 produces tests performing more than one iteration.
+Prime path coverage sets each prime path as a test requirement. That is, at least one test case should cover each prime path. For example, <<ripr-no-infection>> covers the first prime path of the list. The test case in <<ripr-no-propagation>> produces the following path: `start => (1) => (2) => (3) => (4) => (2) => (3) => (4) => (2) => (6) => end`. This test traces the entire array and does not find the element. It is able to cover prime paths 3, 5, 6, 7 and 8 from the list above. This criterion is useful when testing loops in a program. It ensures the creation of tests cases that skip the loops and test cases that execute several iterations of each loop. In our example, prime path 2 corresponds to a scenario where the `for` loop is never entered, _i.e._ `array` is empty. The execution of prime paths 6, 7, 8 produces tests performing more than one iteration.
 
 Many software artifacts can be represented as graphs. As an example, _Finite State Machines_ are a special type of graph that have been widely used to represent the behavior of software elements. Actually, most embedded software is modeled as a state machine. Finite state machines can also be used to describe specifications for software and even how a user interface should behave.
 
@@ -1044,14 +1044,14 @@ A predicate is defined as follows:
 
 stem:[ a < 3 \vee c \implies fn(b)] is a predicate with three clauses: stem:[a < 3], stem:[c] and stem:[fn(b)].
 
-<<isleapyear-predicate>> shows the `isLeapYear` method which implements a predicate to determine if a given integer represents a leap year or not. The predicate has three clauses, stem:[c_400]: `year % 400 == 0`, stem:[c_4] `year % 4 == 0` and stem:[c_!100] `year % 100 != 0`, that, for convenience could be seen as the negated form of stem:[c_100]: `year % 100 == 0`. In this example the clauses are not independent from each other. Also, given the short-circuit behavior of logical operators in most programming languages, the order in which the clauses are evaluated play a role in the evaluation of the predicate.
+<<isleapyear-predicate>> shows the `isLeapYear` method which implements a predicate to determine if a given integer represents a leap year or not. The predicate has three clauses, stem:[c_400]: `year % 400 == 0`, stem:[c_4] `year % 4 == 0` and we conveniently represent `year % 100 == 0` as stem:[c_100] stem:[c_100]: `year % 100 == 0` negated. In this example the clauses are not independent from each other. Also, given the short-circuit behavior of logical operators in most programming languages, the order in which the clauses are evaluated play a role in the evaluation of the predicate.
 
 [[isleapyear-predicate, Listing {counter:listing}]]
 .Listing {listing}. A method that says if a given integer value corresponds to a leap year or not.
 [source, java]
 ----
 public static boolean isLeapYear(int year) {
-    return year % 400 == 0 || ( year % 4 == 0 & year % 100 != 0 );
+    return year % 400 == 0 || ( year % 4 == 0 && year % 100 != 0 );
 }
 ----
 
@@ -1146,7 +1146,7 @@ On another example, if we take stem:[p = a \iff b], we obtain:
 \end{eqnarray*}
 ++++
 +
-We observe that stem:[p_a] is always `true`. Therefore, stem:[a] determines stem:[p] no matter the value of stem:[b]. On the other hand, if could be that stem:[p_a] would result in `false`. In that case it would be impossible for the clause stem:[a] to determine stem:[p].
+We observe that stem:[p_a] is always `true`. Therefore, stem:[a] determines stem:[p] no matter the value of stem:[b]. On the other hand, it could be that stem:[p_a] would result in `false`. In that case it would be impossible for the clause stem:[a] to determine stem:[p].
 +
 As seen in the examples above, we can obtain four possible outcome when finding the condition for a major clause to determine the predicate: *(1)* the clause can not determine the predicate, 
 *(2)* there is only one possible assignment (also known as interpretation) for the values of the minor clauses, *(3)* there is more than one possible interpretation and *(4)* the clause always determines the predicate. 
@@ -1175,20 +1175,18 @@ Selecting stem:[c_400] as the major clause we obtain stem:[p_{c_400} = \neg c_4 
 | `false`    | `false`      | `true`
 |===
 
-But, these clauses are not independent. In fact the first row of the table is infeasible. The same number can not be divisible by 100 (stem:[c_100 = true]) and not by 4 (stem:[c_4 = false]). Therefore we throw it away and keep only the two last rows, which leads us to the following truth values for stem:[p]:
+But, these clauses are not independent. In fact the first row of the table is not feasible. The same number can not be divisible by 100 (stem:[c_100 = true]) and not by 4 (stem:[c_4 = false]). Therefore we throw it away and keep only the two last rows, which leads us to the following truth values for stem:[p]:
 
 [options="header"]
 |===
 | stem:[c_400] | stem:[c_4] | stem:[c_100] | stem:[p]
-| `true`       | `false`    | `true`       | `true`
-| `false`      | `false`    | `true`       | `false`
 | `true`       | `true`     | `true`       | `true`
 | `false`      | `true`     | `true`       | `false`
 | `true`       | `false`    | `false`      | `true`
 | `false`      | `false`    | `false`      | `false`
 |===
 
-Again, the clauses are not independent in this example. The first, second and fifth rows lead to impossible situations so we keep only the rest.
+Again, the clauses are not independent in this example. The fourth row also lead to and impossible situations so we keep only the rest.
 
 [options="header"]
 |===
@@ -1287,8 +1285,9 @@ So, to create a mutant, mutation testing inserts only small and well localized s
 [source, python]
 ----
 input: program, test_suite, mutation_operators
-ouput: live_mutants = {}, 
+ouput: live_mutants, mutation_score
 procedure:
+    live_mutants = {}
     for mutant in generate_mutants(program, mutation_operators): #<1>
         fails = execute(test_suite, mutant) #<2>
         if not fails:
@@ -1300,7 +1299,7 @@ procedure:
 <2> Execute the entire test suite with the mutant. `fails` is `false` if no test case failed in the execution.
 <3> The procedure returns the set of live mutants and the mutation score. 
 
-To illustrate the functioning of mutation testing we go back to the code of <<stack-example>>. We will consider the `BoundedStack` class as the program under test. <<mutatns-test-suite-example>> shows the test suite we shall evaluate with the help of mutation testing. This test suite contains only two test cases: one verifying the `push` method and another verifying the `pop` method. 
+To illustrate the functioning of mutation testing we go back to the code of <<stack-example>>. We will consider the `BoundedStack` class as the program under test. <<mutants-test-suite-example>> shows the test suite we shall evaluate with the help of mutation testing. This test suite contains only two test cases: one verifying the `push` method and another verifying the `pop` method. 
 
 [[mutants-test-suite-example, Listing {counter:listing}]]
 .Listing {listing}. Test suite to evaluate using mutation testing.
@@ -1734,8 +1733,8 @@ Projects with well defined functional requirements unlikely to change much seem 
 
 Maybe, as Eric Gunnerson puts it, the most relevant phase of TDD is not creating the tests but the regular code refactoring. Refactoring should lead to a better designed product with high quality code, with low coupling and better testability <<gunnerson2017notdd>>.
 
-But, should we use TDD or not? There is no simple answer. We must use the approach that better fits our practices. In the words of Martin Fowler:
+But, should we use TDD or not? There is no simple answer. We must use the approach that better fits our practices. In the words of Martin Fowler <<fowler2014is>>:
 
-[quote, Martin Fowler, Is TDD Dead? <<fowler2014is>>]
+[quote, Martin Fowler, Is TDD Dead? ]
 Everything still boils down to the point that if you're involved in software development you have to be thoughtful about it, you have to build up what practices work for you and your team, you can't take any technique blindly. You need to try it, use it, overuse it, and find what works for you and your team. We're not in a codified science, so we have to work with our own experience.
 
