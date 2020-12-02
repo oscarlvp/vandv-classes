@@ -600,15 +600,15 @@ public void testNotFound() {
 
 Revealability::
 
-It is impractical, if not impossible, to create an oracle that observes the entire program state. That is why, for a test case to discover a fault, it must not only reach the location, infect the program state and propagate the infection to the rest of the execution. The test must also observe the right portion of the state and use a strong condition to verify it. <<ripr-no-revealability>> reaches the fault, infects the program state, produces a wrong result that propagates to the code of the test case, but the oracle is not adequate. The condition of the result to be greater than zero is met by the incorrect result `2`, it is an example of a weak oracle and the test case fails to _reveal_ the fault. 
+It is impractical, if not impossible, to create an oracle that observes the entire program state. That is why, for a test case to discover a fault, it must not only reach the location, infect the program state and propagate the infection to the rest of the execution. The test must also observe the right portion of the state and use a strong condition to verify it. <<ripr-no-revealability>> reaches the fault, infects the program state, produces a wrong result that propagates to the code of the test case, but the oracle is not adequate to _reveal_ the fault. The assertion in the test case validates that no exception is thrown.  The assertion does not verify the result of `findLast`.
 +
 [[ripr-no-revealability, Listing {counter:listing}]]
-.Listing {listing}. A test case that fails to reveal the fault, due to a weak oracle. The method returns a worng value `2` when the correct value is `0`. Both values meet the assertion.
+.Listing {listing}. A test case that fails to reveal the fault, due to a weak oracle. The method returns a wrong value `-1` when the correct value is `0`. The assertion inspects a different part of the program state.
 [source, java]
 ----
 @Test
-public void testRepeated() {
-    assertTrue(findLast( new int[]{0, 1, 0}, 0) >= 0);
+void testExecutesNormally() {
+    assertDoesNotThrow(() -> findLast( new int[]{0, 1, 2}, 0));
 }
 ----
 +
@@ -794,7 +794,7 @@ Test inputs can be immediately translated to concrete test cases. For example, i
 ----
 @Test
 public void test29DaysFebruaryCommonYear () {
-    assertFalse(isValidYear(29, 2, 2019), "February in common years should not have more than 28 days.");
+    assertFalse(isValidDate(29, 2, 2019), "February in common years should not have more than 28 days.");
 }
 ----
 
@@ -1561,6 +1561,8 @@ class ShoppingCart {
     }
 
     public BigDecimal getFinalPrice() {
+        // Uses PromoService to obtain the active propomotions for the user
+        // Computes the final price of each product by using the disccounts
         ...
     }
 
@@ -1582,7 +1584,7 @@ interface Promotion {
 
 ----
 
-Suppose we are given the task to test `getDiscountFor`. `ShoppingCart` depends on `PromoService`. The actual implementation of this interface could be still under development at the moment we will test `ShoppingCart`. It could also be the case, that the actual implementation requires access to a database which might make the test slower. To avoid dealing with these issues we can create test doubles for `PromoService`.
+Suppose we are given the task to test `getFinalPrice`. `ShoppingCart` depends on `PromoService`. The actual implementation of this interface could be still under development at the moment we will test `ShoppingCart`. It could also be the case, that the actual implementation requires access to a database which might make the test slower. To avoid dealing with these issues we can create test doubles for `PromoService`.
 
 For example, one scenario we would like to test is when the user has no active promotions. Instead of messing with the actual production code, we can create a simple test double like in <<empty-service-stub-example>>. This double returns a predefined constant value. Such test doubles are usually called _stubs_. Apart from returning fixed values, stubs could also return values selected from a collection, or values that depend on the input or even random values. 
 
@@ -1694,7 +1696,7 @@ These symptoms of bad code often manifest themselves during testing. In most occ
 
 Design patterns are general solutions to recurring problems in programming <<source2020design>>. These solutions are proven to be effective and, if well used, they help making the code easier to understand. The good application of design patterns also make the code more testable <<day2014available>>, <<moore2019designing>>. Two patterns often used as examples of testing facilitators and in particular to make mocking easier are _Dependency Injection_ and _Repository_.
 
-Using _Dependency Injection_, classes receive their dependencies instead of explicitly create them. Classes then depend on abstractions, interfaces, that can be easily exchanged. Also, since classes are not in charge of creating their dependencies their code is simpler. Our example with `PromoService` is loosely based in this design pattern. This pattern makes it extremely easy to exchange the dependency, which is helpful for mocking and stubbing as we saw in the example. It also makes the component more controllable as we can create dependencies more easily than production code.
+Using _Dependency Injection_, classes receive their dependencies instead of explicitly creating them. Classes then depend on abstractions, interfaces, that can be easily exchanged. Also, since classes are not in charge of creating their dependencies their code is simpler. Our example with `PromoService` is loosely based in this design pattern. This pattern makes it extremely easy to exchange the dependency, which is helpful for mocking and stubbing as we saw in the example. It also makes the component more controllable as we can create dependencies more easily than production code.
 
 With the _Repository_ pattern we create a class that manages all access to the data. This class encapsulates and hides the actual data access operations, separating even more our components from the data access implementation and the concrete storage method used in production. Using this design pattern facilitates mocking the data access mechanisms which in turn facilitates the verification of how our code interacts with the data components. We also avoid making actual database modifications that we might need to undo to keep our tests repeatable.
 
