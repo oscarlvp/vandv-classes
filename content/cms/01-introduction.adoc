@@ -407,6 +407,7 @@ Constructive approaches may also involve a form of model checking. These approac
 
 The following diagram shows a model of the functioning of a microwave oven as a https://en.wikipedia.org/wiki/Kripke_structure_(model_checking)[Kripke structure]. (Adapted from https://www.dsi.unive.it/~avp/14_AVP_2013.pdf). The model includes first order propositions that characterize the states of the system and a transitional relationship between the states.
 
+[[microwave]]
 [graphviz, microwave, png]
 .Model of a microwave-oven. Adapted from https://www.dsi.unive.it/~avp/14_AVP_2013.pdf 
 ....

@@ -1059,7 +1059,7 @@ The simplest logic coverage criteria sets test requirements according to the val
 
 Predicate Coverage (PC):: This coverage criterion sets two test requirements: one on which the predicate evaluates to `true` and another where the predicate evaluates to `false`.
 +
-To fulfill this criterion we require only two inputs one making the predicate `true` and another making the predicate `false`. It is a simple criterion but the clauses are not considered individually. Taking the predicate, stem:[((a > b) \wedge C) \vee p(x)] we can cover both requirements with stem:[(a = 5, b = 4, C = true, p(x) = true)] and stem:[(a = 5, b = 4, C = true, p(x) = false)], however, in both interpretations, the first two clauses of the predicate have always the same value.
+To fulfill this criterion we require only two inputs one making the predicate `true` and another making the predicate `false`. It is a simple criterion but the clauses are not considered individually. Taking the predicate, stem:[((a > b) \wedge C) \vee p(x)] we can cover both requirements with stem:[(a = 5, b = 4, C = true, p(x) = true)] and stem:[(a = 5, b = 4, C = false, p(x) = true)], however, in both interpretations, the first and last clauses of the predicate have always the same value.
 
 Clause Coverage (CC):: This criterion sets two test requirements for each clause in a predicate. For one requirement, the selected clause should be `true` and for the other the same clause should be false `false`.
 +
@@ -1106,13 +1106,13 @@ The following examples illustrate how to use this result to find the values for 
 +
 WARNING: The following examples make heavy use of https://en.wikipedia.org/wiki/Boolean_algebra[_Boolean Algebra_]. It would be better to refresh the main rules before going any further.
 +
-Take the predicate stem:[p = a \wedge b], selecting stem:[a] as the major clause we need to find a condition for stem:[b] so stem:[a] dominates the predicate. We proceed as follows:
+Take the predicate stem:[p = a \vee b], selecting stem:[a] as the major clause we need to find a condition for stem:[b] so stem:[a] dominates the predicate. We proceed as follows:
 +
 [latexmath]
 ++++
 \begin{eqnarray*}
     p_a & = & p_{a=true} \oplus p_{a=false} \\
-        & = & (true \wedge b) \oplus (false \wedge b) \\
+        & = & (true \vee b) \oplus (false \vee b) \\
         & = & true \oplus b \\
         & = & \neg b
 \end{eqnarray*}
