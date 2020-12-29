@@ -1,12 +1,414 @@
 == Automatic test generation
 
+Last section discussed the main ideas behind software testing. There, we explored the best testing practices and the advantages of automating test execution. However, not only test execution can be automated. It is also possible to automatically create test cases. This section introduces some techniques for automatic test generation.
+
+=== Fuzzing
+
+_Fuzzing_ is one of the most successful techniques exploited in practice to generate test cases and discover program failures. The main idea behind fuzzing is simple: we generate random inputs, and then check if the execution of the program fails while using those inputs.
+
+According to _The Fuzzing Book_ <<zeller2019fuzzing>>, fuzzing was born in the late 1980's when professor Barton Miller from the University of Wisconsin-Madison was connected to his workstation via a telephone line. There was a thunderstorm that caused noise in the line which in turn caused the terminal commands get random bad inputs. The programs he was using crashed continuously. This inspired him to study the robustness of programs against random inputs. So, professor Miller wrote an assignment for his students asking them to create a _fuzz_ generator. The generator should produce random character stream that students should use as input of UNIX utilities to find failures, that is, _to beak them_. With this _naive_ technique, Miller and his students were able to find actual failures and bugs in well tested utilities like _vi_ and _emacs_. Since then, fuzzing has become a mainstream technique to test programs. A lot of research has been invested on improving the initial technique and several industry-level tools have been developed through the years.
+
+NOTE: Coming from a country where we still use the telephone line to connect to the Internet I find this fuzzing _origin story_ quite amusing. First, I'm surprised to know how reliable professor Miller's telephone line was in regular days. Mine is always noisy. Second, I consider a thunderstorm as a _red alert_ situation and instantly disconnect to avoid my modem getting fried. Anyways, this cool short story gave us one of the coolest testing techniques, that _boldly_ took us where no tester _has gone before_.
+
+<<fuzzing-algorithm>> shows a pseudo-code outline of a simple fuzzing algorithm.
+
+[[fuzzing-algorithm, Listing {counter:listing}]]
+.Listing {listing}. Pseudo-code of a general fuzzing algorithm.
+[source]
+-----
+input: program
+output: failures
+procedure:
+until stopping conditions:
+    input = generate random input
+    failure = execute program with input
+    if failure:
+        add (input, failure) to failures
+return failures
+-----
+
+From this pseudo-code we may identify three subproblems whose solutions directly affect the effectiveness of a fuzzing process: _what to observe during the program execution_, _how to generate the inputs_ and _when to stop fuzzing the program_. Not by chance, these questions are closely related to the problems we identified from <<testing-process>> when discussing the general testing process. Fuzzing, is, in fact, a fully automated instance of this general process.
+
+The answer to the third question might be a matter of resources. The longer we let a fuzzer run the higher the chances it has to discover new execution paths and faults. But, a fuzzer can not run forever. Commonly we stop fuzzing a program after the first failure has been detected. Or during a certain amount of hours. This time depends on our infrastructure and even the program under test. It makes no sense to fuzz a small program for a whole week. We may also stop fuzzing after a certain number of generated inputs or a certain number of program executions, that can be limited by our budget if we run the fuzzer on the cloud. It is also possible to rely on theoretical statistical results to estimate the likelihood with which a fuzzer may discover new execution paths and assess how well it is performing in that sense. A nice overview on this particular idea can be found in the corresponding chapter https://www.fuzzingbook.org/html/WhenToStopFuzzing.html[When to Stop Fuzzing] of _The Fuzzing Book_ <<zeller2019fuzzing>>.
+// TODO: Summarize and discuss the chapter mentioned above
+
+==== What to observe?
+
+Fault triggering inputs are detected by observing the execution of the program under test. Observing different program properties enables the discovery of different types of program faults.
+
+The first obvious observation we can make is to check whether a program terminates abruptly or _crashes_ with a given input. A program crash indicates the presence of a fault.
+
+A crash may occur when the program under test throws an unhandled exception. In POSIX systems, some unhandled signals as SIGILL (invalid instruction), SIGSEGV (segmentation fault) and SIGABRT (execution aborted) also produce an abnormal program termination.
+
+There may be many reason behind a program crash, for example, a program may:
+* try to execute actions without having the right privileges: accessing to a restricted file, the camera or any other resource.
+* try to write or read a memory outside the assigned memory location. This is known as a segmentation fault. IN POSIX systems this program receives a SIGSERV signal. In Windows it gets an access violation exception.
+* pass the wrong parameters to a machine instruction or to a function which may end, for example, in a division by zero.
+* abort the execution due an invalid internal state that produces an assertion failure.
+
+Some programs do not check the boundaries of the memory buffers they modify. These programs may corrupt the memory adjacent to the buffer. This is known as a buffer overflow. Buffer overflows may cause the aforementioned segmentation faults. However, not all overflows cause a program crash and many of them become vulnerabilities that can be exploited to execute non-authorized code or to leak unwanted information like the Heartbleed bug we saw in <<heartbleed-xkcd>>. Actually, the Heartbleed vulnerability was discovered with the help of fuzzing.
+
+Some compilers, such as https://clang.llvm.org/docs/AddressSanitizer.html[Clang], are able to instrument the compiled code of a program to include memory error checks and signal the occurrence of buffer overflows. These instrumented programs can be fuzzed to find this type of fault. Other similar instrumentations can be used to spot uninitialized memory accesses, type conversions and numeric operations that may end in overflows and even concurrent actions that may end in race conditions.
+
+In the last section we used assertions to verify the state of a program after the execution of a test case. In fuzzing we use randomly generated inputs. Therefore, it is hard to create an assertion with the expected program result for each input. However, we can use assertions to verify invariants, that is, properties the output of a program must meet no matter the input. This is known as _property testing_.
+
+Suppose we have a function that computes the height of a given tree. For any tree the height must be greater or equal to zero. To test this function, using property testing, we can generate random tree instances and check that all heights are non-negative. In other contexts we could verify, for example, that all resources has been closed after processing a sequence of random inputs.
+
+There are many good libraries implementing property testing and we shall discuss them in a later section. However, this approach is not hard to implement using built-in JUnit functionalities. <<junit-property-testing>> shows a general template that can be used for that.
+
+[[junit-property-testing, Listing {counter:listing}]]
+.Listing {listing}. An example of how property testing can be implemented in JUnit.
+[source, java]
+----
+@TestFactory //<1>
+Stream<DynamicTest> checkProperty() {
+    Iterator<TInput> inputs = ...; //<2>
+    Function<TInput, String> name = ...; //<3>
+    Predicate<TInput> property = ...; //<4>
+    ThrowingConsumer<TInput> verification = input -> assertTrue(property.test(input)); //<5>
+    return DynamicTest.stream(inputs, name, verification); //<6>
+}
+----
+<1> The `@TestFactory` annotation marks a method as a producer of test cases. The method should return a collection or a stream of `DynamicTest` instances. Each test instance is considered as an independent test case.
+<2> Here we implement the input generation as an `Iterator`. The iterator should return random input values.
+<3> Each test case in JUnit should have a name. Here we use a function to generate string representation for each input value. This name can not be null or blank.
+<4> The property to verify is implemented as a predicate that must return `true` for every input.
+<5> This is the actual verification that each test case shall perform. It simply uses `assertTrue` to check that the property is `true`.
+<6> Returns the stream of `DynamicTest` instances.
+
+Using `@TestFactory` each test case is executed independently and even in parallel. At the end of the test case stream, JUnit reports all failing inputs.
+Provided we have a tree generator, we could implement the tree height verification as shown in <<tree-height-property>>.
+
+[[tree-height-property, Listing {counter:listing}]]
+.Listing {listing}. Verifying the tree height property  with JUnit.
+[source, java]
+----
+@TestFactory
+Stream<DynamicTest> checkProperty() {
+    return DynamicTest.stream(
+            getTreeGenerator(),
+            Tree::toString,
+            tree -> assertTrue(tree.height() >= 0)
+    );
+}
+----
+
+Property testing verification is simple. Generating interesting inputs remains the hardest part, as in all fuzzing approaches.
+
+An scenario that is particularly well suited for property testing and fuzzing appears when we must implement a pair of _encoding_, _decoding_ functions. An encoding function takes a value from domain _A_ and transforms it into a value of domain _B_. The decoding function takes a value from _B_ and produces a value from _A_. In many cases, we can pass the result of the encoding function as input to the decoding function and obtain the initial input. Using this property we can verify at the same time both, the encoding and the decoding function.
+
+Consider an example in which we are implementing two pairs of functions: `encodeBase64` that takes an array of bytes and obtains a string in base 64 representing the array and `decodeBase64`, implementing the opposite functionality, it takes an string in base 64 and produces the corresponding byte array. We can verify both functions by generating a random byte array, encoding it into a string, then decoding the string and verify that the final result is equal to the input.
+
+This example could be implemented as shown in <<encode-decode-junit>>.
+
+[[encode-decode-junit, Listing {counter:listing}]]
+.Listing {listing}. Example of a encode-decode function pair verification.
+[source, java]
+----
+@TestFactory
+Stream<DynamicTest> checkProperty() {
+    Iterator<byte[]> generator = getByteArrayGenerator();
+    return DynamicTest.stream(generator, Arrays::toString,
+            array -> {
+                assertArrayEquals(array, decodeBase64(encodeBase64(array)));
+            });
+}
+----
+
+Sometimes we have a reference implementation of the functionality we are building. This may happen, or example, when we are migrating a dependency of our program from one version to another, or when we are porting an already existing functionality to another programming language or framework. If those changes are not supposed to affect the output of the program under test, we can verify the new implementation by comparing the output to the result produced by the reference implementation. In such scenario we can generate random inputs and assert that both results are equal as shown in <<comparing-with-reference>>.
+
+
+[[comparing-with-reference, Listing {counter:listing}]]
+.Listing {listing}. Comparing result against a reference implementation.
+[source, java]
+----
+@TestFactory
+Stream<DynamicTest> checkProperty() {
+    return DynamicTest.stream(getInputGenerator(), PropertyTesting::name,
+            input -> assertEquals(reference(input), implementation(input))
+    );
+}
+----
+
+We can also use automatically generated inputs to test at the same time multiple programs with the same functionality. Any difference in their behavior or result with these random inputs may indicate the presence of faults. This is known as _differential fuzzing_ or _differential testing_ and has been very successful at discovering program vulnerabilities <<hamidy2020differential>> <<nilizadeh2019diffuzz>>.
+
+==== How to generate random inputs?
+
+An effective fuzzing strategy generates random inputs able to discover faults. This is arguably the biggest challenge for fuzzing. Recalling the RIPR model, the generated inputs should be able to reach the faults, infect the program state and propagate the effects of the fault to the output of the program. Therefore, the generated inputs should be able to produce as many executions paths as possible and reach as much program instructions and branches as possible.
+
+_American Fuzzy Lop_ (AFL), one of the most used fuzzers, focuses on reaching as much program branches as it can. Its authors claim that branch coverage provides more insight on the execution path than block coverage <<moroz2019afl>>. Two execution paths may have the same block or statement coverage, but different branch coverage. Branch coverage can discover faults in conditions, that become noticeable through wrong control changes. Th AFL authors explain that security vulnerabilities are often associated with these incorrect program state transitions.
+
+The simplest approach to generate program inputs might be to randomly generate from scratch any value in the input domain. This could be fairly easy if the inputs consists on numeric values and unformatted byte arrays or strings.
+
+However, this approach is quite limited when trying to test programs expecting structured inputs. In programs that process images, JSON files, or strings with a syntactic structure like an expression or code, it is really hard to achieve a high statement or branch coverage using only random inputs generated from scratch. These generated inputs can help test the program against unexpected values but, in many cases, faults can appear after part of the input has been processed.
+
+Structured inputs are commonly composed by keywords or recurrent fragments. For example, HTML documents are composed by tags such as `<a>`, `</a>`, `<i>`, program code contain keywords and literals or a configuration file contains the name of the configuration options the configuration values. A way to increase the chances to generate inputs able to cover more branches is to use a dictionary containing those keywords. We can generate better inputs by randomly combining these keywords or terms. These terms can be manually selected or even extracted from the code of the program under test.
+
+Suppose we have created an `ExpressionParser` class, that implements a recursive descendent parser for simple arithmetic expressions that may contain the usual arithmetic operators `+`, `-`, `*`, `/`, unary minus, parenthesis, usual floating point literals, references to predefined constants such as `PI` or `E` and invocations to predefined functions such as `min`, `exp`, `log` and alike. The parser can be used as shown in <<expression-parser-usage>>. For a given string, the parser produces an `Expression` containing an abstract syntax tree of the given input. If the input is incorrect, the parser throws a `ParseException`.
+
+[[expression-parser-usage, Listing {counter:listing}]]
+.Listing {listing}. Usage of the simple expression parser.
+[source, java]
+----
+try { 
+    ExpressionParser parser = new ExpressionParser();
+    Expression exp = parser.parse("2 * - (1 + sin(PI))")
+    System.out.println(exp.evaluate());
+} catch(ParseException exc) {
+    System.out.println("Incorrect input");
+}
+----
+
+We can try the input generation strategies on this class to evaluate their performance according to the number of branches they can reach to check if we can find any unexpected error (other than a `ParseException`).
+
+To generate strings we pick a random sequence of characters from the following predefined alphabet: ` \tabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-*/(),.!@;[]{}`. This alphabet contains whitespaces, letters, numbers and symbols that can be used to conform valid expressions, but it also contains invalid symbols according to the parser specification such as `!@;[]{}`. Each generated string has a random length between 0 and 100. Here are examples of the strings that can be generated in this way:
+
+- `q]Mwd7)9.f-5A}E`
+- `HI- q1H2Cs}r9KTmOeqBu/rO+V7VG]s[B[`
+- `i.U07X)XAKJI2VTVn)qbqhHQ5X30kk 5j;2mlrbVow[(HCEblAsMVe9K CGq9Fg@)93eUho9JTUxU`
+- `{D@`
+- `;!/hQW/c3nmS	0UGj4kWIJQ{2Gjb.Jlx)BeWz. Ay.]RO mrH!GICyVR`
+
+Notice how it is extremely hard to get a string close to be a valid expression with pure random character selection. 
+
+To generate inputs using a dictionary of terms we used the following keywords: `"pow"``, `"min"``, `"sin"``, `"cos"``, `"1"``, `".5"``, `"1e-5"``, `"("``, `")"``, `"+"``, `"-"``, `"*"``, `"/"``, `"PI"``, `"E"``, `" "`. These keywords contain whitespaces, valid function and constant identifiers, valid literals and valid symbols. To create an input we randomly select between 0 and 10 of these terms, with possible repetitions. The dictionary approach is not exactly very advantageous in this example. It would suite better in actual code, such as SQL queries where it has been shown to be quite efficient <<zalewski2015aflfuzz>>. While still random, the inputs generated this way are closer to a valid expression:
+
+- `/-`
+- `1`
+- `cospow++E+1e-5+min`
+- `(  PIE1/(`
+- `//pow.5pow(-pow`
+- `+1e-5 powpowcos`
+
+To compare the performance of these two strategies we replicate the experiment model from _The Fuzzing Book_. We fuzz the `ExpressionParser` with different numbers of generated inputs from 1 to 100. For each input, we execute each fuzzing strategy 30 times and compute the average number of branches reached using the generated inputs. This shall tell us what is the expected number of branches for a given number of inputs that each strategy can reach. <<expressions-blackbox>> shows the result of this experiment.
+
+[[expressions-blackbox]]
+[role=text-center]
+.Average number of branches reached by generating random strings, random inputs using keywords and random valid inputs generated with a grammar.
+image::expressions-black-box.png[Average branches with random inputs, 300]
+
+The plots shows that, when generating only 9 inputs, the random string approach (_Random_ series in the plot) reaches 60 branches on average, while the dictionary based generation reaches more than 80 branches. As we increase the number of inputs both approaches discover more branches, but the dictionary based generation requires less inputs in general to discover more branches.
+
+In most cases the structure of valid inputs can be expressed through  _finite automata_ or their equivalent _regular expressions_ or with _formal grammars_. These formalisms can be leveraged to quickly  generate a large sets of valid inputs. The efficient generation of strings from formal grammars has its own practical challenges. The topic is largely discussed in the https://www.fuzzingbook.org/html/03_Syntactical_Fuzzing.html[_Syntactical Fuzzing_] chapter of _The Fuzing Book_ <<zeller2019fuzzing>>. Using grammars to create valid inputs help us to rapidly reach more branches than with random inputs. However, these valid inputs are often closer to the _happy path_ than corner cases where most faults arise. 
+
+Valid inputs for our `ExpressionParser` can be generated using the following context free grammar:
+
+[[expression-grammar, Listing {counter:listing}]]
+.Listing {listing}. Expression grammar in EBNF.
+[source, ebnf]
+----
+
+expression = term, { ( "+" | "-" ), term } ;
+
+term = factor, { ("*" | "/"), factor } ;
+
+factor = "-", atom ;
+
+atom = number | identifier | invocation | "(", expression, ")" ;
+
+invocation = identifier, "(" [ arguments ] ")" ;
+
+arguments = expression, { "," expresssion } ;
+
+identifier = letter, { letter | digit } ;
+
+digits = digit, { digit } ;
+
+number = (  digits, [ ".", digits ] ), [ "e", ["-"], digits ] ;
+
+letter = "A" | "B" | "C" | "D" | "E" | "F" | "G"
+       | "H" | "I" | "J" | "K" | "L" | "M" | "N"
+       | "O" | "P" | "Q" | "R" | "S" | "T" | "U"
+       | "V" | "W" | "X" | "Y" | "Z" | "a" | "b"
+       | "c" | "d" | "e" | "f" | "g" | "h" | "i"
+       | "j" | "k" | "l" | "m" | "n" | "o" | "p"
+       | "q" | "r" | "s" | "t" | "u" | "v" | "w"
+       | "x" | "y" | "z" ;
+
+digit = "0" | "1" | "2" | "3" | "4" | "5" | "6" | "7" | "8" | "9" ;
+----
+
+NOTE: We used Extended Backus–Naur form to write the grammar and we omitted the whitespace sequences for readability.
+
+With the help of this grammar we can generate inputs such as: 
+
+- `R * 9 + 4 - 9`
+- `X - -i * (1) + 4`
+- `1 * 2 + e * x`
+- `(I * 4 / R / (H))`
+- `(I(8, 3) * (u - -b))`
+
+In <<expressions-blackbox>> the series named _Grammar_ shows the results of fuzzing `ExpressionParser` with inputs generated with this grammar. It can be noticed that these inputs quickly reach a high number branches but do not make any progress beyond that. All generated inputs are syntactically valid, therefore this generation strategy never reaches branches executed for invalid inputs.
+
+_Mutation based fuzzing_ proposes to use valid inputs in a different way. This approach uses a set of valid inputs as initial _seeds_. These inputs  may be generated with the help of a grammar, or they can be manually specified. They are first used to execute the program. Then to generate a new input, we randomly pick one of the seeds and we _mutate_ it. That is, we perform a small modification on the seed to create a new input. <<mutation-based-fuzzing>> shows the pseudo-code of this strategy.
+
+[[mutation-based-fuzzing, Listing {counter:listing}]]
+.Listing {listing}. An approach to guide input generation using coverage information.
+[source]
+-----
+input: program, seeds
+output: failures
+procedure:
+
+for seed in seeds:
+    failure = execute program with seed
+    if failure:
+        add (seed, failure) to failures
+
+until stopping conditions:
+    take seed from seeds
+    input = mutate seed
+    failure = execute program with input
+    if failure:
+        add (input, failure) to failures
+return failures
+-----
+
+Mutations (not to confuse them with the mutation from mutation testing) can be very simple changes. For example, if the input is a string, we can mutate the seed by inserting a random character at a random position, or removing a random character or even removing a random slice of the string. We could also use a dictionary to insert a random keyword in a random position of the input. It may also make sense to perform more than one mutation at once on the same seed to increase the difference between the seed and the new input.
+
+For our example, we use a mutation based fuzzer with the following seeds `" "`, `"1"`, `"1 + 2"`, `"min(1, 2)"`, `"-1"`. As mutations we use the following:
+- remove a random character from the seed.
+- add a random character from from the alphabet we used in our first fuzzer in a random position
+- replace a random character from the seed with another random character from the same alphabet 
+
+For each seed we perform between 2 and 5 random mutations. This produces inputs like the following:
+
+- `1 +`
+- `9 mp(1, 2)`
+- `min(12)`
+- `m,n( 2)`
+- `+d2E`
+- `P-M{R`
+- `1 + 2H`
+- `n(1,82)`
+- `*in,O)`
+
+
+The results of the mutation based fuzzing strategy can be seen in the _Mutation_ series shown in <<expressions-blackbox>>. Notice how this strategy reaches the highest number of branches and even converges faster to the final results. 
+
+The effectiveness of mutation based fuzzing depends on the initial seed selection and the nature of the mutations. In our example, including seeds with more arithmetic operators and even combinations on the operators might make the strategy discover more branches.
+
+The input generation strategies discussed so far do not rely on any information about the internal structure of the program under test or the program execution to generate a new input. This is known as _black box_ fuzzing. However, monitoring the program execution can lead to valuable information for the generation process. We can for, example, exploit more the inputs that execute hard-to-reach branches.
+
+_Greybox fuzzing_ observes selected elements of the program execution. For example, it can collect the branches executed with each input. This information can be used to affect the input generation. We can extend the mutation based fuzzing approach by augmenting the seeds with inputs that reach new branches. This approach is outlined in <<greybox-fuzzing>>. The rationale behind this idea is that mutating inputs reaching new branches increases the chances to discover new execution paths.
+
+[[greybox-fuzzing, Listing {counter:listing}]]
+.Listing {listing}. A greybox fuzzing strategy that augments the seeds with inputs reaching new branches
+[source]
+-----
+input: program, seeds
+output: failures
+procedure:
+
+covered_branches = {}
+
+for seed in seeds:
+    failure, path = execute program with seed
+    if failure:
+        add (seed, failure) to failures
+    else:
+        add all branches in path to covered_branches
+
+pool = [...seeds]
+until stopping conditions:
+    take seed from pool
+    input = mutate seed
+    failure, path = execute program with input
+    if failure:
+        add (input, failure) to failures
+    else:
+        if exists branch in path not in covered_branches:
+            add all branches in path to covered_branches
+            add input to pool
+return failures
+-----
+
+In both, the approach above and the initial mutation based approach, all seeds are selected with the same probability to generate a new input. We can extend the original idea to favor the selection of more desirable seeds, for example, those producing less frequent execution paths. This new approach should help the fuzzing process cover more program elements in less time. It uses a _power schedule_ assigning an _energy_ value to each seed. The energy is the likelihood of a seed to be selected. The concrete energy assigned to each input depends on the characteristics we want to explore with seeds. Its value could be, for instance, inversely proportional to the number of times the same path has been executed, if we want to favor seeds with least explored program locations. It could also depend on the size of the seed or the number of branches covered in the execution. The overall process remains the same, the only thing that changes in this new approach with respect to the greybox approach is that each seed is selected according to the probability distribution defined by the energy of the seeds.
+
+Both, the greybox strategy shown in <<greybox-fuzzing>> and the strategy using power schedules should lead to a faster branch discovery than the initial mutation based fuzzing. To compare them, we replicate our previous experiment. This time we use as seed a single empty string and the same mutations as before in all three fuzzing approaches. Since the initial seed is reduced we extend the number of inputs until 1000. The results are shown in <<expressions-seeding-empty>>.
+
+[[expressions-seeding-empty]]
+[role=text-center]
+.Average number of branches reached by mutation based fuzzing, greybox fuzzing and fuzzing using a power schedule to select the seeds. Here the initial seed is the empty string and all three strategies use the same mutations as in the previous experiment.
+image::expressions-seeding-empty.png[Average branches for mutation based strategies, 300]
+
+Notice in the plot how the approach using power schedules is faster at discovering new branches and obtains the higher number in the end. In our example, both the blackbox mutation based fuzzer and the greybox fuzzer have comparable results with the latter reaching branches faster at some moments.
+
+==== Libraries, tools and practice
+
+Fuzzing has become a mainstream testing technique. It has shown to be really effective in practice, in particular, to detect security issues in real software. One of the most used fuzzers is the already mentioned https://github.com/google/AFL[American Fuzzy Lop (AFL)], a fuzzer for compiled C programs.
+
+Roughly speaking, AFL takes an initial collection of user-provided files as seeds. New inputs are generated by subsequently mutating these seeds. First it applies simpler, deterministic and almost exhaustive mutations, like sequentially flipping from one to four bits in a row for the entire seed to generate several new inputs or replacing parts of the seed with predefined integer values, known to cause troubles like `-1` `MAX_INT-1` and so on. Then it applies random mutations that could be the deletion, insertion or replacement of parts of the seed. The tool keeps track of the branch coverage for each input. The initial set of seeds is augmented with those inputs that reach new branches. Inputs are actually processed in a queue that gives priority to smaller files. Inputs for which the program under test crashes are reported at the end along with the set of all inputs reaching new branches.
+
+AFL has been able to discover a large number of faults and security vulnerabilities in real life well tested and widely used software like ImageMagick, gcc, qemu, git, OpenSSL, sqlite and many others.
+
+The success of the tool has originated many derived projects and extensions to other languages like https://github.com/dvyukov/go-fuzz[go-fuzz] for Go, http://jwilk.net/software/python-afl[python-afl] for Python, [http://llvm.org/docs/LibFuzzer.html]libFuzzer for LLVM and the https://github.com/isstac/kelinci[Kelinci project] which implements a Java interface for AFL.
+
+On its side, property based testing has been popularized among developers through libraries like https://hackage.haskell.org/package/QuickCheck[QuickCheck] for Haskell and its many derivate projects. Among the most popular alternatives for Java we may find: https://github.com/pholser/junit-quickcheck[junit-quickcheck], https://github.com/quicktheories/QuickTheories[QuickTheories] and https://jqwik.net/[jqwik]. These libraries offer an alternative to write tests with random inputs closer to the way developers usually write their test cases, as opposed to an external tool like AFL. They generally provide different levels of integration with testing frameworks like JUnit, a set of general purpose and configurable value generators and an API to create our custom generators.
+
+_junit-quickcheck_ has been implemented as a set of extensions for JUnit 4. <<encode-decode-jqc>> shows how to write our previous example from <<encode-decode-junit>> using this library. In the example we verify that the same input array is obtained after encoding it to base 64 and decoding it back. For this library property verifications are written inside methods annotated as `@Property`. These should be included in classes annotated with `@RunWith(JUnitQuickcheck.class)` which is a custom runner for test classes. In the best spirit of JUnit, the configuration of value generators can be done through built-in and custom annotations like ` @InRange(min = "0", max = "20")`. The library provides generators for all primitive Java types, strings, standard classes like `java.lang.Date`, enums, arrays and collections of supported types and many others.
+
+[[encode-decode-jqc, Listing {counter:listing}]]
+.Listing {listing}. Encode-decode property testing with junit-quickcheck.
+[source, java]
+----
+@RunWith(JUnitQuickcheck.class)
+public class EncoderDecoderTest {
+    @Property
+    public void encodeDecode(byte[] array) {
+        assertArrayEquals(array, decodeBase64(encodeBase64(array)));
+    }
+}
+----
+
+_jqwik_ has been implemented as an alternative JUnit 5 test engine. A test engine is a component in charge of discovering and executing tests written following a particular convention. In fact, JUnit 5 includes Jupiter as a standard test engine and Vintage, an engine compatible with JUnit 4 tests. jqwik can be combined with those other engines or by itself. In this library property verifications are implemented in methods marked with `@Property`. These methods should be `void` or `boolean`. A a `void` property should throw an exception when the property is not met and we can use any assertion library. A `boolean` should return false in that case. This library also includes generators for primitive values, strings, collections, arrays, enums and streams, functional types, and iterators. The configuration of generators is achieved through parameter annotations. <<encode-decode-jqwik>> shows the corresponding implementation of the example from <<encode-decode-junit>>.
+
+[[encode-decode-jqwik, Listing {counter:listing}]]
+.Listing {listing}. Encode-decode property testing with jqwik.
+[source, java]
+----
+class EncoderDecoderTest {
+    @Property
+    boolean encodeDecodeReturnsInput(@ForAll byte[] array) {
+        return Arrays.equals(array, decodeBase64(encodeBase64(array)));
+    }
+}
+----
+
+_QuickTheories_ is actually independent from any testing framework and any assertion library. It proposes a fluent API to create, configure and run value generators.  <<encode-decode-qt>> shows to use the library to implement the example from <<encode-decode-junit>>. Here `qt`, `byteArrays`, `range` and `bytes` are all QuickTheories utilities that we have used to create a byte array generator producing arrays of lengths between 0 and 100 and including the entire range of byte values. `check` takes a `Predicate` or a `Consumer`. The former should return `false` if the property is not met by the given input and the latter should throw an `AssertionError`.
+
+[[encode-decode-qt, Listing {counter:listing}]]
+.Listing {listing}. Encode-decode property testing with QuickTheories.
+[source, java]
+----
+@Test
+void testEncoderDecoder() {
+    qt().forAll(byteArrays(
+            range(0, 100),
+            bytes(Byte.MIN_VALUE, Byte.MAX_VALUE, (byte) 0)))
+        .check(array -> 
+                Arrays.equals(array, decodeBase64(encodeBase64(array))));
+}
+----
+
+Apart from the already mentioned functionalities, these three libraries try to shrink an input that does not met the property in order to report the smallest possible value manifesting the failure.
+
+Fuzzing can be incorporated to CI/CD processes. For example, we can launch a fuzzing build step once a week, or after a push identifying a release candidate revision in our project. In December 2016 Google moved in that direction by launching OSS-Fuzz, a platform for _continuous fuzzing_ of open-source projects. The platform run fuzzers configured in open-source projects or selected commits or pull requests. It relies underneath on AFL, libFuzzer and https://github.com/google/honggfuzz[Honggfuzz]. Any issue found is reported back to the developers. At the moment, OSS-Fuzz has found thousands of verified issues in well known software like curl, sqlite, zlib, LibreOffice, FFmpeg and many others.
+
+=== Automatically improving and generating test code
+//TODO:
+
+
+==== Test generation as an optimization problem
 ////
 TODO:
-Include:
-    Fuzzing
-        Google OSS Fuzz, fuzzers and Sqlite
-    Evosuite
-    DSpot
-    Pankti?
-Examples in practice
+    Define optimization problems
+    Introduce local search
+    Introduce genetic algorithms
 ////
+
+==== DSpot a local search strategy for test suite improvement
+
+==== EvoSuite global search for test suite generation
+
+//TODO: Explain a genetic algorithm, explain how evosuite implements each operation with an example

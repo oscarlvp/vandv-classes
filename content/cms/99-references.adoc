@@ -81,3 +81,8 @@
 . [[schranz2014case, ({counter:references})]] Schranz, T. (2014, January) A Case against Test-Driven Development. Available online: https://medium.com/product-love/a-case-against-test-driven-development-b230ebecee64 Last accessed: 24/11/2020
 . [[gunnerson2017notdd, ({counter:references})]] Gunnerson, E. (2017, November) #NoTDD Available online: https://docs.microsoft.com/en-us/archive/blogs/ericgu/notdd Last accessed: 24/11/2020
 . [[fowler2014is, ({counter:references})]] Forwler, M. (2014), Is TDD dead? Available online: https://martinfowler.com/articles/is-tdd-dead/ Last accessed: 24/11/2020
+. [[zeller2019fuzzing, ({counter:references})]] Zeller, A., Gopinath, R., Böhme, M., Fraser, G., & Holler, C. (2019). The fuzzing book.
+. [[hamidy2020differential, ({counter:references})]] Hamidy, G. (2020). Differential Fuzzing the WebAssembly https://aaltodoc.aalto.fi/handle/123456789/46101 Last accessed 28/12/2020
+. [[nilizadeh2019diffuzz, ({counter:references})]] Nilizadeh, S., Noller, Y., & Pasareanu, C. S. (2019, May). DifFuzz: differential fuzzing for side-channel analysis. In 2019 IEEE/ACM 41st International Conference on Software Engineering (ICSE) (pp. 176-187). IEEE.
+. [[moroz2019afl, ({counter:references})]] Moroz M. (2019) AFL Technical details https://github.com/google/AFL/blob/master/docs/technical_details.txt Last accessed: 28/12/2020
+. [[zalewski2015aflfuzz, ({counter:references})]]  Zalewski M. (2015) afl-fuzz: making up grammar with a dictionary in hand https://lcamtuf.blogspot.com/2015/01/afl-fuzz-making-up-grammar-with.html Last accessed: 28/12/2020
