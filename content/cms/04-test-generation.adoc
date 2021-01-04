@@ -396,19 +396,21 @@ Apart from the already mentioned functionalities, these three libraries try to s
 Fuzzing can be incorporated to CI/CD processes. For example, we can launch a fuzzing build step once a week, or after a push identifying a release candidate revision in our project. In December 2016 Google moved in that direction by launching OSS-Fuzz, a platform for _continuous fuzzing_ of open-source projects. The platform run fuzzers configured in open-source projects or selected commits or pull requests. It relies underneath on AFL, libFuzzer and https://github.com/google/honggfuzz[Honggfuzz]. Any issue found is reported back to the developers. At the moment, OSS-Fuzz has found thousands of verified issues in well known software like curl, sqlite, zlib, LibreOffice, FFmpeg and many others.
 
 === Automatically improving and generating test code
-//TODO:
-
+//TODO: Intro
 
 ==== Test generation as an optimization problem
 ////
 TODO:
-    Define optimization problems
+    Define optimization problem
+    Explain search based methods
     Introduce local search
     Introduce genetic algorithms
 ////
 
 ==== DSpot a local search strategy for test suite improvement
 
+// TODO: How does it implement local search, examples
+
 ==== EvoSuite global search for test suite generation
 
-//TODO: Explain a genetic algorithm, explain how evosuite implements each operation with an example
+//TODO: Explain how does it implement all operators

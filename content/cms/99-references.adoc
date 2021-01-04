@@ -84,5 +84,9 @@
 . [[zeller2019fuzzing, ({counter:references})]] Zeller, A., Gopinath, R., Böhme, M., Fraser, G., & Holler, C. (2019). The fuzzing book.
 . [[hamidy2020differential, ({counter:references})]] Hamidy, G. (2020). Differential Fuzzing the WebAssembly https://aaltodoc.aalto.fi/handle/123456789/46101 Last accessed 28/12/2020
 . [[nilizadeh2019diffuzz, ({counter:references})]] Nilizadeh, S., Noller, Y., & Pasareanu, C. S. (2019, May). DifFuzz: differential fuzzing for side-channel analysis. In 2019 IEEE/ACM 41st International Conference on Software Engineering (ICSE) (pp. 176-187). IEEE.
-. [[moroz2019afl, ({counter:references})]] Moroz M. (2019) AFL Technical details https://github.com/google/AFL/blob/master/docs/technical_details.txt Last accessed: 28/12/2020
+. [[moroz2019afl, ({counter:references})]] Moroz, M. (2019) AFL Technical details https://github.com/google/AFL/blob/master/docs/technical_details.txt Last accessed: 28/12/2020
 . [[zalewski2015aflfuzz, ({counter:references})]]  Zalewski M. (2015) afl-fuzz: making up grammar with a dictionary in hand https://lcamtuf.blogspot.com/2015/01/afl-fuzz-making-up-grammar-with.html Last accessed: 28/12/2020
+. [[fowler2013page, ({counter:references})]] Fowler, M. (2013) Page Object https://martinfowler.com/bliki/PageObject.html Last accessed: 02/01/2021
+. [[bahmutov2019stop, ({counter:references})]] Bahmutov, G. (2019) Stop using Page Objects and Start using App Actions https://www.cypress.io/blog/2019/01/03/stop-using-page-objects-and-start-using-app-actions/#page-objects-problems Last accessed: 03/01/2021
+. [[fowler2006passive, ({counter:references})]] Fowler, M. (2006) Passive View https://martinfowler.com/eaaDev/PassiveScreen.html Last accessed: 03/01/2021
+. [[rueda2015testar, ({counter:references})]] Rueda, U., Vos, T. E., Almenar, F., Martínez, M. O., & Esparcia-Alcázar, A. I. (2015). TESTAR: from academic prototype towards an industry-ready tool for automated testing at the user interface level. Actas de las XX Jornadas de Ingeniería del Software y Bases de Datos (JISBD 2015), 236-245.
