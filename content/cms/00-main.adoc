@@ -30,7 +30,9 @@ Topics to include in the future:
         - https://www.sciencedirect.com/science/article/abs/pii/S0925231219316698
         - https://ieeexplore.ieee.org/abstract/document/8730151/references#references
         - Jonas Gillbergs
+        - Mutation testing for neural networks
     - Design by contract
+    - Search-based test generation
 ////
 
 :numbered:
@@ -39,6 +41,10 @@ include::01-introduction.adoc[]
 include::02-static-analysis.adoc[]
 
 include::03-testing.adoc[]
+
+include::04-fuzzing.adoc[]
+
+include::05-gui-testing.adoc[]
 
 :numbered!:
 include::99-references.adoc[]

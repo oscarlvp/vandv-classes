@@ -1,12 +1,10 @@
-== Automatic test generation
+== Fuzzing
 
-Last section discussed the main ideas behind software testing. There, we explored the best testing practices and the advantages of automating test execution. However, not only test execution can be automated. It is also possible to automatically create test cases. This section introduces some techniques for automatic test generation.
-
-=== Fuzzing
+Last section discussed the main ideas behind software testing. There, we explored the best testing practices and the advantages of automating test execution. However, not only test execution can be automated. It is also possible to automatically create test cases. 
 
 _Fuzzing_ is one of the most successful techniques exploited in practice to generate test cases and discover program failures. The main idea behind fuzzing is simple: we generate random inputs, and then check if the execution of the program fails while using those inputs.
 
-According to _The Fuzzing Book_ <<zeller2019fuzzing>>, fuzzing was born in the late 1980's when professor Barton Miller from the University of Wisconsin-Madison was connected to his workstation via a telephone line. There was a thunderstorm that caused noise in the line which in turn caused the terminal commands get random bad inputs. The programs he was using crashed continuously. This inspired him to study the robustness of programs against random inputs. So, professor Miller wrote an assignment for his students asking them to create a _fuzz_ generator. The generator should produce random character stream that students should use as input of UNIX utilities to find failures, that is, _to beak them_. With this _naive_ technique, Miller and his students were able to find actual failures and bugs in well tested utilities like _vi_ and _emacs_. Since then, fuzzing has become a mainstream technique to test programs. A lot of research has been invested on improving the initial technique and several industry-level tools have been developed through the years.
+According to _The Fuzzing Book_ <<zeller2019fuzzing>>, fuzzing was born in the late 1980's when professor Barton Miller from the University of Wisconsin-Madison was connected to his workstation via a telephone line. There was a thunderstorm that caused noise in the line which in turn caused the terminal commands get random bad inputs. The programs he was using crashed continuously. This inspired him to study the robustness of programs against random inputs. So, professor Miller wrote an assignment for his students asking them to create a _fuzz_ generator. The generator should produce random character stream that students should use as input of UNIX utilities to find failures, that is, _to break them_. With this _naive_ technique, Miller and his students were able to find actual failures and bugs in well tested utilities like _vi_ and _emacs_. Since then, fuzzing has become a mainstream technique to test programs. A lot of research has been invested on improving the initial technique and several industry-level tools have been developed through the years.
 
 NOTE: Coming from a country where we still use the telephone line to connect to the Internet I find this fuzzing _origin story_ quite amusing. First, I'm surprised to know how reliable professor Miller's telephone line was in regular days. Mine is always noisy. Second, I consider a thunderstorm as a _red alert_ situation and instantly disconnect to avoid my modem getting fried. Anyways, this cool short story gave us one of the coolest testing techniques, that _boldly_ took us where no tester _has gone before_.
 
@@ -17,7 +15,7 @@ NOTE: Coming from a country where we still use the telephone line to connect to 
 [source]
 -----
 input: program
-output: failures
+output: failures // Failure inducing inputs
 procedure:
 until stopping conditions:
     input = generate random input
@@ -42,13 +40,15 @@ A crash may occur when the program under test throws an unhandled exception. In 
 
 There may be many reason behind a program crash, for example, a program may:
 * try to execute actions without having the right privileges: accessing to a restricted file, the camera or any other resource.
-* try to write or read a memory outside the assigned memory location. This is known as a segmentation fault. IN POSIX systems this program receives a SIGSERV signal. In Windows it gets an access violation exception.
+* try to write or read a memory outside the assigned memory location. This is known as a segmentation fault. IN POSIX systems this program receives a SIGSEGV signal. In Windows it gets an access violation exception.
 * pass the wrong parameters to a machine instruction or to a function which may end, for example, in a division by zero.
 * abort the execution due an invalid internal state that produces an assertion failure.
 
 Some programs do not check the boundaries of the memory buffers they modify. These programs may corrupt the memory adjacent to the buffer. This is known as a buffer overflow. Buffer overflows may cause the aforementioned segmentation faults. However, not all overflows cause a program crash and many of them become vulnerabilities that can be exploited to execute non-authorized code or to leak unwanted information like the Heartbleed bug we saw in <<heartbleed-xkcd>>. Actually, the Heartbleed vulnerability was discovered with the help of fuzzing.
 
 Some compilers, such as https://clang.llvm.org/docs/AddressSanitizer.html[Clang], are able to instrument the compiled code of a program to include memory error checks and signal the occurrence of buffer overflows. These instrumented programs can be fuzzed to find this type of fault. Other similar instrumentations can be used to spot uninitialized memory accesses, type conversions and numeric operations that may end in overflows and even concurrent actions that may end in race conditions.
+
+//TODO: Add here the example from the Clang page
 
 In the last section we used assertions to verify the state of a program after the execution of a test case. In fuzzing we use randomly generated inputs. Therefore, it is hard to create an assertion with the expected program result for each input. However, we can use assertions to verify invariants, that is, properties the output of a program must meet no matter the input. This is known as _property testing_.
 
@@ -159,7 +159,7 @@ try {
 }
 ----
 
-We can try the input generation strategies on this class to evaluate their performance according to the number of branches they can reach to check if we can find any unexpected error (other than a `ParseException`).
+We can try the input generation strategies on this class to evaluate their performance according to the number of branches they can reach and to check if we can find any unexpected error (other than a `ParseException`) like `NullPointerException`.
 
 To generate strings we pick a random sequence of characters from the following predefined alphabet: ` \tabcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789+-*/(),.!@;[]{}`. This alphabet contains whitespaces, letters, numbers and symbols that can be used to conform valid expressions, but it also contains invalid symbols according to the parser specification such as `!@;[]{}`. Each generated string has a random length between 0 and 100. Here are examples of the strings that can be generated in this way:
 
