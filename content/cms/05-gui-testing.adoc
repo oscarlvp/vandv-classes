@@ -7,7 +7,7 @@ A GUI is conformed by visual elements we call _widgets_. These can be text boxes
 [[gui-example]]
 [role=text-center]
 .A very simple GUI
-image::gui-example.png[GUI example, 300]
+image::gui-example.png[GUI example, 600]
 
 <<gui-example>> shows an example of a very simple GUI of a subscription application. The root of the widget tree is a form. This form contains several widgets for users to enter their information: text boxes for the name and email, a combobox to select the country, a submit button and a link. The combobox on its side contains a menu whose children are items corresponding to each possible selection. Initially, the _Name_ text box has as properties: `width = 300`, `height = 15`, `placeholder = "Name"` and `text = ""`. After a user enters her name, then the `text` property changes with the corresponding value. The same goes for the rest of the widgets.
 
@@ -36,10 +36,10 @@ As with the rest of tests, manually executing GUI tests is tedious an extremely 
 
 Capture and replay:: Tests are performed manually once and a specialized tool records the actions performed by the user. Then, the tests can be executed as many times as we want and the result should be the same. This is a simple option to automate GUI tests that do not require testers to have programming skills. On the other side this form of test is highly sensitive to GUI changes. Any small modification to the interface renders the tests invalid and they have to be recreated again.
 
-Develop test scripts:: We can develop scripts that emulate user actions and query the GUI state. This approach requires programming skills and it is arguably the most appealing for developers. There are plenty of libraries, frameworks and even domain specific languages (DSLs) to develop GUI test scripts for desktop, web and mobile applications, being https://selenium.dev/[Selenium] one of the most used for the web. These tests can be usually integrated with testing frameworks like JUnit. As with other forms of tests, these have to be maintained and changed whenever the GUI changes. <<simple-selenium-test>> shows an implementation of the second test we described before for the subscription form. It uses Selenium combined with JUnit and Hamcrest.
+Develop test scripts:: We can develop scripts that emulate user actions and query the GUI state. This approach requires programming skills and it is arguably the most appealing for developers. There are plenty of libraries, frameworks and even domain specific languages (DSLs) to develop GUI test scripts for desktop, web and mobile applications, being https://selenium.dev/[Selenium] one of the most used for the web. These tests can be usually integrated with testing frameworks like JUnit. As with other forms of tests, these have to be maintained and changed whenever the GUI changes. <<simple-selenium-test>> shows an implementation of a test verifying that the application shows an error if the user forgets to enter the name. It uses Selenium combined with JUnit and Hamcrest.
 +
 [[simple-selenium-test, Listing {counter:listing}]]
-.Listing {listing}. A simple Selenium test checkin that the application shows an error if the user forgets to specify the email.
+.Listing {listing}. A simple Selenium test checking that the application shows an error if the user forgets to specify the name.
 [source, java]
 ----
 @Test
@@ -76,7 +76,7 @@ Visual scripts:: An interesting alternative to test scripts. The widgets partici
 [[eyeautomate-script]]
 [role=text-center]
 .EyeAutomate script
-image::eyeautomate-script.png[EyeAutomate script, 300]
+image::eyeautomate-script.png[EyeAutomate script, 600]
 
 Automated GUI testing:: In the previous section we saw that we can automatically generate interesting test inputs and even test code. GUI tests are not an exception on that. Automating the GUI testing process requires a way to obtain the GUI state and the possible GUI actions. Having this allows to execute the application and automatically decide a sequence of actions to perform and a way to check the consistency of the GUI state. This can be seen as a type of fuzzing directed to the user actions as the input domain of the application. https://testar.org/[Test*] implements this idea and automatically check the robustness of applications against random actions.
 
@@ -130,14 +130,14 @@ The workflow to create a poll for a meeting starts with a landing page shown in 
 [[simba-starting-page]]
 [role=text-center]
 .Landing page of Simba Organizer
-image::simba-starting-page.png[Landing page, 300]
+image::simba-starting-page.png[Landing page, 600]
 
 The poll creation page is shown in <<simba-information-page>>. In this page a user must enter the general information of the meeting: mandatories title and place, optional description and whether the meeting will include a meal. Then, the user must click _Next_ to move into the next creation step. If the user forgets one of the mandatory elements, then an error will be shown and the page will not change.
 
 [[simba-information-page]]
 [role=text-center]
 .Meeting poll initial page. The user must enter a title a place and optionally a description, to be able to go to the next step.
-image::simba-information-page.png[Meeting poll page, 300]
+image::simba-information-page.png[Meeting poll page, 600]
 
 This page can be modeled by the class shown in <<simba-information-page-model>>. The class has a constructor taking the `WebDriver` it should use to locate the web elements and interact with the browser. The class includes getter or accessor methods for all values shown in the form: title, place, description and `hasMeal` to know whether this value has been selected. In general, the accessor should be simple, they just find somehow the wed element and returns the corresponding value. The result type of these accessors should be as simple as possible: primitive types, string or simple data types. The goal is to reflect what is shown in the page and nothing more. Notice in the code how `title` was implemented: we use the driver to locate an input web element with id `titre` and then return the text value. Each action is represented as a method returning a page object. The implementation of `typeTitle` finds first the element and then instructs the browser to type the corresponding value. There may two possible outcomes when the user clicks _Next_: if there is an error the page does not change and message errors are shown. Otherwise the application shows the next step. We model these two scenarios with methods `next` and `mextExectingErrors`. Having two separate methods for this makes the test more readable and keeps the implementation simpler.
 
@@ -225,7 +225,7 @@ Once the user specifies the initial information of the meeting the application s
 [[simba-date-options]]
 [role=text-center]
 .Page to select date options. The user may select time slots using the calendar component/widget. Optionally she can add her own ICS calendar to see her own time occupation.
-image::simba-date-options.png[Date options, 300]
+image::simba-date-options.png[Date options, 600]
 
 This page is particularly challenging for testing. On the one hand, the interaction with the calendar is rather complex. Users should click, drag and release the mouse to create an event in the calendar. Furthermore, users can even edit the events they have already created. On the other hand, fetching the iCalendar feed is an asynchronous operation which posses timing problems.
 
@@ -286,7 +286,7 @@ After the poll has been created, the application displays a summary page shown i
 [[simba-summary-page]]
 [role=text-center]
 .Poll summary page with links to a page for the participants, an admin page to modify and close the poll and links to a shared pad and a chatroom provided by external services.
-image::simba-summary-page.png[Summary page, 300]
+image::simba-summary-page.png[Summary page, 600]
 
 The model is simple, it just provides access to the URLs and method to navigate to the administration and participation pages. The chatroom and pad URLs are provided by third party services. We may opt not to create page object models for them or to create very simple ones to query the content of the pages to see if the information is correct, but nothing more since we do not want to test external components.
 
@@ -322,7 +322,7 @@ The poll administration page is shown in <<simba-admin-page>>. It shows the titl
 [[simba-admin-page]]
 [role=text-center]
 .Poll administration page. It shows the information about the meeting, all the time slots proposed and comments sent by the participants. The administrator may select one of the options to close the poll. She can also edit the poll and create a new one.
-image::simba-admin-page.png[Admin page, 300]
+image::simba-admin-page.png[Admin page, 600]
 
 
 [[simba-admin-page-model, Listing {counter:listing}]]
@@ -434,7 +434,7 @@ void getTheOptions() {
 // [[simba-poll-page]]
 // [role=text-center]
 // .Poll participation page. Participants have access to the information about the meeting, the proposed time slots. They can select one of the options or propose a new one and send comments. They can also consult their ICS calendar.
-// image::simba-poll-page.png[Poll page, 300]
+// image::simba-poll-page.png[Poll page, 600]
 
 
 As with any solution the _Page Object Mode_ design pattern may not fit every scenario. Its misuse may bring more harm than good. Some of the cons of this pattern are that page object models are hard to maintain and are usually not well documented <<bahmutov2019stop>>. Like any other form of testing, GUI tests are subject to code smells, so we need to watch for code repetition, insufficient abstractions, and hard-to-understand code.
@@ -450,14 +450,14 @@ https://testar.org/[Test*] (reads as Testar) is a research tool implementing an 
 [[testar]]
 [role=text-center]
 .Test*  testing process. Taken form https://testar.org/wp-content/uploads/2015/07/testar_thumb.png
-image::testar.png[TESTAR, 300]
+image::testar.png[TESTAR, 800]
 
 The process starts the _System Under Test_ (SUT) and optionally instruments its code to obtain more information during the execution of user actions. Then, it scans the GUI to obtain state, conformed by the widget tree and all their properties. Test* uses the accessibility API of the underlying operating system. This API provides direct access the the entire widget tree, their properties such as: their position, size, whether the widget is enabled or focused, and further attributes like text, title or any associated value. For example <<accessibility-calculator>> shows the set of properties the accessibility API provides for a button of the Calculator application in MacOS. Using the accessibility API Test* can target any graphical application that respects the accessibility conventions.
 
 [[accessibility-calculator]]
 [role=text-center]
 .Widget information provided by the accessibility API in MacOS.
-image::accessibility-calculator.png[TESTAR, 300]
+image::accessibility-calculator.png[Accessibility inspector, 500]
 
 By inspecting the GUI state the tool is able to derive a set of possible actions. The tool automatically skips actions that are not meaningful like clicking on buttons that are hidden by other windows. The tool can also be configured with custom, more complex actions, targeting personalized widgets, and even actions to avoid, like closing the main window.
 

@@ -30,7 +30,7 @@ From this pseudo-code we may identify three subproblems whose solutions directly
 The answer to the third question might be a matter of resources. The longer we let a fuzzer run the higher the chances it has to discover new execution paths and faults. But, a fuzzer can not run forever. Commonly we stop fuzzing a program after the first failure has been detected. Or during a certain amount of hours. This time depends on our infrastructure and even the program under test. It makes no sense to fuzz a small program for a whole week. We may also stop fuzzing after a certain number of generated inputs or a certain number of program executions, that can be limited by our budget if we run the fuzzer on the cloud. It is also possible to rely on theoretical statistical results to estimate the likelihood with which a fuzzer may discover new execution paths and assess how well it is performing in that sense. A nice overview on this particular idea can be found in the corresponding chapter https://www.fuzzingbook.org/html/WhenToStopFuzzing.html[When to Stop Fuzzing] of _The Fuzzing Book_ <<zeller2019fuzzing>>.
 // TODO: Summarize and discuss the chapter mentioned above
 
-==== What to observe?
+=== What to observe?
 
 Fault triggering inputs are detected by observing the execution of the program under test. Observing different program properties enables the discovery of different types of program faults.
 
@@ -132,7 +132,7 @@ Stream<DynamicTest> checkProperty() {
 
 We can also use automatically generated inputs to test at the same time multiple programs with the same functionality. Any difference in their behavior or result with these random inputs may indicate the presence of faults. This is known as _differential fuzzing_ or _differential testing_ and has been very successful at discovering program vulnerabilities <<hamidy2020differential>> <<nilizadeh2019diffuzz>>.
 
-==== How to generate random inputs?
+=== How to generate random inputs?
 
 An effective fuzzing strategy generates random inputs able to discover faults. This is arguably the biggest challenge for fuzzing. Recalling the RIPR model, the generated inputs should be able to reach the faults, infect the program state and propagate the effects of the fault to the output of the program. Therefore, the generated inputs should be able to produce as many executions paths as possible and reach as much program instructions and branches as possible.
 
@@ -185,7 +185,7 @@ To compare the performance of these two strategies we replicate the experiment m
 [[expressions-blackbox]]
 [role=text-center]
 .Average number of branches reached by generating random strings, random inputs using keywords and random valid inputs generated with a grammar.
-image::expressions-black-box.png[Average branches with random inputs, 300]
+image::expressions-blackbox.png[Average branches with random inputs, 600]
 
 The plots shows that, when generating only 9 inputs, the random string approach (_Random_ series in the plot) reaches 60 branches on average, while the dictionary based generation reaches more than 80 branches. As we increase the number of inputs both approaches discover more branches, but the dictionary based generation requires less inputs in general to discover more branches.
 
@@ -330,11 +330,11 @@ Both, the greybox strategy shown in <<greybox-fuzzing>> and the strategy using p
 [[expressions-seeding-empty]]
 [role=text-center]
 .Average number of branches reached by mutation based fuzzing, greybox fuzzing and fuzzing using a power schedule to select the seeds. Here the initial seed is the empty string and all three strategies use the same mutations as in the previous experiment.
-image::expressions-seeding-empty.png[Average branches for mutation based strategies, 300]
+image::expressions-seeding-empty.png[Average branches for mutation based strategies, 600]
 
 Notice in the plot how the approach using power schedules is faster at discovering new branches and obtains the higher number in the end. In our example, both the blackbox mutation based fuzzer and the greybox fuzzer have comparable results with the latter reaching branches faster at some moments.
 
-==== Libraries, tools and practice
+=== Libraries, tools and practice
 
 Fuzzing has become a mainstream testing technique. It has shown to be really effective in practice, in particular, to detect security issues in real software. One of the most used fuzzers is the already mentioned https://github.com/google/AFL[American Fuzzy Lop (AFL)], a fuzzer for compiled C programs.
 
@@ -342,7 +342,7 @@ Roughly speaking, AFL takes an initial collection of user-provided files as seed
 
 AFL has been able to discover a large number of faults and security vulnerabilities in real life well tested and widely used software like ImageMagick, gcc, qemu, git, OpenSSL, sqlite and many others.
 
-The success of the tool has originated many derived projects and extensions to other languages like https://github.com/dvyukov/go-fuzz[go-fuzz] for Go, http://jwilk.net/software/python-afl[python-afl] for Python, [http://llvm.org/docs/LibFuzzer.html]libFuzzer for LLVM and the https://github.com/isstac/kelinci[Kelinci project] which implements a Java interface for AFL.
+The success of the tool has originated many derived projects and extensions to other languages like https://github.com/dvyukov/go-fuzz[go-fuzz] for Go, http://jwilk.net/software/python-afl[python-afl] for Python, http://llvm.org/docs/LibFuzzer.html[libFuzzer] for LLVM and the https://github.com/isstac/kelinci[Kelinci project] which implements a Java interface for AFL.
 
 On its side, property based testing has been popularized among developers through libraries like https://hackage.haskell.org/package/QuickCheck[QuickCheck] for Haskell and its many derivate projects. Among the most popular alternatives for Java we may find: https://github.com/pholser/junit-quickcheck[junit-quickcheck], https://github.com/quicktheories/QuickTheories[QuickTheories] and https://jqwik.net/[jqwik]. These libraries offer an alternative to write tests with random inputs closer to the way developers usually write their test cases, as opposed to an external tool like AFL. They generally provide different levels of integration with testing frameworks like JUnit, a set of general purpose and configurable value generators and an API to create our custom generators.
 
@@ -393,24 +393,5 @@ void testEncoderDecoder() {
 
 Apart from the already mentioned functionalities, these three libraries try to shrink an input that does not met the property in order to report the smallest possible value manifesting the failure.
 
-Fuzzing can be incorporated to CI/CD processes. For example, we can launch a fuzzing build step once a week, or after a push identifying a release candidate revision in our project. In December 2016 Google moved in that direction by launching OSS-Fuzz, a platform for _continuous fuzzing_ of open-source projects. The platform run fuzzers configured in open-source projects or selected commits or pull requests. It relies underneath on AFL, libFuzzer and https://github.com/google/honggfuzz[Honggfuzz]. Any issue found is reported back to the developers. At the moment, OSS-Fuzz has found thousands of verified issues in well known software like curl, sqlite, zlib, LibreOffice, FFmpeg and many others.
+Fuzzing can be incorporated to CI/CD processes. For example, we can launch a fuzzing build step once a week, or after a push identifying a release candidate revision in our project. In December 2016, Google moved in that direction by launching https://github.com/google/oss-fuzz[OSS-Fuzz], a platform for _continuous fuzzing_ of open-source projects. The platform run fuzzers configured in open-source projects or selected commits or pull requests. It relies underneath on AFL, libFuzzer and https://github.com/google/honggfuzz[Honggfuzz]. Any issue found is reported back to the developers. At the moment, OSS-Fuzz has found thousands of verified issues in well known software like curl, sqlite, zlib, LibreOffice, FFmpeg and many others.
 
-=== Automatically improving and generating test code
-//TODO: Intro
-
-==== Test generation as an optimization problem
-////
-TODO:
-    Define optimization problem
-    Explain search based methods
-    Introduce local search
-    Introduce genetic algorithms
-////
-
-==== DSpot a local search strategy for test suite improvement
-
-// TODO: How does it implement local search, examples
-
-==== EvoSuite global search for test suite generation
-
-//TODO: Explain how does it implement all operators
