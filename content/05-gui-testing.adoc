@@ -1,8 +1,10 @@
 == Graphical User Interface testing
 
-Most applications: desktop, mobile, web and even embedded systems from cards and medical equipment have a Graphical User Interface (GUI). The GUI stands between the user and the underlaying code of the application and provides access to all the functionalities. It is also the place where users find failures. Therefore, testing the GUI can potentially discover those unwanted failures.
+NOTE: The first part of this section and the discussion about Test* follow the same structure as the https://www.youtube.com/playlist?list=PL3bOx_OjZk8EvOo3un0xeGpXlqGT2YQXa[online material on GUI testing] published by professor Tanja Vos from the University of Valencia.
 
-A GUI is conformed by visual elements we call _widgets_. These can be text boxes, checkboxes, buttons, menus, scrollbars and often custom made widgets. Usually widgets are organized in a tree in which container widgets hold children widgets and so on. Each widget has a set of properties, for example, the position of the widget, the size, the background color, the font, the values it handles like the text in a text box. The concrete values at runtime of these properties conform the state of the widget. By extension, the state of the GUI is conformed by the widget tree and the state of all widgets. Users can affect the state of the GUI by performing actions on the widgets. That is users can _click_ on a checkbox or a button, enter a text, select an option in a combobox or a list, drag an image.
+Most applications: desktop, mobile, web and even embedded systems from cards and medical equipment have a Graphical User Interface (GUI). The GUI stands between the user and the underlying code of the application and provides access to all the functionalities. It is also the place where users find failures. Therefore, testing the GUI can potentially discover those unwanted failures.
+
+A GUI is conformed by visual elements we call _widgets_. These can be text boxes, checkboxes, buttons, menus, scrollbars and often custom made widgets.  Widgets are usually organized in a tree in which container widgets hold children widgets and so on. Each widget has a set of properties, for example, the position of the widget, the size, the background color, the font and the values it handles like the text in a text box. The concrete values at runtime of these properties conform the state of the widget. By extension, the state of the GUI is conformed by the widget tree and the state of all widgets. Users can affect the state of the GUI by performing actions on the widgets. That is, users can _click_ on a checkbox or a button, enter a text, select an option in a list or drag an image.
 
 [[gui-example]]
 [role=text-center]
@@ -11,9 +13,9 @@ image::gui-example.png[GUI example, 600]
 
 <<gui-example>> shows an example of a very simple GUI of a subscription application. The root of the widget tree is a form. This form contains several widgets for users to enter their information: text boxes for the name and email, a combobox to select the country, a submit button and a link. The combobox on its side contains a menu whose children are items corresponding to each possible selection. Initially, the _Name_ text box has as properties: `width = 300`, `height = 15`, `placeholder = "Name"` and `text = ""`. After a user enters her name, then the `text` property changes with the corresponding value. The same goes for the rest of the widgets.
 
-GUI tests are a form of system tests, as they execute the entire application. They are designed from the user's perspective. In general terms, a GUI test initializes the system under test, performs a series of GUI actions and then it checks if the GUI state is correct.
+GUI tests are a form of system tests, as they execute the entire application. They are designed from the user's perspective. In general terms, a GUI test initializes the system under test, performs a series of GUI actions and then, it checks if the GUI state is correct.
 
-For our small GUI a test could be the following:
+For our small GUI a test case could be designed as following:
 
 1. Open the subscription form
 2. Enter "Jane Doe" in _Name_
@@ -34,7 +36,7 @@ In general, GUI tests should verify that the required information is visible in 
 
 As with the rest of tests, manually executing GUI tests is tedious an extremely error prone, so we need to automate their execution. There are four main approaches to GUI test automation, all with their pros and cons:
 
-Capture and replay:: Tests are performed manually once and a specialized tool records the actions performed by the user. Then, the tests can be executed as many times as we want and the result should be the same. This is a simple option to automate GUI tests that do not require testers to have programming skills. On the other side this form of test is highly sensitive to GUI changes. Any small modification to the interface renders the tests invalid and they have to be recreated again.
+Capture and replay:: Tests are executed manually once and a specialized tool records the actions performed by the user. Then, the tests can be executed as many times as we want and the result should be the same. This is a simple option to automate GUI tests that do not require testers to have programming skills. On the other side this form of test is highly sensitive to GUI changes. Any small modification to the interface renders the tests invalid and they have to be recreated again.
 
 Develop test scripts:: We can develop scripts that emulate user actions and query the GUI state. This approach requires programming skills and it is arguably the most appealing for developers. There are plenty of libraries, frameworks and even domain specific languages (DSLs) to develop GUI test scripts for desktop, web and mobile applications, being https://selenium.dev/[Selenium] one of the most used for the web. These tests can be usually integrated with testing frameworks like JUnit. As with other forms of tests, these have to be maintained and changed whenever the GUI changes. <<simple-selenium-test>> shows an implementation of a test verifying that the application shows an error if the user forgets to enter the name. It uses Selenium combined with JUnit and Hamcrest.
 +
@@ -71,14 +73,14 @@ public void testMissingName() {
 +
 However, the code of this test is hard to follow, as it contains many GUI queries cluttering its actual intent. This particular test is also tangled with the GUI design. For example, errors are discovered by finding HTML elements with an `error` class. If the GUI design changes, we need to change this part of the code in all tests doing the same. Therefore we need to find a way to develop these tests so they have a simpler code and are robust to changes. We shall discuss the _Page Object Model_ <<fowler2013page>> pattern for this matter.
 
-Visual scripts:: An interesting alternative to test scripts. The widgets participating in the tests are specified using images from screen captures of the application. The test execution uses image recognition techniques to detect the position of the widgets. https://eyeautomate.com/[EyeAutomate] provides a set of tools to achieve this. While it is simple alternative to put into practice, it still requires a sophisticated machinery underneath and it is still highly sensitive to GUI changes.
+Visual scripts:: An interesting alternative to test scripts. The widgets participating in the tests are specified using images from screen captures of the application. The test execution uses image recognition techniques to detect the position of the widgets. https://eyeautomate.com/[EyeAutomate] provides a set of tools to achieve this. While it is a simple alternative to put into practice, it still requires a sophisticated machinery underneath and it is still highly sensitive to GUI changes.
 +
 [[eyeautomate-script]]
 [role=text-center]
 .EyeAutomate script
 image::eyeautomate-script.png[EyeAutomate script, 600]
 
-Automated GUI testing:: In the previous section we saw that we can automatically generate interesting test inputs and even test code. GUI tests are not an exception on that. Automating the GUI testing process requires a way to obtain the GUI state and the possible GUI actions. Having this allows to execute the application and automatically decide a sequence of actions to perform and a way to check the consistency of the GUI state. This can be seen as a type of fuzzing directed to the user actions as the input domain of the application. https://testar.org/[Test*] implements this idea and automatically check the robustness of applications against random actions.
+Automated GUI testing:: In the previous section we saw that we can automatically generate interesting test inputs and even test code. GUI tests are not an exception on that. Automating the GUI testing process requires a way to obtain the GUI state and the possible GUI actions. This allows to execute the application and automatically decide a sequence of actions to perform and a way to check the consistency of the GUI state. This can be seen as a type of fuzzing directed to the user actions as the input domain of the application. https://testar.org/[Test*] implements this idea and automatically check the robustness of applications against random actions.
 
 In the remaining sections we shall discuss how to write our GUI tests with the help of Selenium and how tools like Test* achieve GUI test automation.
 
@@ -100,7 +102,7 @@ The _Page Object Model_ is a code design pattern that precisely aims at solving 
 
 _Page Object Model_ or simply _Page Object_ is a design pattern that proposes to separate the test code from the page/GUI specific code <<fowler2013page>>. The main idea is to create classes to model each page in our application. These classes shall become the interface between the tests and the GUI. Page objects should allow the tests to do and see anything human users would do while providing a simple programming interface. 
 
-In a page object, any information exposed by the page, should become a property, any action a user can do should become a behavior or method of the class. This is an Object-Oriented approach to encapsulate GUI specific code and hide the structural complexity of the GUI. If the GUI changes, then only the page objects will change and not the test code. <<page-object-example>> shows how the test case from <<simple-selenium-test>> could be written with a page object `SubscribePage` representing the subscription page. The `SubscribePage` has methods to emulate the possible actions: `typeEmail`, `selectCountry` and `submit`. It also has accessors to get this information and even the errors shown in the page.
+In a page object, any information exposed by the page, should become a property, any action a user can do should become a behavior or method of the class. This is an Object-Oriented approach to encapsulate GUI specific code and hide the structural complexity of the GUI. If the GUI changes, then only the page objects will change and not the test code. <<page-object-example>> shows how the test case from <<simple-selenium-test>> could be written with a page object `SubscribePage` representing the subscription page. The `SubscribePage` has methods to emulate the possible actions: `typeEmail`, `selectCountry` and `submit`. It also has _accessors_ to retrieve this information and the errors shown in the page.
 
 [[page-object-example, Listing {counter:listing}]]
 .Listing {listing}. Rewriting the test case shown in <<simple-selenium-test>> using a page object.
@@ -117,29 +119,29 @@ public void testMissingName() {
 }
 ----
 
-When creating page objects there is no need to represent the entire page, not even all pages in the application. We should focus on what is essential for testing. Doing otherwise will create an unnecessary burden as these objects have be maintained. On the other hand a page object may be composed by other page objects representing recurrent components in the application. Page objects should not contain assertions, so they can be reused among different tests, but they may include general verifications, for example, the driver is in the right page and there is no crash.
+When creating page objects there is no need to represent the entire page, not even all pages in the application. We should focus on what is essential for testing. Doing otherwise will create an unnecessary burden as these objects have to be maintained. On the other hand, a page object may be composed by other page objects representing recurrent components in the application. Page objects should not contain assertions, so they can be reused among different tests, but they may include general purpose checks, for example, verify that the  webdriver navigates the right page and that application the hasn't crashed.
 
-Let's explore this pattern application in a more complete example. We shall use Selenium from Java to test the https://github.com/barais/doodlestudent[Simba Organizer] web application. This application is composed by a backend developed in Java using https://quarkus.io/[Quarkus] and a frontend developed in TypeScript using https://angular.io/[Angular] and third party libraries like https://www.primefaces.org/primeng/[PrimeNG] and https://fullcalendar.io/[FullCalendar].
+Let's explore this pattern in a more complete example. We shall use Selenium from Java to test the https://github.com/barais/doodlestudent[Simba Organizer] web application. This application is composed by a backend developed in Java using https://quarkus.io/[Quarkus] and a frontend developed in TypeScript using https://angular.io/[Angular] and third party libraries like https://www.primefaces.org/primeng/[PrimeNG] and https://fullcalendar.io/[FullCalendar].
 
-WARNING: Testing an Angular application from Java using Selenium is not the ideal option. However, it is feasible and the Java+Selenium stack can be applied to web applications developed in any other framework than Angular. For an Angular applications the best choice is to use https://www.protractortest.org/[Protractor].
+WARNING: Testing an Angular application from Java using Selenium is not the ideal option. However, it is feasible and the Java+Selenium stack can be applied to web applications developed in any other framework than Angular. For Angular applications the best choice is to use https://www.protractortest.org/[Protractor].
 
-Simba Organizer is a teaching project used in different student assignments at https://istic.univ-rennes1.fr/[ISTIC], University of Rennes 1. It is  a doodle-like application that allows a set of users to agree on the schedule of a meeting. One user creates the initial poll to decide the schedule of a meeting and proposes some time slots. Then the participants shall pick the option that best fits their availability and possibly send some comments. The application also interacts with services to create a shared pad for the meeting, to create a chatroom and to let users check their calendars when picking the time slot.
+Simba Organizer is a teaching project used in different student assignments at https://istic.univ-rennes1.fr/[ISTIC], University of Rennes 1. It is  a doodle-like application that allows a set of users to agree on the schedule of a meeting. One user creates an initial poll to decide the schedule of a meeting and proposes some time slots. Then the participants shall pick the option that best fits their availability and possibly send some comments. The application also interacts with services to create a shared pad for the meeting, to create a chatroom and to let users check their calendars when picking the time slot.
 
-The workflow to create a poll for a meeting starts with a landing page shown in <<simba-starting-page>>. This page shows some instructions and the only action a user can do is to click on the button at the bottom to start creating a poll. Since the creation page can be directly accessed, then modeling this page is not essential.
+The workflow to create a poll for a meeting starts with a landing page shown in <<simba-starting-page>>. This page shows some instructions and the only action a user can do is to click the button at the bottom to start creating a poll. The actual poll creation page can be directly accessed, then modeling the landing page is not essential.
 
 [[simba-starting-page]]
 [role=text-center]
 .Landing page of Simba Organizer
 image::simba-start-page.png[Landing page, 600]
 
-The poll creation page is shown in <<simba-information-page>>. In this page a user must enter the general information of the meeting: mandatories title and place, optional description and whether the meeting will include a meal. Then, the user must click _Next_ to move into the next creation step. If the user forgets one of the mandatory elements, then an error will be shown and the page will not change.
+The poll creation page is shown in <<simba-information-page>>. In this page a user must enter the general information of the meeting: mandatory title and place, optional description and whether the meeting will include a meal. Then, the user must click _Next_ to move into the next creation step. If the user forgets one of the mandatory elements, then an error will be shown and the page will not change.
 
 [[simba-information-page]]
 [role=text-center]
 .Meeting poll initial page. The user must enter a title a place and optionally a description, to be able to go to the next step.
 image::simba-information-page.png[Meeting poll page, 600]
 
-This page can be modeled by the class shown in <<simba-information-page-model>>. The class has a constructor taking the `WebDriver` it should use to locate the web elements and interact with the browser. The class includes getter or accessor methods for all values shown in the form: title, place, description and `hasMeal` to know whether this value has been selected. In general, the accessor should be simple, they just find somehow the wed element and returns the corresponding value. The result type of these accessors should be as simple as possible: primitive types, string or simple data types. The goal is to reflect what is shown in the page and nothing more. Notice in the code how `title` was implemented: we use the driver to locate an input web element with id `titre` and then return the text value. Each action is represented as a method returning a page object. The implementation of `typeTitle` finds first the element and then instructs the browser to type the corresponding value. There may two possible outcomes when the user clicks _Next_: if there is an error the page does not change and message errors are shown. Otherwise the application shows the next step. We model these two scenarios with methods `next` and `mextExectingErrors`. Having two separate methods for this makes the test more readable and keeps the implementation simpler.
+This page can be modeled by the class shown in <<simba-information-page-model>>. The class has a constructor taking the `WebDriver` it should use to locate the web elements and interact with the browser. The class includes getter or accessor methods for all values shown in the form: title, place, description and `hasMeal` to know whether this value has been selected. In general, the accessor should be simple, they just find somehow the web element and returns the corresponding value. The result type of these methods should be as simple as possible: primitive types, string or simple data types. The goal is to reflect what is shown in the page and nothing more. Notice in the code how `title` was implemented: we use the driver to locate an input web element with id `titre` and then return the text value. Each action is represented as a method returning a page object. The implementation of `typeTitle` first finds the element and then instructs the browser to type the corresponding value. There may two possible outcomes when the user clicks _Next_: if there is an error the page does not change and error messages are shown. Otherwise the application shows the next step. We model these two scenarios with methods `next` and `nextExectingErrors`. Having two separate methods for this makes the test more readable and keeps the implementation simpler.
 
 [[simba-information-page-model, Listing {counter:listing}]]
 .Listing {listing}. A model for the first poll creation page.
@@ -220,7 +222,7 @@ class InformationPage {
 }
 ----
 
-Once the user specifies the initial information of the meeting the application shows a page where she can select the initial options for the time slots. This page is shown in <<simba-date-options>>. This page shows a calendar component where the user can create the time slots. It has also a switch the user can activate to enter a URL to an _iCalendar_ feed to superpose so she can check her own time occupation. The user can move to the next stop at any time since it is not mandatory to set these initial options for the poll.
+Once the user specifies the initial information of the meeting the application shows a page where she can select the initial options for the time slots. This page is shown in <<simba-date-options>>. This page shows a calendar component where the user can create the time slots. It has also a switch the user can activate to enter a URL to an _iCalendar_ feed so she can check her own time occupation. The user can move to the next stop at any time since it is not mandatory to set these initial options for the poll.
 
 [[simba-date-options]]
 [role=text-center]
@@ -229,11 +231,11 @@ image::simba-date-options.png[Date options, 600]
 
 This page is particularly challenging for testing. On the one hand, the interaction with the calendar is rather complex. Users should click, drag and release the mouse to create an event in the calendar. Furthermore, users can even edit the events they have already created. On the other hand, fetching the iCalendar feed is an asynchronous operation which posses timing problems.
 
-We should make page object models as simple as possible, since they must be updated each time the GUI changes. So, we should not aim at implementing all the calendar functionalities, besides, this a third party component that we may change at any time and we are not interesting in testing it. At this point we assume it works correctly.
+We should make page object models as simple as possible, since they must be updated each time the GUI changes. So, we should not aim at implementing all the calendar functionalities, besides, this a third party component that we may change at any time and we are not interested in testing it. At this point we assume it works correctly.
 
 For the asynchronous operations we have not better solution than to wait until its result become visible. But also, we must set a reasonable timeout for the wait, so in case the operation fails and never sends back the results the test can also fail. These timeouts are often sources of flaky tests as we saw in previous sections so they must be handled with care.
 
-<<simba-date-options-model>> shows how we can model this page. The purpose of this page is to select the initial time slot proposals. This is achieved with `addOption`. The method takes only the start and end `LocalDateTime` instances to create the slot. `LocalDateTime` is a class included in the `java.time` package. Inside, the method should interact with the calendar component to click in the right places. This may be hard. Since this is an Angular application we can also interact directly with the JavaScript code, which breaks a bit the encapsulation but might be simpler. There is no easy solution for this. However, implementing `addOption` hides all this complexity form the tests and makes the operation reusable. On its side, the `options` method returns the time slots we had added to the calendar. The `Slot` is a simple data class we created to contains only a pair of start and end `LocalDateTime`.
+<<simba-date-options-model>> shows how we can model this page. The purpose of this page is to select the initial time slot proposals. This is achieved with `addOption`. The method takes only the start and end `LocalDateTime` instances to create the slot. `LocalDateTime` is a class included in the `java.time` package. Inside, the method should interact with the calendar component to click in the right places. This may be hard. Since this is an Angular application we can also interact directly with the JavaScript code, which breaks a bit the encapsulation but might be simpler. There is no easy solution for this. However, implementing `addOption` hides all this complexity form the tests and makes the operation reusable. On its side, the `options` method returns the time slots we added to the calendar. `Slot` is a simple data class we created to represent a pair of start and end `LocalDateTime`.
 
 [[simba-date-options-model, Listing {counter:listing}]]
 .Listing {listing}. A model for the time slots selection page.
@@ -266,7 +268,7 @@ public class DateSelectionPage {
 }
 ----
 
-If the user wants to consult her iCalendar, she must activate the switch, then a text box appears and she should enter the right URL there. Then, the events are fetched and shown in the calendar. All these operations are encapsulated in `setHasICS` to activate or deactivate the switch, `isICSVisible` to know if the text box is visible, `ICS` to get the value specified for the iCalendar URL, `typeICS` to set the value and `ICSEvents` to consult the events displayed in the calendar. Typing the iCalendar URL needs the text box to be visible. While the operation seems immediate after we activate the switch we have to be sure that the web element is visible. We can instruct the driver to wait for such things, <<waiting-for-visibility>> shows ho w we can do that.
+If the user wants to consult her iCalendar, she must activate the switch, then a text box appears and she should enter the right URL there. Then, the events are fetched and shown in the calendar. All these operations are encapsulated in `setHasICS` to activate or deactivate the switch, `isICSVisible` to know if the text box is visible, `ICS` to get the value specified for the iCalendar URL, `typeICS` to set the value and `ICSEvents` to consult the events displayed in the calendar. Typing the iCalendar URL needs the text box to be visible. While the operation seems immediate after we activate the switch we have to be sure that the web element is visible. We can instruct the driver to wait for such things, <<waiting-for-visibility>> shows how we can do that.
 
 [[waiting-for-visibility, Listing {counter:listing}]]
 .Listing {listing}. A snippet of code showing how we can wait for an element to be visible.
@@ -279,7 +281,7 @@ ExpectedCondition<Webelement> condition = ExpectedConditions.visibilityOf(elemen
 wait.until(condition);
 ----
 
-The rest of the class is similar to the previous model: it has accessors for the information shown and method to go to the previous and next steps. when creating page object models it might be a good idea to have a base class, in which we can put all the common actions, for example, navigation methods, the waiting code and default timeouts. Then all the models we write can extend this base class.
+The rest of the class is similar to the previous model: it has methods to access the information and method to go to the previous and next steps. When creating page object models it might be a good idea to have a base class, in which we can put all the common actions, for example, navigation methods, the waiting code and default timeouts. Then all the models we write can extend this base class.
 
 After the poll has been created, the application displays a summary page shown in <<simba-summary-page>>. 
 
@@ -288,7 +290,7 @@ After the poll has been created, the application displays a summary page shown i
 .Poll summary page with links to a page for the participants, an admin page to modify and close the poll and links to a shared pad and a chatroom provided by external services.
 image::simba-summary-page.png[Summary page, 600]
 
-The model is simple, it just provides access to the URLs and method to navigate to the administration and participation pages. The chatroom and pad URLs are provided by third party services. We may opt not to create page object models for them or to create very simple ones to query the content of the pages to see if the information is correct, but nothing more since we do not want to test external components.
+The model is simple, it just provides access to the URLs and method to navigate to the administration and participation pages. The chatroom and pad URLs are provided by third party services. We may opt not to create page object models for them or to create very simple classes to query the content of the pages to see if the information is correct, but nothing more since we do not want to test external components.
 
 [[simba-summary-page-model, Listing {counter:listing}]]
 .Listing {listing}. A model for the summary page.
@@ -317,7 +319,7 @@ public class SummaryPage {
 }
 ----
 
-The poll administration page is shown in <<simba-admin-page>>. It shows the title, the place, if there is a meal planned for the meeting, comments from the participants, each option and a buttons to select the an option and close the poll. it also has links to create a new poll, to modify the existing poll, to go to the chatroom, the pad and even to share the poll. The model is shown in <<simba-admin-page-model>>. It is similar to the models before. The new aspect here is that we have modeled each option visual section as a different page object. This reduces the complexity of the `AdminPage` code. 
+The poll administration page is shown in <<simba-admin-page>>. It shows the title, the place, if there is a meal planned for the meeting, comments from the participants, each option, and buttons to select the final option and close the poll. It also has links to create a new poll, to modify the existing poll, to go to the chatroom, the pad and even to share the poll. The model is shown in <<simba-admin-page-model>>. It is similar to the models before. The new aspect here is that we have modeled each option visual section as a different page object. This reduces the complexity of the `AdminPage` code. 
 
 [[simba-admin-page]]
 [role=text-center]
@@ -329,7 +331,7 @@ image::simba-admin-page.png[Admin page, 600]
 .Listing {listing}. A model for the admin page.
 [source, java]
 ----
-public class AdminPage extends PageObject {
+public class AdminPage {
 
     public AdminPage(WebDriver driver) { ... }
 
@@ -437,7 +439,7 @@ void getTheOptions() {
 // image::simba-poll-page.png[Poll page, 600]
 
 
-As with any solution the _Page Object Mode_ design pattern may not fit every scenario. Its misuse may bring more harm than good. Some of the cons of this pattern are that page object models are hard to maintain and are usually not well documented <<bahmutov2019stop>>. Like any other form of testing, GUI tests are subject to code smells, so we need to watch for code repetition, insufficient abstractions, and hard-to-understand code.
+As with any solution the _Page Object Mode_ design pattern may not fit every scenario. Its misuse may bring more harm than good. It is usually argued that page object models are hard to maintain and are not well documented <<bahmutov2019stop>>. Like any other form of testing, GUI tests are subject to code smells, so we need to watch for code repetition, insufficient abstractions, and hard-to-understand code.
 
 If a GUI has too much logic embedded, then implementing Page Object Model is challenging as the application becomes less testable. Development patterns like _Model-View-Controller_, _Model-View-Presenter_ and _Model-View-ViewModel_ or _Passive View_ propose ways to organize the application code so the GUI has less logic and, as a result, it becomes easier to test. Also, interacting with the _Controller_, _Presenter_ or the _ViewModel_ can be easier than interacting directly with the visual elements <<fowler2006passive>>.
 
@@ -452,14 +454,14 @@ https://testar.org/[Test*] (reads as Testar) is a research tool implementing an 
 .Test*  testing process. Taken form https://testar.org/wp-content/uploads/2015/07/testar_thumb.png
 image::testar.png[TESTAR, 800]
 
-The process starts the _System Under Test_ (SUT) and optionally instruments its code to obtain more information during the execution of user actions. Then, it scans the GUI to obtain state, conformed by the widget tree and all their properties. Test* uses the accessibility API of the underlying operating system. This API provides direct access the the entire widget tree, their properties such as: their position, size, whether the widget is enabled or focused, and further attributes like text, title or any associated value. For example <<accessibility-calculator>> shows the set of properties the accessibility API provides for a button of the Calculator application in MacOS. Using the accessibility API Test* can target any graphical application that respects the accessibility conventions.
+The process starts the _System Under Test_ (SUT) and optionally instruments its code to obtain more information during the execution of user actions. Then, it scans the GUI to obtain sthe state, conformed by the widget tree and all their properties. Test* uses the accessibility API of the underlying operating system. This API provides direct access to the entire widget tree, their properties such as: their position, size, whether the widget is enabled or focused, and further attributes like text, title or any associated value. For example <<accessibility-calculator>> shows the set of properties the accessibility API provides for a button of the Calculator application in MacOS. Using the accessibility API, Test* can target any graphical application that respects the accessibility conventions.
 
 [[accessibility-calculator]]
 [role=text-center]
 .Widget information provided by the accessibility API in MacOS.
 image::accessibility-calculator.png[Accessibility inspector, 500]
 
-By inspecting the GUI state the tool is able to derive a set of possible actions. The tool automatically skips actions that are not meaningful like clicking on buttons that are hidden by other windows. The tool can also be configured with custom, more complex actions, targeting personalized widgets, and even actions to avoid, like closing the main window.
+By inspecting the GUI state ,the tool is able to derive a set of possible actions. The tool automatically skips actions that are not meaningful like clicking on buttons that are hidden by other windows. The tool can also be configured with custom, more complex actions, targeting personalized widgets, and even actions to avoid, like closing the main window.
 
 At each step, the tool randomly selects one of the identified actions. While this selection is random, the tool implements more intelligent mechanisms to identify action that are likely to trigger failures, such as actions that not executed often during the process. This action selection step can be customized as well. After the action has been selected, the state is updated and the process continues until some desired stopping conditions are met.
 
