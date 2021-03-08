@@ -4,9 +4,9 @@ This repository contains the class notes of the Validation and Verification subj
 
 == Requisites
 
-- [Make](https://www.gnu.org/software/make/)
-- [Ruby 2.6.5](https://www.ruby-lang.org/)
-- [Bundler](https://bundler.io/)
+- https://www.gnu.org/software/make/[Make]
+- https://www.ruby-lang.org/[Ruby 2.6.5]
+- https://bundler.io/[Bundler]
 
 == Building
 

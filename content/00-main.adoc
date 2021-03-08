@@ -28,7 +28,7 @@ As part of the course, students had to complete a set of exercises for each topi
 
 In addition, students had to complete a project in which they were given the source code of a faulty file compression application. The students had to put in practice what they learned to find and correct the faults and to improve the quality of the application code. Details of the project can be found https://github.com/validation-and-verification-istic/2020-project-squeezer[here].
 
-WARNING: These notes are and will always be a work in progress. Any feedback is welcome.
+WARNING: These notes are and will always be a work in progress. Any feedback is welcome. They are distributed under the Creative Commons Zero v1.0 Universal license.
 
 ////
 TODO:
