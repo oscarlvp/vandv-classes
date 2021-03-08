@@ -1,5 +1,7 @@
 == Fuzzing
 
+NOTE: This section follows the structure of the https://www.fuzzingbook.org/html/02_Lexical_Fuzzing.html[Lexical Fuzzing] chapter from https://www.fuzzingbook.org/[The Fuzzing Book]. It also replicates part of the experiments from this book using a different tools. The supporting code can be checked at https://github.com/oscarlvp/simplefuzzing
+
 Last section discussed the main ideas behind software testing. There, we explored the best testing practices and the advantages of automated test execution. However, not only test execution can be automated. It is also possible to automatically create test cases. 
 
 _Fuzzing_ is one of the most successful techniques exploited in practice to generate test cases and discover program failures. The main idea behind fuzzing is simple: we generate random inputs and then check if the execution of the program fails while using those inputs.
