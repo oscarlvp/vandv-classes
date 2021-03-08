@@ -130,7 +130,7 @@ The workflow to create a poll for a meeting starts with a landing page shown in 
 [[simba-starting-page]]
 [role=text-center]
 .Landing page of Simba Organizer
-image::simba-starting-page.png[Landing page, 600]
+image::simba-start-page.png[Landing page, 600]
 
 The poll creation page is shown in <<simba-information-page>>. In this page a user must enter the general information of the meeting: mandatories title and place, optional description and whether the meeting will include a meal. Then, the user must click _Next_ to move into the next creation step. If the user forgets one of the mandatory elements, then an error will be shown and the page will not change.
 

@@ -1,17 +1,17 @@
 = Validation and Verification M2 ISTIC materials
 
-This repository contains the notes of the classes, the pratical sessions and the project of the Validation and Verification subject at ISTIC Master 2 level.
+This repository contains the class notes of the Validation and Verification subject taught at ISTIC Master 2 level.
 
 == Requisites
 
-- Make
-- Ruby 2.6.5
-- Gems:
-    * `asciidoctor` 2.0.10
-    * `asciidoctor-diagram` 2.0.1
-    * `coderay` 1.1.2
+- [Make](https://www.gnu.org/software/make/)
+- [Ruby 2.6.5](https://www.ruby-lang.org/)
+- [Bundler](https://bundler.io/)
 
 == Building
 
-In the root of the project execute `make cms`.
-This will create a `cms.html` file in the `output` folder.
+In the root directory of the project first execute `make install`. 
+This will invoke `bundle install` to create a local environment with the required gems.
+Then execute `make html` to obtain the HTML version or `make pdf` to obtain a pdf.
+Executing `make all` will generate both formats.
+All results are stored in the `output` folder.
