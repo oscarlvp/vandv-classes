@@ -13,11 +13,22 @@ Oscar Luis Vera-Pérez <oscarlvp@gmail.com>
 :numbered!:
 == Note about the notes
 
-These notes have been compiled mainly from the (inherited and redefined) conferences taught by Jean-Marc Jézéquel, Yves Le Traon, Benoit Baudry and Benoit Combemale.
-They haven been enriched with materials from the https://cs.gmu.edu/~offutt/softwaretest/["Introduction to Software Testing"] book written by Paul Ammmann and Jeff Offutt, https://www.fuzzingbook.org/["The Fuzzing Book"] by Andreas Zeller, Rahul Gopinath, Marcel Böhme, Gordon Fraser, and Christian Holler and the https://www.youtube.com/playlist?list=PL3bOx_OjZk8EvOo3un0xeGpXlqGT2YQXa[online material on GUI testing] published by Tanja Vos.
-Many other bibliographical sources and materials have been also used. They all appear in the <<99-references.adoc#_references,References>> section.
+These course notes have been initially inspired from the (inherited and redefined) conferences taught by Jean-Marc Jézéquel, Yves Le Traon, Benoit Baudry and Benoit Combemale, who also provided feedback and proofread the material.
 
-These notes are and will always be a work in progress. Any feedback is welcome.
+The initial content has been enriched with materials from the https://cs.gmu.edu/~offutt/softwaretest/["Introduction to Software Testing"] book written by Paul Ammann and Jeff Offutt, https://www.fuzzingbook.org/["The Fuzzing Book"] by Andreas Zeller, Rahul Gopinath, Marcel Böhme, Gordon Fraser, and Christian Holler and the https://www.youtube.com/playlist?list=PL3bOx_OjZk8EvOo3un0xeGpXlqGT2YQXa[online material on GUI testing] published by Tanja Vos.
+Many other bibliographical sources and materials were also used and appear in the <<99-references.adoc#_references,References>> section.
+
+As part of the course, students had to complete a set of exercises for each topic. These exercises can be consulted in the following links:
+
+- https://github.com/validation-and-verification-istic/2020-tp1-introduction[Introduction]
+- https://github.com/validation-and-verification-istic/2020-tp2-static-analysis[Code quality and static analysis]
+- https://github.com/validation-and-verification-istic/2020-tp3-testing[Testing]
+- https://github.com/validation-and-verification-istic/2020-tp4-fuzzing[Fuzzing]
+- https://github.com/validation-and-verification-istic/2020-tp5-gui[GUI testing]
+
+In addition, students had to complete a project in which they were given the source code of a faulty file compression application. The students had to put in practice what they learned to find and correct the faults and to improve the quality of the application code. Details of the project can be found https://github.com/validation-and-verification-istic/2020-project-squeezer[here].
+
+WARNING: These notes are and will always be a work in progress. Any feedback is welcome.
 
 ////
 TODO:
