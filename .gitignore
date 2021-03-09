@@ -2,3 +2,4 @@ output/
 etc/
 .asciidoc/
 .vscode/
+.asciidoctor/
