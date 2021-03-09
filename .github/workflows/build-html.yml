@@ -31,5 +31,5 @@ jobs:
         cd output
         git add .
         git commit -m "Building site from action"
-        git push https://oscarlvp:${{ secrets.GITHUB_TOKEN }}@github.com/oscarlvp/vandv-classes.git
+        git push https://oscarlvp:${{ secrets.DEPLOY_TOKEN }}@github.com/oscarlvp/vandv-classes.git
         
