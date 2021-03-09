@@ -19,7 +19,7 @@ jobs:
         ruby-version: 2.6 
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
     - name: Cloning public branch
-      run: git clone --branch public https://oscarlvp:${GITHUB_TOKEN}@github.com/oscarlvp/vandv-classes.git output
+      run: git clone --branch public https://oscarlvp:${{ secrets.GITHUB_TOKEN }}@github.com/oscarlvp/vandv-classes.git output
     - name: Building site
       run: |
         make install
