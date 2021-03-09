@@ -18,6 +18,8 @@ jobs:
       with:
         ruby-version: 2.6 
         bundler-cache: true # runs 'bundle install' and caches installed gems automatically
+    - name: Setup Graphviz
+      uses: ts-graphviz/setup-graphviz@v1
     - name: Cloning public branch
       run: git clone --branch public https://oscarlvp:${{ secrets.GITHUB_TOKEN }}@github.com/oscarlvp/vandv-classes.git output
     - name: Building site
@@ -29,5 +31,5 @@ jobs:
         cd output
         git add .
         git commit -m "Building site from action"
-        git push
+        git push https://oscarlvp:${{ secrets.GITHUB_TOKEN }}@github.com/oscarlvp/vandv-classes.git
         
