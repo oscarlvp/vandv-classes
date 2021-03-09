@@ -29,7 +29,8 @@ jobs:
     - name: Updating remote branch
       run: |
         cd output
+        git config user.name ${GITHUB_ACTOR}
         git add .
-        git commit -m "Building site from action"
+        git commit --allow-empty -m "Building site ${GITHUB_SHA}"
         git push https://oscarlvp:${{ secrets.DEPLOY_TOKEN }}@github.com/oscarlvp/vandv-classes.git
         
