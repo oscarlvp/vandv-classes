@@ -1,12 +1,15 @@
-install:
-	bundle install
+.PHONY: all html pdf clean
 
-html:
-	bundle exec asciidoctor --trace -r asciidoctor-diagram content/00-main.adoc --destination-dir output/ --out-file index.html
-	cp content/images/* output/images
+output/html/index.html:
+	asciidoctor --trace -r asciidoctor-diagram content/00-main.adoc --destination-dir output/html/ --out-file index.html
 
-pdf:
-	bundle exec asciidoctor-pdf -r asciidoctor-diagram  content/00-main.adoc --destination-dir output/ --out-file vandv.pdf
+output/pdf/vandv.pdf:
+	asciidoctor-pdf -r asciidoctor-diagram  content/00-main.adoc --destination-dir output/pdf/ --out-file vandv.pdf
+
+html: output/html/index.html
+	cp content/images/* output/html/images
+
+pdf: output/pdf/vandv.pdf
 
 all: html pdf
 

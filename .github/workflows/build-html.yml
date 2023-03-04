@@ -21,14 +21,12 @@ jobs:
     - name: Setup Graphviz
       uses: ts-graphviz/setup-graphviz@v1
     - name: Cloning public branch
-      run: git clone --branch public https://oscarlvp:${{ secrets.GITHUB_TOKEN }}@github.com/oscarlvp/vandv-classes.git output
+      run: git clone --branch public https://oscarlvp:${{ secrets.GITHUB_TOKEN }}@github.com/oscarlvp/vandv-classes.git output/html
     - name: Building site
-      run: |
-        make install
-        make html
+      run: make html
     - name: Updating remote branch
       run: |
-        cd output
+        cd output/html
         git config user.name ${GITHUB_ACTOR}
         git add .
         git commit --allow-empty -m "Building site ${GITHUB_SHA}"

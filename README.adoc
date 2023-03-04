@@ -1,17 +1,3 @@
 = Validation and Verification M2 ISTIC materials
 
 This repository contains the class notes of the Validation and Verification subject taught at ISTIC Master 2 level.
-
-== Requisites
-
-- https://www.gnu.org/software/make/[Make]
-- https://www.ruby-lang.org/[Ruby 2.6.5]
-- https://bundler.io/[Bundler]
-
-== Building
-
-In the root directory of the project first execute `make install`. 
-This will invoke `bundle install` to create a local environment with the required gems.
-Then execute `make html` to obtain the HTML version or `make pdf` to obtain a pdf.
-Executing `make all` will generate both formats.
-All results are stored in the `output` folder.
