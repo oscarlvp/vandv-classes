@@ -291,19 +291,21 @@ Design By Committee:: A software design, usually from a committee, that is so co
 
 ==== Code Metrics
 
-Many code smells are vague in their formulation. For example: How can we tell that a method or a class is too long? Or, how can we tell that two classes are too coupled together so their functionalities should be merged or rearranged? The identification of such potential issues requires concrete measurements for the method length or the coupling between classes. These are known as _code metrics_.
+Many code smells are vague in their formulation. For example: How can we tell that the code of a method or a class is too long? Or, how can we tell that two classes are too coupled together so their functionalities should be merged or rearranged? The automatic identification of such potential issues requires a concrete characterization of the method length or the coupling between classes. These characterizations are usually achieved with the help of _code metrics_.
 
-Code metrics are quantitative characterizations of code features. They are used to assess the structural quality of the software and provide an effective and customizable way to automate the detection of potential code issues. This section presents some examples of commonly used metrics.
+Code metrics compute quantitative code features, for example, how many lines of code have been used to write a method, or how many instance variables does the method access or modify. Metrics can be used to assess the structural quality of the software. They provide an effective and customizable way to automate the detection of potential code issues. Computing the length of a method in terms of lines of code may help to detect those that are too big an could pose a maintenance problem. Obtaining such metrics is relatively easy an can be automated so it could be done when we compile or build our project. Once metrics are computed, we can set thresholds to identify parts of the code that could be problematic, as an example, we could consider as long any method with more than 20 lines of code. However not all projects or languages would consider the same threshold values: in some scenarios methods with more than 30 lines are perfectly valid and common.
+
+This section presents some examples of the most common metrics used in practice.
 
 ===== Lines of Code
 
-The simplest code metric is, maybe, the number of _Lines of Code_ (LoC) of a method.
+The simplest code metric is, maybe, the already mentioned number of _Lines of Code_ (LoC) of a method.
 
 NOTE: Sometimes code metrics are presented for _operations_ instead of methods. _Operations_ are indeed methods but the term is broader to escape from the Object-Oriented terminology and reach other programming paradigms.
 
-LoCs can be used to compare the length of the methods in a project. It helps to detect those methods that are too long when compared to a given threshold. However, this threshold depends on the development practices used for the project. The programming language as well as the frameworks and libraries supporting the code do have an impact on the length of the methods. For example, a small study made by Jon McLoone from Wolfram <<mcloone2012code>>, observed in http://rosettacode.org/wiki/Rosetta_Code[Rosetta Code] programs that _Mathematica_ requires _less than a third of the length of the same tasks written in other languages_.
+A long method is hard to understand, maintain and evolve. LoCs can be used to compare the length of the methods in a project and detect those  that are too longer than a given threshold. However, this threshold depends on the development practices used for the project. The programming language as well as the frameworks and libraries supporting the code, have an impact on the length of the methods. For example, a small study made by Jon McLoone from Wolfram <<mcloone2012code>>, observed in the http://rosettacode.org/wiki/Rosetta_Code[Rosetta Code] corpus of programs, that many of those written with  _Mathematica_ require _less than a third of the length of the same tasks written in other languages_.
 
-Including blank lines or lines with comments in the metric may be misleading. Therefore, LoC is often referred as _Physical Lines of Code_ while developers also measure _Logical Lines of Code_ (LLoC) which counts the number of programming language statements in the method. 
+Including blank lines or lines with comments in the metric could be misleading. Therefore, LoC is often referred as _Physical Lines of Code_ while developers also measure _Logical Lines of Code_ (LLoC) which counts the number of programming language statements in the method. 
 
 [[cyclomatic-section]]
 ===== Cyclomatic Comprexity
@@ -381,11 +383,11 @@ digraph {
 }
 ....
 
-The cyclomatic complexity of a program, represented by its control flow graph, is defined as stem:[v(G) = E - V + 2P], where stem:[N] is the number of nodes, stem:[E] the number of edges and stem:[P] the number of connected components or the underlying undirected graph. In the way we have defined the control flow graph, stem:[P] will always be 1. This metric is directly derived from the cyclomatic number or circuit rank of the undirected graph. This property represents the minimum number of edges that has to be removed in order to break all cycles and obtain a spanning tree.
+The cyclomatic complexity of a program, represented by its control flow graph, is defined as stem:[v(G) = E - V + 2P], where stem:[N] is the number of nodes, stem:[E] the number of edges and stem:[P] the number of connected components of the underlying undirected graph. In the way we have defined the control flow graph, stem:[P] is always 1. This metric is directly derived from the cyclomatic number or circuit rank of the undirected graph. This property represents the minimum number of edges that has to be removed in order to break all cycles and obtain a spanning tree.
 
-McCabe showed that the computation of the  cyclomatic complexity could be simplified as the number of predicate nodes (conditionals) plus one. The method in <<max-method>> has a cyclomatic complexity of stem:[v(G) = 4 = 3 + 1], as it has three conditionals: `a > b`, `a > c` and `b > c`. It can be also computed as stem:[v(G) = 4 = 11 - 9 + 2], as it has eleven edges, nine nodes and only one connected component.
+McCabe showed that the computation of the cyclomatic complexity could be simplified as the number of predicate nodes (conditionals) plus one. The method in <<max-method>> has a cyclomatic complexity of stem:[v(G) = 4 = 3 + 1], as it has three conditionals: `a > b`, `a > c` and `b > c`. It can be also computed as stem:[v(G) = 4 = 11 - 9 + 2], as it has eleven edges, nine nodes and only one connected component.
 
-McCabe's cyclomatic complexity is well known and widely used. It is frequently accompanied by a scale. Values below 10 are usually considered as good. However, some caveats of the metrics must be taken into account. First, it was conceived for unstructured programs and some aspects of its original definition are vague. Modern tools implementing the metric work under different assumptions, therefore two different tools may not produce the same result for the same method. Logical conjunctions and disjunctions (`&&`, `||`) also produce branches but not all tools include them in their result.
+McCabe's cyclomatic complexity is well known and widely used. It is frequently accompanied by a scale. Values below 10 are usually considered as good. However, some caveats of the metrics must be taken into account. First, it was conceived for unstructured programs and some aspects of its original definition are vague. Modern tools implementing the metric work under different assumptions, therefore two different tools may not produce the same result for the same method. Logical conjunctions and disjunctions (`&&` and `||` in some programming languages) also produce branches but not all tools include them in their results.
 
 Not always the cyclomatic complexity matches the developer's idea of what is a complex method. For example, the metric does not consider nested structures. It produces the same value for the two code fragments in <<ifs-mccabe>>.
 
@@ -421,7 +423,7 @@ else {
 }
 ----
 
-In <<hummel2014mccabe>>, the author advocates against the use of the metric. Besides showing concrete examples where tools produce different results, he shows the method in <<hummel-switch>>. The author explain that this method is fairly easy to understand, yet it has a cyclomatic complexity of 13 while the more complex method in <<hummel-primes>> has a cyclomatic complexity of 5. 
+In <<hummel2014mccabe>>, the author advocates against the use of the metric. Besides showing concrete examples where tools produce different results, he discusses the method in <<hummel-switch>>. The author explain that this method is fairly easy to understand, yet it has a cyclomatic complexity of 13 while the more complex method in <<hummel-primes>> has a cyclomatic complexity of 5. 
 
 [[hummel-switch, Listing {counter:listing}]]
 .Listing {listing}. A simple method with a cyclomatic complexity of 13. Taken from <<hummel2014mccabe>>.
@@ -470,9 +472,9 @@ int sumOfNonPrimes(int limit) {
 
 ===== Coupling between objects or class coupling
 
-A class is coupled to another if the former uses a method or a field from the latter. Coupling between classes can not be avoided, it is, in fact, desirable. We create classes as functional units for reuse. At some point, existing classes will be leveraged to create new functionalities. However, coupling has important implications: changing a class most of the times will require changing its dependent classes. Therefore, tight coupling between classes harms modularity, makes a software too sensitive to change and harder to maintain <<chidamber1994metrics>> <<fowler2001reducing>>.
+A class is coupled to another if the former uses a method or a field from the latter. Coupling between classes can not be avoided, it is, in fact, desirable. We create classes as functional units for reuse. At some point, existing classes will be leveraged to create new functionalities. However, coupling has important implications: changing a class will, most of the times, require changing its dependent classes. Therefore, tight coupling between classes harms modularity and makes a software too sensitive to change and harder to maintain <<chidamber1994metrics>> <<fowler2001reducing>>.
 
-_Class coupling_ or _Coupling Between Objects_ (CBO) of a class is the number of external classes it uses. In <<coupling-example>>, `Point` has CBO of 0. It only depends on `double` and the metric does not count primitive types. `Line`, on the other hand, depends on `Point` and has a CBO of 1. The metric counts only unique classes. In the example, `Line` uses `Point` several times, but it is counted only once.
+_Class coupling_ or _Coupling Between Objects_ (CBO) of a class is the number of external classes it uses. In <<coupling-example>>, `Point` has CBO of 0. It only depends on `double` and the metric does not consider primitive types. `Line`, on the other hand, depends on `Point` and has a CBO of 1. The metric counts only unique classes. In the example, `Line` uses `Point` several times, but it is counted only once.
 
 [[coupling-example, Listing {counter:listing}]]
 .Listing {listing}. Two classes: `Point` as CB=0 coupling and `Line` 1.
@@ -527,7 +529,7 @@ Classes with low CBO values, or loosely coupled are easier to reuse. Classes wit
 
 Coupling could be measured not only at the class level but also between any modules at all granularity levels (_e.g._, packages, components...).
 
-The _Law of Demeter_ (LoD)  or _principle of least knowledge_ is a guideline aiming to keep classes loosely coupled <<appleton_demeter>>. Its idea is that any unit should only "_talk_" to "_its closest friends_" and not to "_strangers_". In the context of object-oriented programming, it means that a method can only invoke methods from the receiver (`this`), a parameter, an object instantiated in the method and an attribute of the class. <<demeter-example>> shows examples of violations of this principle.
+The _Law of Demeter_ (LoD)  or _principle of least knowledge_ is a guideline aiming to keep classes loosely coupled <<appleton_demeter>>. Its idea is that any unit should only "_talk_" to "_its closest friends_" and not to "_strangers_". In the context of Object-Oriented Programming, it means that a method can only invoke methods from the receiver (`this`), a parameter, an object instantiated in the method or an attribute of the class. <<demeter-example>> shows examples of a good use and some violations of this principle.
 
 [[demeter-example, Listing {counter:listing}]]
 .Listing {listing}. Examples of violations of the Law of Demeter.
@@ -552,7 +554,7 @@ public class Foo {
 <3> Chaining method invocations does not conform to LoD
 <4> Conforms to LoD, as `d` was created inside the method
 
-LoD also has downsides. A strict adherence to its postulates may produce many unnecessary wrapper methods. In <<demeter-example>> the class `Bar` should had a wrapper method `doItInC` whose code could be `this.getC().doIt()` or something alike. This kind of wrapper would be widespread in the code and it could become a challenge for maintenance. On the other hand, fluent APIs encourage the use of method chains, which also tends to improve readability.
+LoD has downsides as well. A strict adherence to its postulates may produce many unnecessary wrapper methods. In <<demeter-example>> the class `Bar` should had a wrapper method `doItInC` whose code could be `this.getC().doIt()` or something alike. This kind of wrapper would be widespread in the code and it could become a challenge for maintenance. On the other hand, fluent APIs encourage the use of method chains, which also tends to improve readability.
 
 ===== Class cohesion
 
@@ -632,8 +634,7 @@ class Group {
 
 __Tight Class Cohesion__ (TCC) and _Loose Class Cohesion_ (LCC) are other two well known and used metrics to evaluate the cohesion of a class <<bieman1995cohesion>>. Both these metrics start by creating a graph from the class. The graph is constructed as follows: Given a class `C`, each method `m` declared in the class becomes a node. Given any two methods `m` and `n` declared in `C` we add an edge between `m` and `n` if and only if, `m` and `n` use at least one instance variable in common. Going back to the definition of `LCOM`, we add an edge between `m` and `n` if stem:[I_{m,n} \ne \emptyset]. TCC is defined as the ratio of directly connected pairs of node in the graph to the number or all pairs of nodes. On its side, LCC is the number of pairs of connected (directly or indirectly) nodes to all pairs of node. As before, constructors are not used.
 
-
-<<cohesion-graph>> shows the graph that results from the class `Point`. In this example, stem:[\text{TCC = 5/6 = 0.83] as there are 5 direct connections and only 6 method pairs. On the other hand stem:[\text{LCC} = 6/6 = 1] as all pairs of methods are indirectly or directly connected. For the `Group` class both LCC and TCC are 0, as no method is connected to the other. 
+<<cohesion-graph>> shows the graph that results from the class `Point`. In this example there are 5 edges or direct connections, and, as there are 4 nodes, then there are 6 node or methods pairs in total. Therefore stem:[\text{TCC = 5/6 = 0.83]. On the other hand, all nodes are connected and stem:[\text{LCC} = 6/6 = 1].
 
 [[cohesion-graph]]
 [graphviz, cohesion-graph, png, layout=neato]
@@ -649,13 +650,13 @@ graph {
     getY -- sub[label=y];
     getX -- dot[label=x];
     getY -- dot[label=y];
-    sum -- dot [label="x,y"];
+    sub -- dot [label="x,y"];
 }
 ....
 
+If we do the same for the `Group` class, we obtain a graph where all nodes are disconnected and both LCC and TCC are 0. 
 
-In object-oriented programs a class may inherit methods and instance variables from its base classes. In those cases, computing the cohesion of a subclass may: include only inherited methods, only inherited fields, or both. The original definition of TCC and LCC leaves this inclusion open to the users of the metrics <<bieman1995cohesion>>.
-
+In object-oriented programs a class may inherit methods and instance variables from its base classes. In those cases, computing the cohesion of a subclass may: include only inherited methods, only inherited fields, or both. The original definitions of TCC and LCC are open with respect of inherited members. Users of the metrics should decide whether to include them or not <<bieman1995cohesion>>.
 
 === Static analysis
 

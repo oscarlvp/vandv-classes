@@ -1,5 +1,10 @@
-= Validation and Verification : Course Notes
+= Software Validation and Verification: Course Notes
 Oscar Luis Vera-Pérez <oscarlvp@gmail.com>
+2.0, {docdate}
+:description: Conference notes for the Software Validation and Verification course taught at the http://https://istic.univ-rennes1.fr/[University of Rennes 1 (ISTIC)] and the https://https://esir.univ-rennes.fr/[École Supérieure d'Ingénieurs de Rennes (ESIR)]
+:keywords: software, testing, static analysis, coverage criteria, mutation testing, fuzzing, graphical user interface
+:doctype: book
+:copyright: https://creativecommons.org/licenses/by-nc-sa/4.0/[ Creative Commons Attribution-NonCommercial-ShareAlike 4.0 International License]
 :sectnums:
 :stem:
 :imagesdir: images/
@@ -9,16 +14,21 @@ Oscar Luis Vera-Pérez <oscarlvp@gmail.com>
 :toc: left
 :toclevels: 4
 :xrefstyle: short
-
 :numbered!:
+
+
+[colophon]
 == Note about the notes
 
-These course notes have been initially inspired from the (inherited and redefined) conferences taught by Jean-Marc Jézéquel, Yves Le Traon, Benoit Baudry and Benoit Combemale, who also provided feedback and proofread the material.
+(C) 2023. This document is licensed under the {copyright}. 
 
-The initial content has been enriched with materials from the https://cs.gmu.edu/~offutt/softwaretest/["Introduction to Software Testing"] book written by Paul Ammann and Jeff Offutt, https://www.fuzzingbook.org/["The Fuzzing Book"] by Andreas Zeller, Rahul Gopinath, Marcel Böhme, Gordon Fraser, and Christian Holler and the https://www.youtube.com/playlist?list=PL3bOx_OjZk8EvOo3un0xeGpXlqGT2YQXa[online material on GUI testing] published by Tanja Vos.
-Many other bibliographical sources and materials were also used and appear in the <<99-references.adoc#_references,References>> section.
+image::cc-by-nc-sa.png[align=center]
 
-As part of the course, students had to complete a set of exercises for each topic. These exercises can be consulted in the following links:
+These notes have been written, edited and published by {author}, using https://asciidoc.org/[AsciiDoc], https://asciidoctor.org[AsciiDoctor 2.0.18] and https://pages.github.com/[Github Pages]. They should be considered as a permanent work in progress. Any constructive feedback is welcome. _All errors are ky own_. 
+
+The initial content of this document was inspired from the (inherited and redefined) conferences taught by Jean-Marc Jézéquel, Yves Le Traon, Benoit Baudry and Benoit Combemale at the University of Rennes. The topics presented in this document have been expanded with content derived from other sources such as the https://cs.gmu.edu/~offutt/softwaretest/["Introduction to Software Testing"] book written by Paul Ammann and Jeff Offutt, https://www.fuzzingbook.org/["The Fuzzing Book"] by Andreas Zeller, Rahul Gopinath, Marcel Böhme, Gordon Fraser, and Christian Holler and the https://www.youtube.com/playlist?list=PL3bOx_OjZk8EvOo3un0xeGpXlqGT2YQXa[online material on GUI testing] published by Tanja Vos. Many other bibliographical sources and materials were also used and appear in the <<99-references.adoc#_references,References>> section. All images from external sources retain their respective copyrights.
+
+As part of the course, students have to complete a set of exercises for each topic. These exercises can be consulted in the following links:
 
 - https://github.com/validation-and-verification-istic/2020-tp1-introduction[Introduction]
 - https://github.com/validation-and-verification-istic/2020-tp2-static-analysis[Code quality and static analysis]
@@ -26,13 +36,10 @@ As part of the course, students had to complete a set of exercises for each topi
 - https://github.com/validation-and-verification-istic/2020-tp4-fuzzing[Fuzzing]
 - https://github.com/validation-and-verification-istic/2020-tp5-gui[GUI testing]
 
-In addition, students had to complete a project in which they were given the source code of a faulty file compression application. The students had to put in practice what they learned to find and correct the faults and to improve the quality of the application code. Details of the project can be found https://github.com/validation-and-verification-istic/2020-project-squeezer[here].
-
-WARNING: These notes are and will always be a work in progress. Any feedback is welcome. They are distributed under the Creative Commons Zero v1.0 Universal license image:https://mirrors.creativecommons.org/presskit/icons/zero.xlarge.png[LICENSE,20,20].
-
 ////
 TODO:
 Topics to include in the future:
+    - Non-functional testing: evaluating memory and performance issues
     - Variability
     - Metamorphic testing
     - AI 4 Testing and Testing 4 AI

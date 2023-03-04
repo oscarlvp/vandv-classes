@@ -1,35 +1,40 @@
 == Introduction
 
-Software has become omnipresent in our daily lives. Some people say that "`software is eating the world`" <<andreessen2011why>>. Nowadays, we depend more and more on the Internet and the Web. They are powered by complex interconnected software systems. We trust software to predict the weather, to guard our bank accounts and to order pizza. Through software we communicate with other people and share our photos. We use streaming services to watch films and listen to music. 
+Software has become omnipresent in our daily lives. Some people even dare to say that "`software is eating the world`" <<andreessen2011why>>. Nowadays, we depend more and more on the Internet and the Web which are powered by complex interconnected software systems. We trust software to predict the weather, to guard our bank accounts and to order pizza. Through software we communicate with other people and share our photos. We also use streaming services to watch films and listen to music.
 
-Due to its widespread presence there are consequences when software is not properly developed. In some cases, a software failure has no other repercussion than a hilarious "blue screen of death" in an advertising screen. But, software issues may also cost important amounts of money, they may undermine the reputation of companies and, in some extreme cases, they might even cost human lives. 
+Due to its widespread presence there are consequences when software is not properly developed. In some cases, a software glitch has no other repercussion than a hilarious "blue screen of death" in an advertising screen. Sadly, software issues may also cost important amounts of money, they may undermine the reputation of companies and, in some extreme cases, they might even cost human lives.
 
-We need to verify software, in other words, we need to check whether software works as expected. This course will briefly introduce some of the most relevant techniques and tools to achieve that goal. 
+As developers we need to be sure that the software we build works as expected. This course will briefly introduce some of the most relevant techniques and tools to achieve that goal. 
 
-=== What is a bug?
+=== Bugs, faults, errors and failures
 
-We say that a software has a _bug_ when its behavior produces unexpected results. The term _bug_ has been usually attributed to Grace Hooper. She was involved in the programming and operation of the Mark II, an electromechanical computer of 23 tons and the size of a room. She was also the creator of the first compiler and the only woman to be ranked admiral in the U.S. Navy. Her group traced a computer malfunction to a moth in one of the relays of the machine. This is the first documented case of a computer "bug". The moth was included in one of the notebooks that were used to log the computer's operation. It can be seen nowadays at the Smithsonian Institution's National Museum of American History in Washington D.C <<img-bug>>. However, Thomas Alva Edison already used the term for something similar in his inventions <<wikipedia2020bug>>.
+Along with the proliferation of software, the term _bug_ is nowadays known to most people. We say that a software or program has a _bug_ when its behavior produces unexpected results. Bugs may manifest in very different ways, for example, a web page we visit returns an error message instead of the desired content or a character does not jump when we press the right button while playing a video game.
+
+The term _bug_ in Computer Science and Software Engineering has been usually attributed to Grace Hooper. She was involved in the programming and operation of the Mark II, an electromechanical computer of 23 tons and the size of a room. She was also the creator of the first compiler and the only woman to be ranked admiral in the U.S. Navy. Her group traced a computer malfunction to a moth in one of the relays of the machine. This is the first documented case of a computer "bug". The moth was included in one of the notebooks that this group used to log the computer's operation. It can be seen nowadays at the Smithsonian Institution's National Museum of American History in Washington D.C <<img-bug>>. However, some historical records state that Thomas Alva Edison already used the term for something similar in his inventions.<<wikipedia2020bug>>.
+
+// TODO: Change the reference to the American Genesis book reference.
 
 [[img-bug]]
 [role=text-center]
-.First known case of an actual bug! _Photo taken from Wikipedia._
+.First known case of an actual bug! _Photo taken from the https://www.history.navy.mil/our-collections/photography/numerical-list-of-images/nhhc-series/nh-series/NH-96000/NH-96566-KN.html[U. S. Naval Historical Center Online Library]_
 image::first-bug.jpg[First bug, 300]
 
-When they develop a product, software engineers should follow a set of requirements which is called the product specification. In whatever format it is presented, the specification should describe the features of the product (functional requirements): _e.g._: the program should open a document, save it, etc. and its constraints (non-functional requirements): _e.g._: should be secure, easy to use, fast <<mancoridis2018slides>>.
 
-A bug appears when the software does not match the requirements. Maybe the program does not perform correctly a functional requirement _e.g._  the window closes when the maximize button is pressed. Also, bugs can make a program violate non-functional requirement _e.g._ there is a lag between the moment the user types something and the moment the text appears on the screen.
+Software development usually follows a set of requirements called the _product specification_. In whatever format it is presented, the specification should describe the features the software will have (functional requirements): _e.g._: the program should open a document, save it, the user should be able to change the format and so on. Specifications also include the constraints under which the software should work (non-functional requirement): _e.g._: the program should be secure, easy to use and fast <<mancoridis2018slides>>.
+
+A bug appears when the software does not match the requirements. Maybe the program does not perform correctly a functional requirement _e.g._  the window closes when the maximize button is pressed or part of a document is not correctly formatted. Also, bugs can make a program violate non-functional requirement _e.g._ there is a lag between the moment the user types something and the moment the text appears on the screen.
 
 Bugs or _faults_ are produced by human mistakes in the development process. A fault induces a wrong state or _error_ during the execution of the software. When the error produces an incorrect behavior of the program we see a _failure_.
 
 We define _faults_, _errors_ and _failures_ as follows <<moller1993empirical>>, <<ghahrai2018error>>, <<amman2017introduction>>:
 
-Software Fault, Software Defect, Bug:: a manifestation of a human mistake in software. It is a static flaw or imperfection found within the code.
-Software Error:: An incorrect internal state of the program during execution and produced by a _fault_. 
-Software Failure:: a deviation of the software from its expected delivery or service.
+Software Fault, Software Defect, Bug:: Is a manifestation of a human mistake in software. It is a static flaw or imperfection found within the code of a program.
+Software Error:: An incorrect internal state of the program during execution produced by a _fault_. 
+Software Failure:: It is a deviation of the software from the expected delivery or service.
 
 A mistake leads to a fault, a fault leads to a software error which leads to a failure when the software is executed. A failure is the manifestation of a bug.
 
-<<fault-example>> shows a recursive implementation of a binary search over an ordered array. Given an ordered array and a number, the `search` method returns the position of the number in the array or -1. The private overload of the method uses two auxiliary parameters to delimit the slice of the array that is inspected on each call. The initial slice is the entire array. When the method is invoked, it compares the element in the middle of the slice with the number given as input. If they are equal, then the position in the middle is returned, otherwise the method is invoked with the first half or the second half of the slice.
+<<fault-example>> shows a recursive implementation of a binary search over an ordered array. Given an ordered array and a number, the `search` method returns the position of the number in the array or -1. The private overload of the method uses two auxiliary parameters to delimit the slice of the array that is inspected on each call. The initial slice is the entire array. When the method is invoked, it compares the element in the middle of the slice with the number given as input. If they are equal, then the position in the middle is returned, otherwise the method is invoked with the first half or the second half of the slice. The procedure continues until the number is found in the array, or when there is evidence that the number is not contained, under the assumption that the array is initially sorted.
  
 
 [[fault-example, Listing {counter:listing}]]
@@ -55,20 +60,20 @@ private static int search(int[] array, int element, int first, int last) {
   return search(array, element, middle, last); //<1>
 }
 ....
-<1> The correct invocation should use `last + 1`.
+<1> This line contains a fault. The correct code should invoke `search` with `middle + 1` instead of `middle`.
 
-This implementation has a fault. The second recursive invocation of search: `search(array, element, half, last)` should use `half + 1` instead of `half`. This fault does not always produce an error. For example, `search(new int[]{0, 6, 8, 10}, 6)` produces the right result. However, `search(new []{0, 6, 8, 10}, 10)`, leads to an invocation where `first=9` and `last=10`. For this invocation `middle=9` and once the comparisons are done, the same method is invoked again with the same parameters, this is the error produced by the initial fault. As method is invoked again with the same parameters, it produces an infinite recursion that is manifested through a stack overflow exception. This exception is the failure that evidences the initial fault. 
+This implementation has a fault. The second recursive invocation of search: `search(array, element, middle, last)` should use `middle + 1` instead of `middle`. This fault does not always produce an error. For example, `search(new int[]{0, 6, 8, 10}, 6)` produces the right result. However, `search(new []{0, 6, 8, 10}, 10)`, leads to an invocation where `first=2` and `last=3`. For this invocation `middle`, which is computed as `(first + last) / 2` results in `middle=2`. Once the comparisons are done, the same method is invoked again with the same parameters. This is not the right program state and thus it becomes the error produced by the initial fault. As the method is invoked again with the same parameters, it produces an infinite recursion that is manifested through a stack overflow exception. The exception becomes the failure that evidences the initial fault.
 
-A failure may come from very different sources. Some of them could be traced to a very localized and specific part of the code, as in the example before. These are considered as _local bugs_. Others may be produced by the interaction of different components of the system and have a global scope. These are considered as _global bugs_. The following sections describe famous local and global bugs.
+Failures may come from all sorts of errors. Some of them could be traced to a very localized and specific part of the code, as in the example before. These are considered as _local bugs_. Others may be encountered at the interaction of different components of the system. These are considered as _global bugs_. The following sections describe some famous local and global bugs.
 
 ==== Local bugs and some famous cases
 
 Local bugs can be traced to very specific locations in the code. They can be originated from multiple types of errors such as:
 
 * Omission of potential cases _e.g._ not considering that negative numbers could be used in certain operations.
-* Lacks of checks _e.g._ check if the parameter is `null` or the divisor must be other than zero.
-* Wrong conditions _e.g._ using the wrong comparison operator.
-* Wrong approximations _e.g._ wrong values due to type conversions or using the wrong partial results.
+* Lacks of checks _e.g._ the code does not verify whether a given parameter is `null` or that divisor must a number different from zero.
+* Wrong conditions _e.g._ using the wrong comparison operator when comparing two numbers.
+* Wrong approximations _e.g._ wrong values due to type conversions when we convert a `double` to an `int` and loose precision.
 
 In the next sections we present some famous local bugs and briefly inspect their causes.
 
@@ -93,18 +98,18 @@ while (days > 365) {
     }
 }
 ----
-<1> On December 31^st^, 2008 `year` was 2008 and `days` 366 so `isLeapYear(year)` evaluated to `true`.
-<2> Since `days` was 366 `days > 366` evaluated to `false`. This is the fault, it should have been `>=`.
+<1> On December 31^st^, 2008 the value of `year` was 2008 and the value of `days` was 366 so `isLeapYear(year)` evaluated to `true`.
+<2> Since the value of `days` was 366 `days > 366` evaluated to `false`. This is the fault, it should have been `>=`.
 <3> This is not executed, therefore the value of `days` does not change.
 <4> This is not executed, therefore the value of `year` does not change.
 
-The values of `days` and `years` do not change which produced a wrong internal state and thus the error. The software enters an infinite loop and the devices become non-responsive.
+The values of `days` and `years` did not change which produced a wrong internal state and thus the error. The software enters an infinite loop and the devices became non-responsive.
 
-By the next day, `days` would be 367 and the code would run perfectly. So Zune devices stop working on December 31^st^ of every leap year.
-
-The issue was not on Microsoft's part. The code was written by another company for the clock chip. This bug is also an example of insufficient testing. Having tested the code with the right date, the bug could have been fixed before the release of the product.
+By the next day, `days` would be 367 and the code would run perfectly. So Zune devices stop working on December 31^st^ of every leap year. The problem could have been found if the code was tested with the right input date before releasing the product.
 
 ===== Heartbleed
+
+// TODO: Reference to https://www.cve.org/CVERecord?id=CVE-2014-0160
 
 *Heartbleed* is a software vulnerability disclosed in April 2014 that granted attackers access to sensitive information. It was caused by a flaw in OpenSSL, an open source code library implementing the Transport Layer Security and Secure Sockets Layer protocols.
 
@@ -136,8 +141,8 @@ s->msg_callback(1, s->version, TLS1_RT_HEARTBEAT,  // <4>
 	s, s->msg_callback_arg);
 ----
 <1> Read payload length into `payload`.
-<2> Allocate memory.
-<3> Copy the payload and extra information as `payload` maybe larger than required.
+<2> Allocate memory using the value from the received message.
+<3> Copy the payload and potentially sensitive extra information as `payload` might be larger than what is really required.
 <4> Send the data back.
 
 ===== Other interesting examples
@@ -146,7 +151,7 @@ The USS Yorktown (CG-48) cruiser was selected in 1996 as the testbed for the _Sm
 
 The _Patriot_ missile defense system was able to track the trajectory of enemy projectiles and intercept them. The system stored the clock time in an integer that was converted to a fixed point number and multiplied by 1/10 to produce the time in seconds for the tracking estimation. The computation was performed in a 24-bit fixed point register and the time value was truncated. This would produce an error proportional to the uptime of the system (_i.e._ it grows in time). Apart from that, the system was updated several times to improve the conversion routine, but the patch was not placed in all the required code locations. On February 25^th^, 1991 one of these Patriot batteries failed to intercept an Iraqi Scud missile. The battery had been up for 100 hours and the chopping error was around 0.34 seconds. Since a Scud travels at 1.676 m/s it reaches more than a half kilometer in this time. The Scud struck an American Army barracks killing 28 soldiers and injuring around 100 other people <<arnold2000patriot>>.
 
-The Chemical Bank deducted by error about $15 million from more than 100000 customers in one night. The problem was caused by a line of code that should not be executed until further changes were made to the system. This line sent a copy of every ATM transaction to the machine processing paper checks, so all transactions were deducted twice <<hansell1994glitch>>. 
+The Chemical Bank deducted by error about $15 million from more than 100000 customers in one night. The problem was caused by a line of code that should not be executed until further changes were made to the system. This line sent a copy of every ATM transaction to the machine processing paper checks so, all transactions were deducted twice <<hansell1994glitch>>. 
 
 ==== Global bugs and famous cases
 
@@ -190,25 +195,27 @@ To prevent this race condition, the code of `paint` should not assume that `art`
 
 On August 14^th^, 2003 the alarm of FirstEnergy, an electric utility in Akron, Ohio, should have alerted about an overload in the electricity transmission lines. A race condition stalled the alarm and the primary sever went down. A backup server started processing all demands and also went down after 13 minutes. With both servers down, the information being shown in the screens passed from a refresh rate of 1 to 3 seconds to 59 seconds. The operators were not aware of the actual condition of the grid and the system collapsed affecting an estimated of 50 million people.
 
-WARNING: You may find an image circulating the Internet that is supposed to show a satellite view of this blackout. The image is in fact fake.
+WARNING: You may find an image circulating the Internet that is supposed to show a satellite view of this blackout. The image is in fact fake or was perhaps edited to show the extension of the affected area.
 
 ===== Ariane 5
 
-The _Ariane 5_ test launch is one of the most referenced examples of the impact that a software bug can have. On June 4^th^ 1996, the rocket was launched by the European Space Agency from the French Guiana. After 40 seconds and at an altitude of more than 3700 meters the rocket exploded.
+The _Ariane 5_ test launch is one of the most referenced examples of the impact that a software bug can have. On June 4^th^ 1996, the rocket was launched by the European Space Agency from the French Guiana. After 40 seconds the rocket exploded at more than 3700 meters of altitude.
 
-In <<jezequel1997design>> the authors explain that, before liftoff, certain computations are performed to align the Inertial Reference System (SRI). These computations should cease at -9 seconds from the launching sequence. But, since there is a chance that a countdown could be put on hold and because resetting the SRI could take several hours, it was better to let the computation proceed than to stop it. The SRI continues for 50 seconds after the start of flight mode. After takeoff this computation is useless. Yet they caused an exception which was not caught, and produced the explosion of the rocket.
+In <<jezequel1997design>> the authors explain that, before liftoff, certain computations are performed to align the Inertial Reference System (SRI). These computations should cease at -9 seconds from the launching sequence. But, since there is a chance that a countdown could be put on hold and because resetting the SRI could take several hours, it was preferable to let the computation proceed than to stop it. The SRI continues for 50 seconds after the start of flight mode. Once the rocket is in the air this computation is not used anymore. However, it caused an exception which was not caught and produced the explosion of the rocket.
 
-Part of the software was reused from _Ariane 4_. It used 16-bit floating point numbers, while _Ariane 5_ used 64-bit. The conversion of a greater value caused the exception. The fact that this module used 16-bit floating point numbers was not documented in the code. The trajectory of _Ariane 5_ differed from that of _Ariane 4_. The former had considerably higher horizontal velocities that produced values above the initial range. This was the first launch after a decade of development with an estimated cost of $7 billion plus the rocket and cargo estimated in $500 million.
+Part of the software of _Ariane 5_ was reused from _Ariane 4_. The later used 16-bit floating point numbers, while the former used 64-bit arithmetic. The conversion of a greater value caused the exception. The fact that this module used 16-bit floating point numbers was not documented in the code. The trajectory of _Ariane 5_ differed from that of _Ariane 4_. The former had considerably higher horizontal velocities that produced values above the initial range. This was the first launch after a decade of development with an estimated cost of US$7 billion plus the rocket and cargo were estimated in US$500 million.
 
 ===== The Mars Climate Orbiter
 
-The Mars Climate Orbiter probe crashed when entering the orbit of Mars. The cause was tracked to the fact that one development team was using the metric units and another team was using the Imperial Unit System. The loss was estimated in US$235.9 million <<ceguerra2001software>>. The subject is still inspiration of many memes cruel jokes.
+The Mars Climate Orbiter probe crashed when entering the orbit of Mars. The cause was tracked to the fact that one development team was using the International System of Units (meters and kilometers) while another team was using the Imperial Unit System (miles and yards). The loss was estimated in US$235.9 million <<ceguerra2001software>>. The subject is still inspiration of many memes cruel jokes.
 
 === Why is it so hard to build correct software?
 
-Software inevitably fails. The causes for this are widely varied as we have seen from the previous examples. No domain related to software escapes from this fact. A failure can have multiple consequences even human lives. But why is it to hard to build correct software?
+Software inevitably fails. The causes for this are widely varied as we have seen from the previous examples. No domain related to software escapes from this fact. A failure can have multiple consequences from banal to terrible. But why is it to hard to build correct software?
 
 First of all, programs are very complex artifacts, even those we may consider simple or trivial.
+
+// TODO: Talk here that a program should be executed by a machine that has physical constraints.
 
 Consider the code presented in <<collatz>>.
 

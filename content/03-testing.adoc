@@ -1292,7 +1292,7 @@ procedure:
         fails = execute(test_suite, mutant) #<2>
         if not fails:
             live_mutants.append(mutant)
-    mutation_score = size(live_mutants)/size(mutants)
+    mutation_score = 1 - size(live_mutants)/size(mutants)
     return  live_mutants, mutation_score #<3>
 ----
 <1> Create mutants based on the mutation operators.
@@ -1390,7 +1390,7 @@ Now, each fault is inserted in isolation from the rest and that each mutant is c
 - Mutant *6* is killed. The result of `size` changed to return `0`. This does not make `testPop` fail but it does make `testPush` fail as the expected value is `1`.
 - Mutant *7* lives. The method is not invoked by any test case, therefore the mutated code is never reached and the mutant lives.
 
-Out fo the seven mutants, two survived the analysis. Then, this small test suite has a score of stem:[\frac{2}{7}]. Inspecting both live mutants we can find hints on how to improve our test suite. 
+Out fo the seven mutants, two survived the analysis. Then, this small test suite has a score of stem:[\frac{5}{7}]. Inspecting both live mutants we can find hints on how to improve our test suite. 
 
 The fault introduced to create mutant *7* is not executed by the test suite. In this sense we say that the mutant is not reached by the test suite. `capacity` is a simple getter, it might be a waste of time to create a test case only to verify it but it exposes part of the internal state of a `BoundedStack` instance. The fact that it is not executed means that we are not verifying this part of the state. So, instead of creating a test case designed to check the functionalities of `capacity` it might be better to check that the other methods do not affect the part of the state that `capacity` exposes. In the case of our example we might verify that the capacity of the stack never changes. See that unreached mutants produce the same information as code coverage.
 
@@ -1400,10 +1400,10 @@ Mutation testing evaluates the test suite as a whole. So, it is not required to 
 
 Although it has gained some attention in the last few years and in spite of being several decades old, mutation testing has still a scarce adoption in industry when compared with code coverage. The main reason for that lay in the limitations of the criterion:
 
-- The mutation testing process is complex. There is a true lack of tooling support with easy integration in the development process beyond academic circles. However, this has been changing with emergence of industrial level tools like PIT, for Java programs <<coles2016pit>>. 
+- The mutation testing process is complex. There is a true lack of tooling support with easy integration in the development process beyond academic circles. However, this has changed with the emergence of industrial level tools like PIT, for Java programs <<coles2016pit>>. 
 - Mutation testing is very expensive in terms of execution time. This is one of the main arguments used against it. The test suite has to be executed for each mutant that is created in the process. The number of mutants, even for very small programs is potentially huge. Also, if the mutants are inserted in the source code then the program needs to be recompiled after the fault is inserted every execution, which increases even more the execution costs.
 - It is hard to interpret the mutation score as a global metric for the quality of the test suite. Code coverage is simpler, it represents the percentage of code that is executed by the test suite. However, the mutation score is tied to the mutation operators we use. It does not mean that we can catch that portion of all possible faults.
-- Live mutants need to be inspected by hand which may be tedious and difficult. The manual inspection has to main goals: understand why the mutant is not killed and obtain hints to improve the test cases and, to sort out mutants equivalent to the original code. Equivalent mutant are a major problem in mutation testing. These are artificial faults that turn out to be functionally equivalent to the original code. They pollute the value of the mutation score and waste the time of developers. In the general case, there is undecidable to determine if a mutant is equivalent to the original program.
+- Live mutants need to be inspected by hand which may be tedious and difficult. The manual inspection has to main goals: understand why the mutant is not killed and obtain hints to improve the test cases and, to sort out mutants equivalent to the original code. Equivalent mutant are a major problem in mutation testing. These are artificial faults that turn out to be functionally equivalent to the original code. They pollute the value of the mutation score and waste the time of developers. In the general case, it is undecidable to determine if a mutant is equivalent to the original program.
 
 Along the years, the community has developed many strategies to cope with the limitations of mutation testing. First, equivalent mutants my not be totally negative. According to Henry Coles, the creator of PIT, they can be often an indication that the original program is redundant and that it could be refactored. <<equivalent-mutant>> shows an example of this phenomenon explained by Coles in <<coles2018making>>.
 
